@@ -29,151 +29,9 @@ using std::tolower;
 using namespace H5;
 
 
-int make_maps( string metadatafilename, string catalog_filename, string mask_filename, bool use_counts, bool use_mags ){
+int make_maps( string catalog_filename, string mask_filename, vector<float> ang_means, vector<float> ang_widths, bool use_counts, bool use_mags ){
     
     int min_footprint_order = 6;
-    
-    // read in the binning metadata
-    ifstream metadatafile( metadatafilename.c_str() );
-    vector<float> z_means;
-    vector<float> z_widths;
-    vector<float> ang_means;
-    vector<float> ang_widths;
-    string line;
-    getline( metadatafile, line );
-    while( !metadatafile.eof()){
-        stringstream linestream(line);
-        
-        // look for z_mean
-        size_t index1 = line.find("z_mean");
-        if(index1 != string::npos){
-            ++index1;
-            while( index1 < line.length() && line[index1] != '[' ){
-                ++index1;
-            }
-            if( line[index1] != '[' ){
-                cerr << "Problem parsing metadata line for z_mean" << endl << line << endl;
-                return 1;
-            }
-            ++index1;
-            while(1){
-                size_t index2 = index1+1;
-                while( index2 < line.length() && (line[index2] != ',' && line[index2] != ']') ){
-                    ++index2;
-                }
-                float val = atof(line.substr(index1, index2-index1).c_str());
-                z_means.push_back(val);
-                if( line[index2] == ']' )
-                    break;
-                ++index2;
-                index1 = index2;
-            }
-        }
-        
-        // look for z_width
-        index1 = line.find("z_width");
-        if(index1 != string::npos){
-            ++index1;
-            while( index1 < line.length() && line[index1] != '[' ){
-                ++index1;
-            }
-            if( line[index1] != '[' ){
-                cerr << "Problem parsing metadata line for z_mean" << endl << line << endl;
-                return 1;
-            }
-            ++index1;
-            while(1){
-                size_t index2 = index1+1;
-                while( index2 < line.length() && (line[index2] != ',' && line[index2] != ']') ){
-                    ++index2;
-                }
-                float val = atof(line.substr(index1, index2-index1).c_str());
-                z_widths.push_back(val);
-                if( line[index2] == ']' )
-                    break;
-                ++index2;
-                index1 = index2;
-            }
-        }
-        
-        // look for ang_mean
-        index1 = line.find("ang_mean");
-        if(index1 != string::npos){
-            ++index1;
-            while( index1 < line.length() && line[index1] != '[' ){
-                ++index1;
-            }
-            if( line[index1] != '[' ){
-                cerr << "Problem parsing metadata line for ang_mean" << endl << line << endl;
-                return 1;
-            }
-            ++index1;
-            while(1){
-                size_t index2 = index1+1;
-                while( index2 < line.length() && (line[index2] != ',' && line[index2] != ']') ){
-                    ++index2;
-                }
-                float val = atof(line.substr(index1, index2-index1).c_str());
-                ang_means.push_back(val);
-                if( line[index2] == ']' )
-                    break;
-                ++index2;
-                index1 = index2;
-            }
-        }
-        
-        // look for ang_width
-        index1 = line.find("ang_width");
-        if(index1 != string::npos){
-            ++index1;
-            while( index1 < line.length() && line[index1] != '[' ){
-                ++index1;
-            }
-            if( line[index1] != '[' ){
-                cerr << "Problem parsing metadata line for z_mean" << endl << line << endl;
-                return 1;
-            }
-            ++index1;
-            while(1){
-                size_t index2 = index1+1;
-                while( index2 < line.length() && (line[index2] != ',' && line[index2] != ']') ){
-                    ++index2;
-                }
-                float val = atof(line.substr(index1, index2-index1).c_str());
-                ang_widths.push_back(val);
-                if( line[index2] == ']' )
-                    break;
-                ++index2;
-                index1 = index2;
-            }
-        }
-        
-        getline( metadatafile, line );
-    }
-    cerr << "z_means: ";
-    for( unsigned int i=0; i<z_means.size(); ++i )
-        cerr << z_means[i] << " ";
-    cerr << endl;
-    cerr << "z_widths: ";
-    for( unsigned int i=0; i<z_widths.size(); ++i )
-        cerr << z_widths[i] << " ";
-    cerr << endl;
-    cerr << "ang_means: ";
-    for( unsigned int i=0; i<ang_means.size(); ++i )
-        cerr << ang_means[i] << " ";
-    cerr << endl;
-    cerr << "ang_widths: ";
-    for( unsigned int i=0; i<ang_widths.size(); ++i )
-        cerr << ang_widths[i] << " ";
-    cerr << endl;
-    if( z_means.size() == 0 || z_widths.size() == 0 || z_means.size() != z_widths.size() ){
-        cerr << "Different length z_means and z_widths arrays??" << endl;
-        return 1;
-    }
-    if( ang_means.size() == 0 || ang_widths.size() == 0 || ang_means.size() != ang_widths.size() ){
-        cerr << "Different length ang_means and ang_widths arrays??" << endl;
-        return 1;
-    }
     
     // From the smallest angular bin width, figure out the necessary map resolution.
     float min_width = 1.e9;
@@ -200,22 +58,62 @@ int make_maps( string metadatafilename, string catalog_filename, string mask_fil
     char line_char[256];
     vector<pointing> pointings;
     vector<double> mags;
+    vector<float> zs;
+    vector<float> zs_spec;
     while( fgets( line_char, 256, file ) ){
-        double ra, dec, z, mag;
-        int num = sscanf(line_char, "%lf %lf %lf %lf", &ra, &dec, &z, &mag );
-        if( num != 4 ){
-            cerr << "Problem reading from file, number of arguments read = " << num << ", not 4" << endl;
+        double ra, dec, mag, z, z_spec;
+        int num = sscanf(line_char, "%lf %lf %lf %lf %lf", &ra, &dec, &mag, &z, &z_spec );
+        if( num != 5 ){
+            cerr << "Problem reading from file, number of arguments read = " << num << ", not 5" << endl;
             return 1;
         }
         double phi = ra*3.1415926/180.;
         double theta = (90.-dec)*3.1415926/180.;
         pointing mypointing(theta, phi);
         pointings.push_back( mypointing );
+        if( z_spec >= 0.0 && z_spec < 10.0 ){
+            zs.push_back(z);
+            zs_spec.push_back(z_spec);
+        }
         if( use_mags )
             mags.push_back( mag );
     }
     fclose( file );    
     cerr << "Read in " << pointings.size() << " objects" << endl;
+
+    // write out the N(z) info table (hdf5)
+    {
+        string outfilename = "nofz.h5";
+        H5File *file = new H5File( outfilename, H5F_ACC_TRUNC ); // clobber!
+        Group* group = new Group( file->createGroup( "/photoz" ));
+        PredType datatype( PredType::NATIVE_DOUBLE );
+        hsize_t dimsf[2];
+        dimsf[1] = 2;
+        int rank = 2;
+
+        double *data = (double*) malloc( sizeof(double) * 2*zs.size() );
+        unsigned int index = 0;
+        for( unsigned int i=0; i<zs.size(); ++i ){
+            data[index] = zs[i];
+            ++index;
+            data[index] = zs_spec[i];
+            ++index;
+        }
+        dimsf[0] = zs.size();
+        DataSpace *dataspace = new DataSpace( rank, dimsf );
+        string datasetname = "/photoz/zpzs";
+        DataSet *dataset = new DataSet( file->createDataSet( datasetname, datatype, *dataspace ) );
+        dataset->write( data, PredType::NATIVE_DOUBLE );
+
+        delete dataspace;
+        delete dataset;
+        free( data );
+        delete group;
+        delete file;
+        
+        cerr << "Wrote N(z) hdf5 file nofz.h5" << endl;
+    }
+
 
     // read in the mask
     string scheme;
@@ -343,335 +241,330 @@ int make_maps( string metadatafilename, string catalog_filename, string mask_fil
     // myfits.close();
     
     // make the maps
-    // one at a time, for kicks (maybe will parallelize later?)
-    for( unsigned int z=0; z<z_means.size(); ++z ){
         
-        // always make the delta_counts map since we need that in order to make the delta_mag MASK
-        Partpix_Map2<double> dcMap(order, footprintMap);
-        dcMap.fill(0.);
-        Partpix_Map2<double> dmMap;
-        double mean_mag = 0.;
-        int n_mags = 0;
+    // always make the delta_counts map since we need that in order to make the delta_mag MASK
+    Partpix_Map2<double> dcMap(order, footprintMap);
+    dcMap.fill(0.);
+    Partpix_Map2<double> dmMap;
+    double mean_mag = 0.;
+    int n_mags = 0;
+    if( use_mags ){
+        dmMap = Partpix_Map2<double>(order, footprintMap);
+        dmMap.fill(0.);
+    }
+    for( unsigned int p=0; p<pointings.size(); ++p ){
+        int64 pixnum = dcMap.ang2pix( pointings[p] );
+        dcMap[pixnum] += 1.0;
         if( use_mags ){
-            dmMap = Partpix_Map2<double>(order, footprintMap);
-            dmMap.fill(0.);
-        }
-        for( unsigned int p=0; p<pointings.size(); ++p ){
-            int64 pixnum = dcMap.ang2pix( pointings[p] );
-            dcMap[pixnum] += 1.0;
-            if( use_mags ){
-                int64 maskpix = dmMask.ang2pix(dmMap.pix2ang(pixnum));
-                if( dmMask[maskpix] > 0.5 ){
-                    dmMap[pixnum] += mags[p];
-                    mean_mag += mags[p];
-                    n_mags++;
-                }
+            int64 maskpix = dmMask.ang2pix(dmMap.pix2ang(pixnum));
+            if( dmMask[maskpix] > 0.5 ){
+                dmMap[pixnum] += mags[p];
+                mean_mag += mags[p];
+                n_mags++;
             }
         }
-        
-        // now make the delta_mag mask for pixels with counts=0
-        // mask out the pixels that don't have any mag info.
-        if( use_mags ){
-            mean_mag /= n_mags;
-            for( int i1=0; i1<dmMap.Npartpix(); ++i1 ){
-                int i = dmMap.highResPix(i1);
-                if( dcMap[i] > 0. ){
-                    dmMap[i] = dmMap[i]/dcMap[i] - mean_mag;
-                }
-                else{
-                    int64 maskpix = dmMask.ang2pix(dmMap.pix2ang(i));
-                    dmMask[maskpix] = 0.0;
-                }
+    }
+    
+    // now make the delta_mag mask for pixels with counts=0
+    // mask out the pixels that don't have any mag info.
+    if( use_mags ){
+        mean_mag /= n_mags;
+        for( int i1=0; i1<dmMap.Npartpix(); ++i1 ){
+            int i = dmMap.highResPix(i1);
+            if( dcMap[i] > 0. ){
+                dmMap[i] = dmMap[i]/dcMap[i] - mean_mag;
+            }
+            else{
+                int64 maskpix = dmMask.ang2pix(dmMap.pix2ang(i));
+                dmMask[maskpix] = 0.0;
             }
         }
-        
-        // now turn the counts map into a delta map
-        double mean_counts = 0.0;
-        double n_pix = 0.0;
+    }
+    
+    // now turn the counts map into a delta map
+    double mean_counts = 0.0;
+    double n_pix = 0.0;
+    for( int64 i1=0; i1<dcMap.Npartpix(); ++i1 ){
+        int64 i = dcMap.highResPix(i1);
+        int64 maskpix = dcMask.ang2pix(dcMap.pix2ang(i));
+        if( dcMask[maskpix] > 0.5 ){
+            mean_counts += dcMap[i];
+            n_pix += 1.0;
+        }
+    }
+    if( n_pix == 0.0 ){
+        cerr << "No counts in the unmasked part of the map??" << endl;
+        return 1;
+    }
+    mean_counts /= n_pix;
+    for( int64 i1=0; i1<dcMap.Npartpix(); ++i1 ){
+        int64 i = dcMap.highResPix(i1);
+        dcMap[i] = dcMap[i]/mean_counts - 1.0;
+    }
+    
+    // counts:
+    {
+    if( use_counts ){
+        // write out the maps (hdf5)
+        string outfilename = "dc_maps.h5";
+        H5File *file = new H5File( outfilename, H5F_ACC_TRUNC ); // clobber!
+        Group* group = new Group( file->createGroup( "/data" ));
+        PredType datatype( PredType::NATIVE_DOUBLE );
+        hsize_t dimsf[2];
+        dimsf[1] = 2;
+        int rank = 2;
+
+        // the map dataset
+        double *data = (double*) malloc( sizeof(double) * 2*dcMap.Npartpix()+2 );
+        data[0] = dcMap.Order();
+        data[1] = RING;
+        unsigned int index = 2;
         for( int64 i1=0; i1<dcMap.Npartpix(); ++i1 ){
             int64 i = dcMap.highResPix(i1);
-            int64 maskpix = dcMask.ang2pix(dcMap.pix2ang(i));
-            if( dcMask[maskpix] > 0.5 ){
-                mean_counts += dcMap[i];
-                n_pix += 1.0;
-            }
+            data[index] = i;
+            ++index;
+            data[index] = dcMap[i];
+            ++index;
         }
-        if( n_pix == 0.0 ){
-            cerr << "No counts in the unmasked part of the map??" << endl;
-            return 1;
+        dimsf[0] = dcMap.Npartpix()+1;
+        DataSpace *dataspace = new DataSpace( rank, dimsf );
+        string datasetname = "/data/map";
+        DataSet *dataset = new DataSet( file->createDataSet( datasetname, datatype, *dataspace ) );
+        dataset->write( data, PredType::NATIVE_DOUBLE );
+        delete dataspace;
+        delete dataset;
+        free( data );
+    
+        // the mask dataset
+        double *data_mask = (double*) malloc( sizeof(double) * 2*dcMask.Npartpix()+2 );
+        data_mask[0] = dcMask.Order();
+        data_mask[1] = RING;
+        index = 2;
+        for( int64 i1=0; i1<dcMask.Npartpix(); ++i1 ){
+            int64 i = dcMask.highResPix(i1);
+            data_mask[index] = i;
+            ++index;
+            data_mask[index] = dcMask[i];
+            ++index;
         }
-        mean_counts /= n_pix;
-        for( int64 i1=0; i1<dcMap.Npartpix(); ++i1 ){
-            int64 i = dcMap.highResPix(i1);
-            dcMap[i] = dcMap[i]/mean_counts - 1.0;
-        }
+        dimsf[0] = dcMask.Npartpix()+1;
+        DataSpace *dataspace_mask = new DataSpace( rank, dimsf );
+        datasetname = "/data/mask";
+        DataSet *dataset_mask = new DataSet( file->createDataSet( datasetname, datatype, *dataspace_mask ) );
+        dataset->write( data_mask, PredType::NATIVE_DOUBLE );
+        delete dataspace_mask;
+        delete dataset_mask;
+        free( data_mask );
         
-        // counts:
-        {
-        if( use_counts ){
-            // write out the maps (hdf5)
-            string outfilename = "dc_maps.h5";
-            H5File *file = new H5File( outfilename, H5F_ACC_TRUNC ); // clobber!
-            Group* group = new Group( file->createGroup( "/data" ));
-            PredType datatype( PredType::NATIVE_DOUBLE );
-            hsize_t dimsf[2];
-            dimsf[1] = 2;
-            int rank = 2;
+        // the metadata
+        Group* metagroup = new Group( file->createGroup( "/meta" ) );
+        DataType metadatatype( H5T_STRING, 1 );
+        rank = 1;
+        dimsf[0] = 1;
+        DataSpace *metadataspace = new DataSpace( rank, dimsf );
+        DataSet *metadataset = new DataSet( file->createDataSet( "/meta/meta", metadatatype, *metadataspace ) );
 
-            // the map dataset
-            double *data = (double*) malloc( sizeof(double) * 2*dcMap.Npartpix()+2 );
-            data[0] = dcMap.Order();
-            data[1] = RING;
-            unsigned int index = 2;
-            for( int64 i1=0; i1<dcMap.Npartpix(); ++i1 ){
-                int64 i = dcMap.highResPix(i1);
-                data[index] = i;
-                ++index;
-                data[index] = dcMap[i];
-                ++index;
-            }
-            dimsf[0] = dcMap.Npartpix()+1;
-            DataSpace *dataspace = new DataSpace( rank, dimsf );
-            string datasetname = "/data/map";
-            DataSet *dataset = new DataSet( file->createDataSet( datasetname, datatype, *dataspace ) );
-            dataset->write( data, PredType::NATIVE_DOUBLE );
-            delete dataspace;
-            delete dataset;
-            free( data );
-        
-            // the mask dataset
-            double *data_mask = (double*) malloc( sizeof(double) * 2*dcMask.Npartpix()+2 );
-            data_mask[0] = dcMask.Order();
-            data_mask[1] = RING;
-            index = 2;
-            for( int64 i1=0; i1<dcMask.Npartpix(); ++i1 ){
-                int64 i = dcMask.highResPix(i1);
-                data_mask[index] = i;
-                ++index;
-                data_mask[index] = dcMask[i];
-                ++index;
-            }
-            dimsf[0] = dcMask.Npartpix()+1;
-            DataSpace *dataspace_mask = new DataSpace( rank, dimsf );
-            datasetname = "/data/mask";
-            DataSet *dataset_mask = new DataSet( file->createDataSet( datasetname, datatype, *dataspace_mask ) );
-            dataset->write( data_mask, PredType::NATIVE_DOUBLE );
-            delete dataspace_mask;
-            delete dataset_mask;
-            free( data_mask );
-            
-            // the metadata
-            Group* metagroup = new Group( file->createGroup( "/meta" ) );
-            DataType metadatatype( H5T_STRING, 1 );
-            rank = 1;
-            dimsf[0] = 1;
-            DataSpace *metadataspace = new DataSpace( rank, dimsf );
-            DataSet *metadataset = new DataSet( file->createDataSet( "/meta/meta", metadatatype, *metadataspace ) );
-
-            stringstream ang_mean_line;
-            ang_mean_line << "[" << ang_means[0];
-            for( unsigned int i=1; i<ang_means.size(); ++i ){
-                ang_mean_line << ", " << ang_means[i];
-            }
-            ang_mean_line << "]";
-
-            // Create new dataspace for attribute
-            DataSpace attr1_dataspace = DataSpace( H5S_SCALAR );
-    
-            // Create new string datatype for attribute
-            StrType strdatatype( PredType::C_S1, ang_mean_line.str().size()+1 ); // of length 256 characters
-    
-            // Set up write buffer for attribute
-            const H5std_string u_mean_buf( ang_mean_line.str().c_str() );
-    
-            // Create attribute and write to it
-            Attribute u_mean_attr = metadataset->createAttribute("u_mean", strdatatype, attr1_dataspace);
-            u_mean_attr.write(strdatatype, u_mean_buf);
-
-            stringstream ang_widths_line;
-            ang_widths_line << "[" << ang_widths[0];
-            for( unsigned int i=1; i<ang_widths.size(); ++i ){
-                ang_widths_line << ", " << ang_widths[i];
-            }
-            ang_widths_line << "]";
-
-            // Create new dataspace for attribute
-            DataSpace attr2_dataspace = DataSpace( H5S_SCALAR );
-    
-            // Create new string datatype for attribute
-            strdatatype = StrType( PredType::C_S1, ang_widths_line.str().size()+1 ); // of length 256 characters
-    
-            // Set up write buffer for attribute
-            const H5std_string u_widths_buf( ang_widths_line.str().c_str() );
-    
-            // Create attribute and write to it
-            Attribute u_width_attr = metadataset->createAttribute("u_width", strdatatype, attr2_dataspace);
-            u_width_attr.write(strdatatype, u_widths_buf);
-
-            // Create new dataspace for attribute
-            DataSpace attr3_dataspace = DataSpace( H5S_SCALAR );
-            // Create new string datatype for attribute
-            strdatatype = StrType( PredType::C_S1, 6 ); // of length 256 characters
-            // Set up write buffer for attribute
-            const H5std_string fourier_buf( "false" );
-            // Create attribute and write to it
-            Attribute fourier_attr = metadataset->createAttribute("fourier", strdatatype, attr3_dataspace);
-            fourier_attr.write(strdatatype, fourier_buf);
-            
-            
-            // Create new dataspace for attribute
-            DataSpace attr4_dataspace = DataSpace( H5S_SCALAR );
-            // Create new string datatype for attribute
-            strdatatype = StrType( PredType::C_S1, 11 ); // of length 256 characters    
-            // Set up write buffer for attribute
-            const H5std_string ftype_buf( "[\"counts\"]" );    
-            // Create attribute and write to it
-            Attribute ftype_attr = metadataset->createAttribute("ftype", strdatatype, attr4_dataspace);
-            ftype_attr.write(strdatatype, ftype_buf);
-            
-            
-            delete metadataspace;
-            delete metadataset;
-            
-            delete group;
-            delete metagroup;
-            delete file;
-            
-            cerr << "Wrote delta counts map (" << dcMap.Npartpix() << " + " << dcMask.Npartpix() << " entries) to file" << endl;
+        stringstream ang_mean_line;
+        ang_mean_line << "[" << ang_means[0];
+        for( unsigned int i=1; i<ang_means.size(); ++i ){
+            ang_mean_line << ", " << ang_means[i];
         }
+        ang_mean_line << "]";
+
+        // Create new dataspace for attribute
+        DataSpace attr1_dataspace = DataSpace( H5S_SCALAR );
+
+        // Create new string datatype for attribute
+        StrType strdatatype( PredType::C_S1, ang_mean_line.str().size()+1 ); // of length 256 characters
+
+        // Set up write buffer for attribute
+        const H5std_string u_mean_buf( ang_mean_line.str().c_str() );
+
+        // Create attribute and write to it
+        Attribute u_mean_attr = metadataset->createAttribute("u_mean", strdatatype, attr1_dataspace);
+        u_mean_attr.write(strdatatype, u_mean_buf);
+
+        stringstream ang_widths_line;
+        ang_widths_line << "[" << ang_widths[0];
+        for( unsigned int i=1; i<ang_widths.size(); ++i ){
+            ang_widths_line << ", " << ang_widths[i];
         }
-        // mags:
-        if( use_mags ){
-            // write out the maps (hdf5)
-            string outfilename = "dm_maps.h5";
-            H5File *file = new H5File( outfilename, H5F_ACC_TRUNC ); // clobber!
-            Group* group = new Group( file->createGroup( "/data" ));
-            PredType datatype( PredType::NATIVE_DOUBLE );
-            hsize_t dimsf[2];
-            dimsf[1] = 2;
-            int rank = 2;
+        ang_widths_line << "]";
 
-            // the map dataset
-            double *data = (double*) malloc( sizeof(double) * 2*dmMap.Npartpix()+2 );
-            data[0] = dmMap.Order();
-            data[1] = RING;
-            unsigned int index = 2;
-            for( int64 i1=0; i1<dmMap.Npartpix(); ++i1 ){
-                int64 i = dmMap.highResPix(i1);
-                data[index] = i;
-                ++index;
-                data[index] = dmMap[i];
-                ++index;
-            }
-            dimsf[0] = dmMap.Npartpix()+1;
-            DataSpace *dataspace = new DataSpace( rank, dimsf );
-            string datasetname = "/data/map";
-            DataSet *dataset = new DataSet( file->createDataSet( datasetname, datatype, *dataspace ) );
-            dataset->write( data, PredType::NATIVE_DOUBLE );
-            delete dataspace;
-            delete dataset;
-            free( data );
-    
-            // the mask dataset
-            double *data_mask = (double*) malloc( sizeof(double) * 2*dmMask.Npartpix()+2 );
-            data_mask[0] = dmMask.Order();
-            data_mask[1] = RING;
-            index = 2;
-            for( int64 i1=0; i1<dmMask.Npartpix(); ++i1 ){
-                int64 i = dmMask.highResPix(i1);
-                data_mask[index] = i;
-                ++index;
-                data_mask[index] = dmMask[i];
-                ++index;
-            }
-            dimsf[0] = dmMask.Npartpix()+1;
-            DataSpace *dataspace_mask = new DataSpace( rank, dimsf );
-            datasetname = "/data/mask";
-            DataSet *dataset_mask = new DataSet( file->createDataSet( datasetname, datatype, *dataspace_mask ) );
-            dataset->write( data_mask, PredType::NATIVE_DOUBLE );
-            delete dataspace_mask;
-            delete dataset_mask;
-            free( data_mask );
+        // Create new dataspace for attribute
+        DataSpace attr2_dataspace = DataSpace( H5S_SCALAR );
 
-            // the metadata
-            Group* metagroup = new Group( file->createGroup( "/meta" ) );
-            DataType metadatatype( H5T_STRING, 1 );
-            rank = 1;
-            dimsf[0] = 1;
-            DataSpace *metadataspace = new DataSpace( rank, dimsf );
-            DataSet *metadataset = new DataSet( file->createDataSet( "/meta/meta", metadatatype, *metadataspace ) );
+        // Create new string datatype for attribute
+        strdatatype = StrType( PredType::C_S1, ang_widths_line.str().size()+1 ); // of length 256 characters
 
-            stringstream ang_mean_line;
-            ang_mean_line << "[" << ang_means[0];
-            for( unsigned int i=1; i<ang_means.size(); ++i ){
-                ang_mean_line << ", " << ang_means[i];
-            }
-            ang_mean_line << "]";
+        // Set up write buffer for attribute
+        const H5std_string u_widths_buf( ang_widths_line.str().c_str() );
 
-            // Create new dataspace for attribute
-            DataSpace attr1_dataspace = DataSpace( H5S_SCALAR );
-            // Create new string datatype for attribute
-            StrType strdatatype( PredType::C_S1, ang_mean_line.str().size()+1 ); // of length 256 characters
-            // Set up write buffer for attribute
-            const H5std_string u_mean_buf( ang_mean_line.str().c_str() );
-            // Create attribute and write to it
-            Attribute u_mean_attr = metadataset->createAttribute("u_mean", strdatatype, attr1_dataspace);
-            u_mean_attr.write(strdatatype, u_mean_buf);
+        // Create attribute and write to it
+        Attribute u_width_attr = metadataset->createAttribute("u_width", strdatatype, attr2_dataspace);
+        u_width_attr.write(strdatatype, u_widths_buf);
 
-            stringstream ang_widths_line;
-            ang_widths_line << "[" << ang_widths[0];
-            for( unsigned int i=1; i<ang_widths.size(); ++i ){
-                ang_widths_line << ", " << ang_widths[i];
-            }
-            ang_widths_line << "]";
-
-            // Create new dataspace for attribute
-            DataSpace attr2_dataspace = DataSpace( H5S_SCALAR );
-            // Create new string datatype for attribute
-            strdatatype = StrType( PredType::C_S1, ang_widths_line.str().size()+1 ); // of length 256 characters
-            // Set up write buffer for attribute
-            const H5std_string u_widths_buf( ang_widths_line.str().c_str() );
-            // Create attribute and write to it
-            Attribute u_width_attr = metadataset->createAttribute("u_width", strdatatype, attr2_dataspace);
-            u_width_attr.write(strdatatype, u_widths_buf);
-
-            
-            // Create new dataspace for attribute
-            DataSpace attr3_dataspace = DataSpace( H5S_SCALAR );
-            // Create new string datatype for attribute
-            strdatatype = StrType( PredType::C_S1, 6 ); // of length 256 characters
-            // Set up write buffer for attribute
-            const H5std_string fourier_buf( "false" );
-            // Create attribute and write to it
-            Attribute fourier_attr = metadataset->createAttribute("fourier", strdatatype, attr3_dataspace);
-            fourier_attr.write(strdatatype, fourier_buf);
-            
-            
-            // Create new dataspace for attribute
-            DataSpace attr4_dataspace = DataSpace( H5S_SCALAR );
-            // Create new string datatype for attribute
-            strdatatype = StrType( PredType::C_S1, 8 ); // of length 256 characters    
-            // Set up write buffer for attribute
-            const H5std_string ftype_buf( "[\"mag\"]" );    
-            // Create attribute and write to it
-            Attribute ftype_attr = metadataset->createAttribute("ftype", strdatatype, attr4_dataspace);
-            ftype_attr.write(strdatatype, ftype_buf);
-            
-            delete metadataspace;
-            delete metadataset;
-    
-            delete group;
-            delete metagroup;
-            delete file;
-            
-            
-            cerr << "Wrote delta mag map (" << dmMap.Npartpix() << " + " << dmMask.Npartpix() << " entries) to file" << endl;
-
-        }
+        // Create new dataspace for attribute
+        DataSpace attr3_dataspace = DataSpace( H5S_SCALAR );
+        // Create new string datatype for attribute
+        strdatatype = StrType( PredType::C_S1, 6 ); // of length 256 characters
+        // Set up write buffer for attribute
+        const H5std_string fourier_buf( "false" );
+        // Create attribute and write to it
+        Attribute fourier_attr = metadataset->createAttribute("fourier", strdatatype, attr3_dataspace);
+        fourier_attr.write(strdatatype, fourier_buf);
         
         
-    } // for z bins
+        // Create new dataspace for attribute
+        DataSpace attr4_dataspace = DataSpace( H5S_SCALAR );
+        // Create new string datatype for attribute
+        strdatatype = StrType( PredType::C_S1, 11 ); // of length 256 characters    
+        // Set up write buffer for attribute
+        const H5std_string ftype_buf( "[\"counts\"]" );    
+        // Create attribute and write to it
+        Attribute ftype_attr = metadataset->createAttribute("ftype", strdatatype, attr4_dataspace);
+        ftype_attr.write(strdatatype, ftype_buf);
+        
+        
+        delete metadataspace;
+        delete metadataset;
+        
+        delete group;
+        delete metagroup;
+        delete file;
+        
+        cerr << "Wrote delta counts map (" << dcMap.Npartpix() << " + " << dcMask.Npartpix() << " entries) to file" << endl;
+    }
+    }
+    // mags:
+    if( use_mags ){
+        // write out the maps (hdf5)
+        string outfilename = "dm_maps.h5";
+        H5File *file = new H5File( outfilename, H5F_ACC_TRUNC ); // clobber!
+        Group* group = new Group( file->createGroup( "/data" ));
+        PredType datatype( PredType::NATIVE_DOUBLE );
+        hsize_t dimsf[2];
+        dimsf[1] = 2;
+        int rank = 2;
 
+        // the map dataset
+        double *data = (double*) malloc( sizeof(double) * 2*dmMap.Npartpix()+2 );
+        data[0] = dmMap.Order();
+        data[1] = RING;
+        unsigned int index = 2;
+        for( int64 i1=0; i1<dmMap.Npartpix(); ++i1 ){
+            int64 i = dmMap.highResPix(i1);
+            data[index] = i;
+            ++index;
+            data[index] = dmMap[i];
+            ++index;
+        }
+        dimsf[0] = dmMap.Npartpix()+1;
+        DataSpace *dataspace = new DataSpace( rank, dimsf );
+        string datasetname = "/data/map";
+        DataSet *dataset = new DataSet( file->createDataSet( datasetname, datatype, *dataspace ) );
+        dataset->write( data, PredType::NATIVE_DOUBLE );
+        delete dataspace;
+        delete dataset;
+        free( data );
+
+        // the mask dataset
+        double *data_mask = (double*) malloc( sizeof(double) * 2*dmMask.Npartpix()+2 );
+        data_mask[0] = dmMask.Order();
+        data_mask[1] = RING;
+        index = 2;
+        for( int64 i1=0; i1<dmMask.Npartpix(); ++i1 ){
+            int64 i = dmMask.highResPix(i1);
+            data_mask[index] = i;
+            ++index;
+            data_mask[index] = dmMask[i];
+            ++index;
+        }
+        dimsf[0] = dmMask.Npartpix()+1;
+        DataSpace *dataspace_mask = new DataSpace( rank, dimsf );
+        datasetname = "/data/mask";
+        DataSet *dataset_mask = new DataSet( file->createDataSet( datasetname, datatype, *dataspace_mask ) );
+        dataset->write( data_mask, PredType::NATIVE_DOUBLE );
+        delete dataspace_mask;
+        delete dataset_mask;
+        free( data_mask );
+
+        // the metadata
+        Group* metagroup = new Group( file->createGroup( "/meta" ) );
+        DataType metadatatype( H5T_STRING, 1 );
+        rank = 1;
+        dimsf[0] = 1;
+        DataSpace *metadataspace = new DataSpace( rank, dimsf );
+        DataSet *metadataset = new DataSet( file->createDataSet( "/meta/meta", metadatatype, *metadataspace ) );
+
+        stringstream ang_mean_line;
+        ang_mean_line << "[" << ang_means[0];
+        for( unsigned int i=1; i<ang_means.size(); ++i ){
+            ang_mean_line << ", " << ang_means[i];
+        }
+        ang_mean_line << "]";
+
+        // Create new dataspace for attribute
+        DataSpace attr1_dataspace = DataSpace( H5S_SCALAR );
+        // Create new string datatype for attribute
+        StrType strdatatype( PredType::C_S1, ang_mean_line.str().size()+1 ); // of length 256 characters
+        // Set up write buffer for attribute
+        const H5std_string u_mean_buf( ang_mean_line.str().c_str() );
+        // Create attribute and write to it
+        Attribute u_mean_attr = metadataset->createAttribute("u_mean", strdatatype, attr1_dataspace);
+        u_mean_attr.write(strdatatype, u_mean_buf);
+
+        stringstream ang_widths_line;
+        ang_widths_line << "[" << ang_widths[0];
+        for( unsigned int i=1; i<ang_widths.size(); ++i ){
+            ang_widths_line << ", " << ang_widths[i];
+        }
+        ang_widths_line << "]";
+
+        // Create new dataspace for attribute
+        DataSpace attr2_dataspace = DataSpace( H5S_SCALAR );
+        // Create new string datatype for attribute
+        strdatatype = StrType( PredType::C_S1, ang_widths_line.str().size()+1 ); // of length 256 characters
+        // Set up write buffer for attribute
+        const H5std_string u_widths_buf( ang_widths_line.str().c_str() );
+        // Create attribute and write to it
+        Attribute u_width_attr = metadataset->createAttribute("u_width", strdatatype, attr2_dataspace);
+        u_width_attr.write(strdatatype, u_widths_buf);
+
+        
+        // Create new dataspace for attribute
+        DataSpace attr3_dataspace = DataSpace( H5S_SCALAR );
+        // Create new string datatype for attribute
+        strdatatype = StrType( PredType::C_S1, 6 ); // of length 256 characters
+        // Set up write buffer for attribute
+        const H5std_string fourier_buf( "false" );
+        // Create attribute and write to it
+        Attribute fourier_attr = metadataset->createAttribute("fourier", strdatatype, attr3_dataspace);
+        fourier_attr.write(strdatatype, fourier_buf);
+        
+        
+        // Create new dataspace for attribute
+        DataSpace attr4_dataspace = DataSpace( H5S_SCALAR );
+        // Create new string datatype for attribute
+        strdatatype = StrType( PredType::C_S1, 8 ); // of length 256 characters    
+        // Set up write buffer for attribute
+        const H5std_string ftype_buf( "[\"mag\"]" );    
+        // Create attribute and write to it
+        Attribute ftype_attr = metadataset->createAttribute("ftype", strdatatype, attr4_dataspace);
+        ftype_attr.write(strdatatype, ftype_buf);
+        
+        delete metadataspace;
+        delete metadataset;
+
+        delete group;
+        delete metagroup;
+        delete file;
+        
+        
+        cerr << "Wrote delta mag map (" << dmMap.Npartpix() << " + " << dmMask.Npartpix() << " entries) to file" << endl;
+
+    } // if use_mags
+    
     return 0;
 }
 
@@ -701,7 +594,83 @@ int main (int argc, char **argv){
         return 1;
     }
     
-    make_maps( metadatafilename, catalog_filename, mask_filename, use_counts, use_mags );
+    // read in the binning metadata
+    ifstream metadatafile( metadatafilename.c_str() );
+    vector<float> ang_means;
+    vector<float> ang_widths;
+    string line;
+    getline( metadatafile, line );
+    while( !metadatafile.eof()){
+        stringstream linestream(line);
+        
+        // look for ang_mean
+        size_t index1 = line.find("ang_mean");
+        if(index1 != string::npos){
+            ++index1;
+            while( index1 < line.length() && line[index1] != '[' ){
+                ++index1;
+            }
+            if( line[index1] != '[' ){
+                cerr << "Problem parsing metadata line for ang_mean" << endl << line << endl;
+                return 1;
+            }
+            ++index1;
+            while(1){
+                size_t index2 = index1+1;
+                while( index2 < line.length() && (line[index2] != ',' && line[index2] != ']') ){
+                    ++index2;
+                }
+                float val = atof(line.substr(index1, index2-index1).c_str());
+                ang_means.push_back(val);
+                if( line[index2] == ']' )
+                    break;
+                ++index2;
+                index1 = index2;
+            }
+        }
+        
+        // look for ang_width
+        index1 = line.find("ang_width");
+        if(index1 != string::npos){
+            ++index1;
+            while( index1 < line.length() && line[index1] != '[' ){
+                ++index1;
+            }
+            if( line[index1] != '[' ){
+                cerr << "Problem parsing metadata line for z_mean" << endl << line << endl;
+                return 1;
+            }
+            ++index1;
+            while(1){
+                size_t index2 = index1+1;
+                while( index2 < line.length() && (line[index2] != ',' && line[index2] != ']') ){
+                    ++index2;
+                }
+                float val = atof(line.substr(index1, index2-index1).c_str());
+                ang_widths.push_back(val);
+                if( line[index2] == ']' )
+                    break;
+                ++index2;
+                index1 = index2;
+            }
+        }
+        
+        getline( metadatafile, line );
+    }
+    cerr << "ang_means: ";
+    for( unsigned int i=0; i<ang_means.size(); ++i )
+        cerr << ang_means[i] << " ";
+    cerr << endl;
+    cerr << "ang_widths: ";
+    for( unsigned int i=0; i<ang_widths.size(); ++i )
+        cerr << ang_widths[i] << " ";
+    cerr << endl;
+    if( ang_means.size() == 0 || ang_widths.size() == 0 || ang_means.size() != ang_widths.size() ){
+        cerr << "Different length ang_means and ang_widths arrays??" << endl;
+        return 1;
+    }
+
+    make_maps( catalog_filename, mask_filename, ang_means, ang_widths, use_counts, use_mags );
     
     return 0;
 }
