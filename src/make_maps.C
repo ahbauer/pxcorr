@@ -11,7 +11,10 @@ using std::ifstream;
 using std::cout;
 using std::cerr;
 using std::endl;
-using namespace std;
+#include <algorithm>
+using std::transform;
+#include <ctype.h>
+using std::tolower;
 #include <healpix_base.h>
 #include <healpix_base2.h>
 #include <healpix_map.h>
@@ -25,13 +28,12 @@ using namespace std;
 #include "H5Cpp.h"
 using namespace H5;
 
-int main (int argc, char **argv){
-    
+
+int make_maps( string metadatafilename, string catalog_filename, string mask_filename, bool use_counts, bool use_mags ){
     
     int min_footprint_order = 6;
     
     // read in the binning metadata
-    string metadatafilename( argv[1] );
     ifstream metadatafile( metadatafilename.c_str() );
     vector<float> z_means;
     vector<float> z_widths;
@@ -188,28 +190,6 @@ int main (int argc, char **argv){
     }
     cerr << "Using order " << order << " for minimum angular width " << min_width << endl;
     
-    // read in the instructions about which maps to make
-    string catalog_filename(argv[2]);
-    string mask_filename(argv[3]);
-    
-    int index = 4;
-    bool use_counts = false;
-    bool use_mags = false;
-    while( index < argc ){
-        string arg(argv[index]);
-        if( arg.find("counts") != string::npos )
-            use_counts = true;
-        if( arg.find("mags") != string::npos )
-            use_mags = true;
-        ++index;
-    }
-    cerr << "use counts: " << use_counts << endl;
-    cerr << "use mags: " << use_mags << endl;
-    if( !( use_counts || use_mags) ){
-        cerr << "Not using either counts or mags... doing nothing!" << endl;
-        return 1;
-    }
-    
 
     // read in the galaxy catalog
     FILE * file = fopen( catalog_filename.c_str(), "r" );
@@ -238,59 +218,72 @@ int main (int argc, char **argv){
     cerr << "Read in " << pointings.size() << " objects" << endl;
 
     // read in the mask
-    FILE * maskfile = fopen( mask_filename.c_str(), "r" );
-    if( maskfile == NULL ){
-        cerr << "Problem opening " << mask_filename << endl;
-        return 1;
-    }
     string scheme;
     int mask_order;
     vector<int> mask_pixels;
-    bool header = true;
-    while( fgets( line_char, 256, maskfile ) ){
-        if( header ){
-            char sch[16];
-            int num = sscanf(line_char, "%s %d", sch, &mask_order );
+    Healpix_Base2 mask_base;
+    if( mask_filename == "none" || mask_filename == "NONE" || mask_filename == "null" || mask_filename == "NULL" ){
+        cerr << "Making a dummy mask file from the data itself.  This is not the best idea." << endl;
+        mask_order = order-1;
+        mask_base = Healpix_Base2(mask_order, RING);
+        for( unsigned int p=0; p<pointings.size(); ++p ){
+            mask_pixels.push_back( mask_base.ang2pix(pointings[p]) );
+        }
+        unique(mask_pixels.begin(), mask_pixels.end());
+    }
+    else{
+        FILE * maskfile = fopen( mask_filename.c_str(), "r" );
+        if( maskfile == NULL ){
+            cerr << "Problem opening " << mask_filename << endl;
+            return 1;
+        }
+        bool header = true;
+        while( fgets( line_char, 256, maskfile ) ){
+            if( header ){
+                char sch[16];
+                int num = sscanf(line_char, "%s %d", sch, &mask_order );
+                if( num != 2 ){
+                    cerr << "Problem reading header from mask file, number of arguments read = " << num << ", not 2" << endl;
+                    return 1;
+                }
+                scheme = string(sch);
+                if( (!scheme.compare("RING")) && (!scheme.compare("NEST")) ){
+                    cerr << "Scheme listed in mask header line is not RING or NEST, but " << scheme << endl;
+                    return 1;
+                }
+                header = false;
+                continue;
+            }
+            int pix;
+            double val;
+            int num = sscanf(line_char, "%d %lf", &pix, &val );
             if( num != 2 ){
-                cerr << "Problem reading header from mask file, number of arguments read = " << num << ", not 2" << endl;
-                return 1;
+                // allow the implicit assumption of a pixel's existence in the list meaning that the mask is good there.
+                val = 1.0;
+                num = sscanf(line_char, "%d", &pix );
+                if( num != 1 ){
+                    cerr << "Problem reading from mask file, number of arguments read = " << num << ", not 1" << endl;
+                    return 1;
+                }
             }
-            scheme = string(sch);
-            if( (!scheme.compare("RING")) && (!scheme.compare("NEST")) ){
-                cerr << "Scheme listed in mask header line is not RING or NEST, but " << scheme << endl;
-                return 1;
-            }
-            header = false;
-            continue;
+            if( val > 0.5 )
+                mask_pixels.push_back(pix);
         }
-        int pix;
-        double val;
-        int num = sscanf(line_char, "%d %lf", &pix, &val );
-        if( num != 2 ){
-            // allow the implicit assumption of a pixel's existence in the list meaning that the mask is good there.
-            val = 1.0;
-            num = sscanf(line_char, "%d", &pix );
-            if( num != 1 ){
-                cerr << "Problem reading from mask file, number of arguments read = " << num << ", not 1" << endl;
-                return 1;
+        fclose(maskfile);
+        cerr << "Read in mask information, scheme " << scheme << ", order " << mask_order << ", " << mask_pixels.size() << " pixels" << endl;
+        mask_base = Healpix_Base2( mask_order, RING );
+        vector<int> mask_pixels_nest( mask_pixels );
+        if( scheme.compare("NEST") == 0 ){
+            cerr << "Changing mask to RING scheme... ";
+            for( unsigned int i=0; i<mask_pixels.size(); ++i ){
+                mask_pixels[i] = mask_base.nest2ring(mask_pixels_nest[i]);
             }
+            scheme = "RING";
+            cerr << "Done!" << endl;
         }
-        if( val > 0.5 )
-            mask_pixels.push_back(pix);
+        sort( mask_pixels.begin(), mask_pixels.end() );
+        mask_pixels_nest.clear();
     }
-    cerr << "Read in mask information, scheme " << scheme << ", order " << mask_order << ", " << mask_pixels.size() << " pixels" << endl;
-    Healpix_Base2 mask_base( mask_order, RING );
-    vector<int> mask_pixels_nest( mask_pixels );
-    if( scheme.compare("NEST") == 0 ){
-        cerr << "Changing mask to RING scheme... ";
-        for( unsigned int i=0; i<mask_pixels.size(); ++i ){
-            mask_pixels[i] = mask_base.nest2ring(mask_pixels_nest[i]);
-        }
-        scheme = "RING";
-        cerr << "Done!" << endl;
-    }
-    sort( mask_pixels.begin(), mask_pixels.end() );
-    mask_pixels_nest.clear();
     cerr << "Finished with the mask" << endl;
     
     
@@ -415,6 +408,7 @@ int main (int argc, char **argv){
         
         // counts:
         {
+        if( use_counts ){
             // write out the maps (hdf5)
             string outfilename = "dc_maps.h5";
             H5File *file = new H5File( outfilename, H5F_ACC_TRUNC ); // clobber!
@@ -544,6 +538,7 @@ int main (int argc, char **argv){
             delete file;
             
             cerr << "Wrote delta counts map (" << dcMap.Npartpix() << " + " << dcMask.Npartpix() << " entries) to file" << endl;
+        }
         }
         // mags:
         if( use_mags ){
@@ -679,3 +674,37 @@ int main (int argc, char **argv){
 
     return 0;
 }
+
+
+int main (int argc, char **argv){
+
+    string metadatafilename(argv[1]);
+    string catalog_filename(argv[2]);
+    string mask_filename(argv[3]);
+
+    // read in the instructions about which maps to make
+    int index = 4;
+    bool use_counts = false;
+    bool use_mags = false;
+    while( index < argc ){
+        string arg(argv[index]);
+        if( arg.find("counts") != string::npos )
+            use_counts = true;
+        if( arg.find("mags") != string::npos )
+            use_mags = true;
+        ++index;
+    }
+    cerr << "use counts: " << use_counts << endl;
+    cerr << "use mags: " << use_mags << endl;
+    if( !( use_counts || use_mags) ){
+        cerr << "Not using either counts or mags... doing nothing!" << endl;
+        return 1;
+    }
+    
+    make_maps( metadatafilename, catalog_filename, mask_filename, use_counts, use_mags );
+    
+    return 0;
+}
+
+
+

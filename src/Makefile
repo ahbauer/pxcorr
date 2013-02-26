@@ -3,7 +3,7 @@ OBJDIR = ../obj
 vpath %.o $(OBJDIR)
 VPATH = $(BINDIR)
 
-HEALPIXPATH =  /usr/local/Healpix_Partpix/src/cxx/osx
+HEALPIXPATH =  ../Healpix_Partpix/src/cxx/osx
 HDFDIR     =  /usr/local/hdf5-1.8.9/hdf5
 HDF        =  /usr/local/hdf5-1.8.9/hdf5/lib/libhdf5.a /usr/local/hdf5-1.8.9/hdf5/lib/libhdf5_hl.a /usr/local/hdf5-1.8.9/hdf5/lib/libhdf5_cpp.a /usr/local/hdf5-1.8.9/hdf5/lib/libhdf5_hl_cpp.a
 OPENCLDIR   = /System/Library/Frameworks/OpenCL.framework/Versions/A

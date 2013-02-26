@@ -99,33 +99,33 @@ make_maps.o: make_maps.C /usr/include/unistd.h /usr/include/_types.h \
   /usr/include/c++/4.2.1/bits/sstream.tcc /usr/include/c++/4.2.1/fstream \
   /usr/include/c++/4.2.1/bits/basic_file.h \
   /usr/include/c++/4.2.1/bits/fstream.tcc /usr/include/c++/4.2.1/iostream \
-  /usr/local/Healpix_Partpix/src/cxx/osx/include/healpix_base.h \
-  /usr/local/Healpix_Partpix/src/cxx/osx/include/cxxutils.h \
+  ../Healpix_Partpix/src/cxx/osx/include/healpix_base.h \
+  ../Healpix_Partpix/src/cxx/osx/include/cxxutils.h \
   /usr/include/c++/4.2.1/map /usr/include/c++/4.2.1/bits/stl_tree.h \
   /usr/include/c++/4.2.1/bits/stl_map.h \
   /usr/include/c++/4.2.1/bits/stl_multimap.h /usr/include/c++/4.2.1/cmath \
   /usr/include/math.h /usr/include/architecture/i386/math.h \
   /usr/include/c++/4.2.1/bits/cmath.tcc \
-  /usr/local/Healpix_Partpix/src/cxx/osx/include/error_handling.h \
-  /usr/local/Healpix_Partpix/src/cxx/osx/include/datatypes.h \
-  /usr/local/Healpix_Partpix/src/cxx/osx/include/pointing.h \
-  /usr/local/Healpix_Partpix/src/cxx/osx/include/vec3.h \
-  /usr/local/Healpix_Partpix/src/cxx/osx/include/arr.h \
-  /usr/local/Healpix_Partpix/src/cxx/osx/include/healpix_base2.h \
-  /usr/local/Healpix_Partpix/src/cxx/osx/include/healpix_base.h \
-  /usr/local/Healpix_Partpix/src/cxx/osx/include/healpix_map.h \
-  /usr/local/Healpix_Partpix/src/cxx/osx/include/partpix_map.h \
-  /usr/local/Healpix_Partpix/src/cxx/osx/include/healpix_map.h \
-  /usr/local/Healpix_Partpix/src/cxx/osx/include/partpix_map2.h \
-  /usr/local/Healpix_Partpix/src/cxx/osx/include/lsconstants.h \
-  /usr/local/Healpix_Partpix/src/cxx/osx/include/healpix_base2.h \
+  ../Healpix_Partpix/src/cxx/osx/include/error_handling.h \
+  ../Healpix_Partpix/src/cxx/osx/include/datatypes.h \
+  ../Healpix_Partpix/src/cxx/osx/include/pointing.h \
+  ../Healpix_Partpix/src/cxx/osx/include/vec3.h \
+  ../Healpix_Partpix/src/cxx/osx/include/arr.h \
+  ../Healpix_Partpix/src/cxx/osx/include/healpix_base2.h \
+  ../Healpix_Partpix/src/cxx/osx/include/healpix_base.h \
+  ../Healpix_Partpix/src/cxx/osx/include/healpix_map.h \
+  ../Healpix_Partpix/src/cxx/osx/include/partpix_map.h \
+  ../Healpix_Partpix/src/cxx/osx/include/healpix_map.h \
+  ../Healpix_Partpix/src/cxx/osx/include/partpix_map2.h \
+  ../Healpix_Partpix/src/cxx/osx/include/lsconstants.h \
+  ../Healpix_Partpix/src/cxx/osx/include/healpix_base2.h \
   /opt/local/include/fitsio.h /usr/include/sys/types.h \
   /opt/local/include/longnam.h \
-  /usr/local/Healpix_Partpix/src/cxx/osx/include/fitshandle.h \
-  /usr/local/Healpix_Partpix/src/cxx/osx/include/safe_cast.h \
-  /usr/local/Healpix_Partpix/src/cxx/osx/include/healpix_map_fitsio.h \
-  /usr/local/Healpix_Partpix/src/cxx/osx/include/fitshandle.h \
-  /usr/local/Healpix_Partpix/src/cxx/osx/include/healpix_data_io.h \
+  ../Healpix_Partpix/src/cxx/osx/include/fitshandle.h \
+  ../Healpix_Partpix/src/cxx/osx/include/safe_cast.h \
+  ../Healpix_Partpix/src/cxx/osx/include/healpix_map_fitsio.h \
+  ../Healpix_Partpix/src/cxx/osx/include/fitshandle.h \
+  ../Healpix_Partpix/src/cxx/osx/include/healpix_data_io.h \
   /usr/local/hdf5-1.8.9/hdf5/include/H5Cpp.h \
   /usr/local/hdf5-1.8.9/hdf5/include/H5Include.h \
   /usr/local/hdf5-1.8.9/hdf5/include/hdf5.h \
