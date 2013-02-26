@@ -1,0 +1,168 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2002-2-1 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>The HEALPix Software Package</TITLE>
+<META NAME="description" CONTENT="The HEALPix Software Package">
+<META NAME="keywords" CONTENT="intro">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2002-2-1">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="intro.css">
+
+<LINK REL="next" HREF="intronode6.htm">
+<LINK REL="previous" HREF="intronode4.htm">
+<LINK REL="up" HREF="intro.htm">
+<LINK REL="next" HREF="intronode6.htm">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><body text="#000000" bgcolor="#FFFFFA">
+<!--Navigation Panel-->
+<A NAME="tex2html106"
+  HREF="intronode4.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html112"
+  HREF="intro.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html116"
+  HREF="intronode6.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html114"
+  HREF="intronode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html107"
+  HREF="intronode4.htm">Geometric and Algebraic Properties</A>
+
+<B>Up:</B> <A NAME="tex2html113"
+  HREF="intro.htm">Introduction to Healpix</A>
+
+<B> Next:</B> <A NAME="tex2html117"
+  HREF="intronode6.htm">HEALPix conventions</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION00050000000000000000">
+The <b>HEALPix</b> Software Package</A>
+</H1>
+
+<P>
+We have developed a package of <b>HEALPix</b> based mathematical software, consisting
+of Fortran90 and IDL source codes as well as documentation and
+examples. Successful installation produces a set of facilities using standardised
+FITS I/O interfaces 
+(<A NAME="tex2html6"
+  HREF="http://heasarc.gsfc.nasa.gov/docs/software/fitsio"><TT>http://heasarc.gsfc.nasa.gov/docs/software/fitsio</TT></A>) 
+as well as two Fortran90
+libraries  which users can link to their own applications.
+Among the tasks performed by the  components of the 
+<b>HEALPix</b> package  are the
+following:
+
+<P>
+<DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ Simulation of the full sky CMB temperature and polarisation maps
+as realisations of random Gaussian fields, with an option to constrain
+the realisation by prior information.
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ Analysis of the full sky CMB temperature and polarisation maps
+resulting in power spectra and/or spherical harmonic
+coefficients. Relevant conventions are given in Appendix <A HREF="intronode6.htm#conventions">A</A>.
+<BIG CLASS="LARGE"><EM>Note that the convention used for polarization has been changed !</EM></BIG>.
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ Global smoothing of whole sky maps with a Gaussian kernel.
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ Degradation and upgrade of the resolution of discrete maps.
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ Global searches on the maps for nearest-neighbours and 
+the maxima/minima of the discretised functions.
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ Algebraic conversion of the maps between the RING and NESTED numbering
+schemes, and mapping back and forth between  positions on the sphere and 
+discrete pixel index space.
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ Pixel queries for various geometrical shapes (discs, triangles, polygons ...)
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ Visualisation of the <b>HEALPix</b> formatted sky maps in the
+Mollweide, orthographic, cartesian cylindrical and gnomonic
+projections of the whole sky or small areas of it. 
+</DL>
+
+<P>
+The package includes documents which describe the installation
+process, the Fortran 90
+facilities, the IDL facilities and a large number of 
+subroutines contained in the library. It is
+available to the scientific community  at <A NAME="tex2html7"
+  HREF="http://healpix.jpl.nasa.gov"><TT>http://healpix.jpl.nasa.gov</TT></A>.
+
+<P>
+<b>HEALPix</b> is  the format chosen by the <B>WMAP</B>
+collaboration 
+to be used for the production
+of sky maps (see 
+<A NAME="tex2html8"
+  HREF="http://map.gsfc.nasa.gov/html/technical_info.html"><TT>http://map.gsfc.nasa.gov/html/technical_info.html</TT></A>) from the mission data. 
+
+<P>
+<b>HEALPix</b> software is widely used 
+for simulation work within both the LFI and HFI consortia of the <B>Planck</B>
+collaboration (see 
+<A NAME="tex2html9"
+  HREF="http://astro.estec.esa.nl/Planck/"><TT>http://astro.estec.esa.nl/Planck/</TT></A>).
+
+<P>
+It is also being used to analyse the data provided by the balloon CMB missions
+<B>Boomerang</B>
+(see <A NAME="tex2html10"
+  HREF="http://cmb.PHYS.cwru.edu/boomerang/"><TT>http://cmb.PHYS.cwru.edu/boomerang/</TT></A>
+or 
+<A NAME="tex2html11"
+  HREF="http://oberon.roma1.infn.it/boomerang/"><TT>http://oberon.roma1.infn.it/boomerang/</TT></A>)
+and <B>Archeops</B> (
+<A NAME="tex2html12"
+  HREF="http://archeops01.free.fr/main_archeops/index_english.html"><TT>http://archeops01.free.fr/main_archeops/index_english.html</TT></A>).
+
+<P>
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html106"
+  HREF="intronode4.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html112"
+  HREF="intro.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html116"
+  HREF="intronode6.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html114"
+  HREF="intronode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html107"
+  HREF="intronode4.htm">Geometric and Algebraic Properties</A>
+
+<B>Up:</B> <A NAME="tex2html113"
+  HREF="intro.htm">Introduction to Healpix</A>
+
+<B> Next:</B> <A NAME="tex2html117"
+  HREF="intronode6.htm">HEALPix conventions</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+Eric Hivon
+2011-02-09
+</ADDRESS>
+</BODY>
+</HTML>

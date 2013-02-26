@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/psht/libfftpack
+END
+fftpack.c
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/psht/libfftpack/fftpack.c
+END
+bluestein.h
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/psht/libfftpack/bluestein.h
+END
+ls_fft.h
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/psht/libfftpack/ls_fft.h
+END
+fftpack.h
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/psht/libfftpack/fftpack.h
+END
+fftpack_inc.c
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/psht/libfftpack/fftpack_inc.c
+END
+bluestein.c
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/psht/libfftpack/bluestein.c
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/psht/libfftpack/README
+END
+ls_fft.c
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/psht/libfftpack/ls_fft.c
+END

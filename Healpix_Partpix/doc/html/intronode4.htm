@@ -1,0 +1,209 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2002-2-1 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Geometric and Algebraic Properties of HEALPix </TITLE>
+<META NAME="description" CONTENT="Geometric and Algebraic Properties of HEALPix ">
+<META NAME="keywords" CONTENT="intro">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2002-2-1">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="intro.css">
+
+<LINK REL="next" HREF="intronode5.htm">
+<LINK REL="previous" HREF="intronode3.htm">
+<LINK REL="up" HREF="intro.htm">
+<LINK REL="next" HREF="intronode5.htm">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><body text="#000000" bgcolor="#FFFFFA">
+<!--Navigation Panel-->
+<A NAME="tex2html94"
+  HREF="intronode3.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html100"
+  HREF="intro.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html104"
+  HREF="intronode5.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html102"
+  HREF="intronode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html95"
+  HREF="intronode3.htm">Discretisation of Functions on</A>
+
+<B>Up:</B> <A NAME="tex2html101"
+  HREF="intro.htm">Introduction to Healpix</A>
+
+<B> Next:</B> <A NAME="tex2html105"
+  HREF="intronode5.htm">The HEALPix Software Package</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION00040000000000000000">
+Geometric and Algebraic Properties of <b>HEALPix</b> </A>
+</H1>
+
+<P>
+<b>HEALPix</b> is a genuinely curvilinear partition of the sphere into exactly equal area
+quadrilaterals of varying shape. The base-resolution comprises twelve pixels in three
+rings around the poles and equator. 
+
+<P>
+The resolution of the grid is expressed by the parameter <SPAN CLASS="MATH"><I>N</I><SUB><I>side</I></SUB></SPAN> which defines the number
+of divisions along the side of a base-resolution pixel that is needed to reach a desired
+high-resolution partition.
+
+<P>
+All pixel centers are placed on <!-- MATH
+ $4\times N_{side}-1$
+ -->
+<SPAN CLASS="MATH">4 x <I>N</I><SUB><I>side</I></SUB>-1</SPAN> 
+rings of constant latitude, 
+and are equidistant in azimuth
+(on each ring). All iso-latitude rings located between the upper and lower corners of
+the equatorial base-resolution pixels, the equatorial zone, 
+are divided into the same number of pixels: 
+<!-- MATH
+ $N_{eq}= 4\times N_{side}$
+ -->
+<SPAN CLASS="MATH"><I>N</I><SUB><I>eq</I></SUB>= 4 x <I>N</I><SUB><I>side</I></SUB></SPAN>. The remaining rings are located within the
+polar cap regions and contain a varying number of pixels, increasing 
+from ring to ring with increasing distance
+from the poles by one pixel within each quadrant. 
+
+<P>
+Pixel boundaries are non-geodesic and take the very simple 
+forms <!-- MATH
+ $\cos \theta = a \pm b \cdot \phi$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="133" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="introimg6.png"
+ ALT="$\cos \theta = a \pm b \cdot \phi $"></SPAN> in the equatorial zone, 
+and <!-- MATH
+ $\cos \theta = a + b / \phi^2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="136" HEIGHT="39" ALIGN="MIDDLE" BORDER="0"
+ SRC="introimg7.png"
+ ALT="$\cos \theta = a + b / \phi^2 $"></SPAN>, or
+  <!-- MATH
+ $\cos \theta = a + b / (\pi/2 - \phi) ^2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="204" HEIGHT="39" ALIGN="MIDDLE" BORDER="0"
+ SRC="introimg8.png"
+ ALT="$\cos \theta = a + b / (\pi/2 - \phi) ^2 $"></SPAN>,
+in the polar caps. 
+This allows one to explicitly check by simple analytical integration the 
+exact area equality among pixels,
+and to compute efficiently more complex objects, 
+e.g. the Fourier transforms of individual pixels.
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:Numbering"></A><A NAME="812"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 3:</STRONG>
+Cylindrical projection of the <b>HEALPix</b> division of a
+sphere and two natural pixel numbering schemes (RING and NESTED) 
+allowed by <b>HEALPix</b>. Both numbering schemes map the two dimensional 
+distribution
+of discrete area elements on a sphere into the one dimensional, 
+integer pixel number array,
+which is essential for computations involving data sets with very 
+large total pixel numbers.
+From top to bottom:
+Panel one (resolution parameter <SPAN CLASS="MATH"><I>N</I><SUB><I>side</I></SUB> = 2</SPAN>) and panel two (<SPAN CLASS="MATH"><I>N</I><SUB><I>side</I></SUB> = 4</SPAN>)
+show the RING scheme for pixel numbering, with the pixel number winding 
+down from north to south pole through the consecutive isolatitude rings.
+Panel three (resolution parameter <SPAN CLASS="MATH"><I>N</I><SUB><I>side</I></SUB> = 2</SPAN>) and panel four (<SPAN CLASS="MATH"><I>N</I><SUB><I>side</I></SUB> = 4</SPAN>)
+show the NESTED scheme for pixel numbering within which the pixel number grows
+with consecutive hierarchical subdivisions on a tree structure seeded by 
+the twelve 
+base-resolution pixels. 
+</CAPTION>
+<TR><TD>
+<DIV CLASS="centerline" ID="par3285" ALIGN="CENTER">
+<IMG
+  WIDTH="627" HEIGHT="908" ALIGN="BOTTOM" BORDER="0"
+ SRC="./introf2.png"
+ ALT="Image introf2"></DIV>
+
+<P></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+Specific geometrical properties allow <b>HEALPix</b> to support two different
+numbering schemes for the pixels, as illustrated in Figure&nbsp;<A HREF="#fig:Numbering">3</A>. 
+
+<P>
+First, in the RING scheme, 
+one can simply count the pixels moving down from the north 
+to the south pole along each
+iso-latitude ring. It is in the RING scheme that Fourier transforms 
+with spherical harmonics
+are easy to implement.
+
+<P>
+Second, in the NESTED scheme, one can arrange the pixel indices 
+in  twelve tree structures, corresponding to base-resolution pixels.
+Each of those is organised as shown in Fig.&nbsp;<A HREF="intronode3.htm#fig:quadtree">1</A>. This can easily be implemented
+since, due to the simple 
+description of pixel boundaries, the analytical mapping of the <b>HEALPix</b> 
+base-resolution elements (curvilinear
+quadrilaterals) into a [0,1]<SPAN CLASS="MATH"> x </SPAN>[0,1] square exists.
+This tree structure allows one to implement efficiently all
+applications involving  nearest-neighbour searches
+[<A
+ HREF="intronode16.htm#whg">Wandelt, Hivon &amp; G&#243;rski (1998)</A>],
+and also allows for an immediate
+construction of the fast Haar wavelet transform on <b>HEALPix</b>. 
+
+<P>
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html94"
+  HREF="intronode3.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html100"
+  HREF="intro.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html104"
+  HREF="intronode5.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html102"
+  HREF="intronode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html95"
+  HREF="intronode3.htm">Discretisation of Functions on</A>
+
+<B>Up:</B> <A NAME="tex2html101"
+  HREF="intro.htm">Introduction to Healpix</A>
+
+<B> Next:</B> <A NAME="tex2html105"
+  HREF="intronode5.htm">The HEALPix Software Package</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+Eric Hivon
+2011-02-09
+</ADDRESS>
+</BODY>
+</HTML>

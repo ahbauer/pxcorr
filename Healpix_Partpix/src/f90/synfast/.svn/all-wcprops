@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/synfast
+END
+synfast.f90
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/synfast/synfast.f90
+END
+synmod.mod
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/synfast/synmod.mod
+END
+syn_sub_inc.f90
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/synfast/syn_sub_inc.f90
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/synfast/Makefile
+END

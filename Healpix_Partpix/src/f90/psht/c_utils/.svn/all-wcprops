@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/psht/c_utils
+END
+sse_utils.h
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/psht/c_utils/sse_utils.h
+END
+c_utils.c
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/psht/c_utils/c_utils.c
+END
+c_utils.h
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/psht/c_utils/c_utils.h
+END

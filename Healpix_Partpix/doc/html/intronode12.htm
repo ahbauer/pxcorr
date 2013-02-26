@@ -1,0 +1,158 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2002-2-1 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Relation with IAU convention</TITLE>
+<META NAME="description" CONTENT="Relation with IAU convention">
+<META NAME="keywords" CONTENT="intro">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2002-2-1">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="intro.css">
+
+<LINK REL="previous" HREF="intronode11.htm">
+<LINK REL="up" HREF="intronode9.htm">
+<LINK REL="next" HREF="intronode13.htm">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><body text="#000000" bgcolor="#FFFFFA">
+<!--Navigation Panel-->
+<A NAME="tex2html200"
+  HREF="intronode11.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html204"
+  HREF="intronode9.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html208"
+  HREF="intronode13.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html206"
+  HREF="intronode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html201"
+  HREF="intronode11.htm">Relation to previous releases</A>
+
+<B>Up:</B> <A NAME="tex2html205"
+  HREF="intronode9.htm">Polarisation convention</A>
+
+<B> Next:</B> <A NAME="tex2html209"
+  HREF="intronode13.htm">Spherical harmonic conventions</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+
+<H3><A NAME="SECTION00063300000000000000">
+Relation with IAU convention</A>
+</H3>
+In a cartesian referential with axes <SPAN CLASS="MATH"><I>x</I></SPAN> and <SPAN CLASS="MATH"><I>y</I></SPAN>, the Stokes parameters for
+linear polarisation are defined such that <SPAN CLASS="MATH">+<I>Q</I></SPAN> is aligned with <SPAN CLASS="MATH">+<I>x</I></SPAN>, <SPAN CLASS="MATH">-<I>Q</I></SPAN> with <SPAN CLASS="MATH">+<I>y</I></SPAN> and <SPAN CLASS="MATH">+<I>U</I></SPAN> with the
+bisectrix of <SPAN CLASS="MATH">+<I>x</I></SPAN> and <SPAN CLASS="MATH">+<I>y</I></SPAN>. Although this definition is universally accepted, 
+some confusion may still arise from the relation of
+this local cartesian system to the global spherical one, as described below
+[<A
+ HREF="intronode16.htm#hamakerleahy">Hamaker &amp; Leahy, 2003</A>], and as illustrated in Fig.&nbsp;<A HREF="#fig:reftqu">5</A>. 
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:reftqu"></A><A NAME="858"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 5:</STRONG>
+Coordinate conventions for <b>HEALPix</b> (<EM>lhs</EM> panels) and IAU (<EM>rhs</EM> panels). The
+  upper panels illustrate how the spherical coordinates are measured, and the
+  lower panel how the <SPAN CLASS="MATH"><I>Q</I></SPAN> and <SPAN CLASS="MATH"><I>U</I></SPAN> Stokes parameters are identified in the
+  tangential plan.
+</CAPTION>
+<TR><TD>
+<DIV CLASS="centerline" ID="par3594" ALIGN="CENTER">
+<IMG
+  WIDTH="600" HEIGHT="520" ALIGN="BOTTOM" BORDER="0"
+ SRC="./merge_reftqu.png"
+ ALT="Image merge_reftqu"></DIV>
+
+<P></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+The polarization conventions defined by the International Astronomical Union
+[<A
+ HREF="intronode16.htm#iau74">IAU, 1974</A>] are summarized in [<A
+ HREF="intronode16.htm#hambreg">Hamaker &amp; Bregman, 1996</A>]. They define at each point on the
+celestial sphere a cartesian referential with the <SPAN CLASS="MATH"><I>x</I></SPAN> and <SPAN CLASS="MATH"><I>y</I></SPAN> axes pointing
+respectively toward the North and East, and the <SPAN CLASS="MATH"><I>z</I></SPAN>
+axis along the line of sight pointing toward the observer (ie, inwards) for a
+right-handed system.
+
+<P>
+On the other hand, following the mathematical and CMB litterature tradition,
+<b>HEALPix</b> defines a cartesian referential with the <SPAN CLASS="MATH"><I>x</I></SPAN> and <SPAN CLASS="MATH"><I>y</I></SPAN> axes pointing
+respectively toward the <EM>South</EM> and East, and the <SPAN CLASS="MATH"><I>z</I></SPAN> axis along the line of sight
+pointing away from the observer (ie, <EM>outwards</EM>) for a right-handed
+system. The <EM>Planck</EM> CMB mission follows the same convention [<A
+ HREF="intronode16.htm#ansari">Ansari et al, 2003</A>].
+
+<P>
+The consequence of this definition discrepency is a change of sign of <SPAN CLASS="MATH"><I>U</I></SPAN>,
+which, if not accounted for, jeopardizes the calculation of the Electric and Magnetic  CMB
+polarisation power spectra.
+
+<P>
+<B>How <b>HEALPix</b> deals with these discrepancies</B>
+<BR>
+The FITS keyword <TT>POLCCONV</TT> has been introduced in <b>HEALPix</b> 2.0 to describe the
+polarisation coordinate convention applied to the data contained in the file. Its value is either <TT>  COSMO</TT> for files following the Healpix/CMB/<EM>Planck</EM> convention (default
+for sky map synthetized with Healpix routine <TT>synfast</TT>) or <TT>IAU</TT> for those
+following the IAU convention, as defined above. Absence of this keyword is
+interpreted as meaning <TT>COSMO</TT>.
+
+<P>
+The <TT>change_polcconv</TT> IDL facility is provided to add this keyword or
+change/update its value and swap the sign of the <SPAN CLASS="MATH"><I>U</I></SPAN> Stokes parameter, when applicable, in
+an existing FITS file.
+
+<P>
+The facility <TT>anafast</TT> will crash if the map to analyze follows the 'IAU'
+convention, and issue a warning if the convention used can not be determined.
+
+<P>
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html200"
+  HREF="intronode11.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html204"
+  HREF="intronode9.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html208"
+  HREF="intronode13.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html206"
+  HREF="intronode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html201"
+  HREF="intronode11.htm">Relation to previous releases</A>
+
+<B>Up:</B> <A NAME="tex2html205"
+  HREF="intronode9.htm">Polarisation convention</A>
+
+<B> Next:</B> <A NAME="tex2html209"
+  HREF="intronode13.htm">Spherical harmonic conventions</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+Eric Hivon
+2011-02-09
+</ADDRESS>
+</BODY>
+</HTML>

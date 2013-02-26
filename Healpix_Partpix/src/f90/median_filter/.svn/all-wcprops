@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/median_filter
+END
+median_filter.f90
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/median_filter/median_filter.f90
+END
+medmod.mod
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/median_filter/medmod.mod
+END
+med_sub_inc.f90
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/median_filter/med_sub_inc.f90
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/median_filter/Makefile
+END

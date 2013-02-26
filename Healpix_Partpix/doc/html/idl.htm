@@ -1,0 +1,213 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2002-2-1 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Healpix/IDL subroutines</TITLE>
+<META NAME="description" CONTENT="Healpix/IDL subroutines">
+<META NAME="keywords" CONTENT="idl">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2002-2-1">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="idl.css">
+
+<LINK REL="next" HREF="idlnode1.htm">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><body text="#000000" bgcolor="#FFFFFA">
+<!--Navigation Panel-->
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev_g.png"> 
+<A NAME="tex2html18"
+  HREF="main.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html22"
+  HREF="idlnode1.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html20"
+  HREF="idlnode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B>Up:</B> <A NAME="tex2html19"
+  HREF="main.htm">Main Page</A>
+
+<B> Next:</B> <A NAME="tex2html23"
+  HREF="idlnode1.htm">TABLE OF CONTENTS</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+
+<A NAME="idl:idlxxx"></A>
+
+<P>
+<H1 ALIGN=CENTER><b>HEALPix</b> IDL Facilities Overview</H1>
+<DIV>
+This document is an overview of the <b>HEALPix</b> IDL facilities.</DIV>
+<P ALIGN=CENTER><STRONG>Eric Hivon, Anthony J.&nbsp;Banday, Benjamin D.&nbsp;Wandelt, Frode
+K.&nbsp;Hansen and Krzysztof M.&nbsp;G&#243;rski</STRONG></P>
+<BR><P ALIGN=CENTER><I>Revision: </I>Version 2.20a; February 9, 2011</P>
+
+<BR><HR>
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"></A>
+
+<UL CLASS="ChildLinks">
+<LI><A NAME="tex2html24"
+  HREF="idlnode1.htm">TABLE OF CONTENTS</A>
+<LI><A NAME="tex2html25"
+  HREF="idlnode2.htm">Using the <b>HEALPix</b> IDL facilities</A>
+<LI><A NAME="tex2html26"
+  HREF="idlnode3.htm">Changes between release 2.0 and 2.20</A>
+<LI><A NAME="tex2html27"
+  HREF="idlnode4.htm">Changes between release 1.2 and 2.0</A>
+<LI><A NAME="tex2html28"
+  HREF="idlnode5.htm">alm2fits</A>
+<LI><A NAME="tex2html29"
+  HREF="idlnode6.htm">ang2vec </A>
+<LI><A NAME="tex2html30"
+  HREF="idlnode7.htm">bin_llcl</A>
+<LI><A NAME="tex2html31"
+  HREF="idlnode8.htm">bl2fits</A>
+<LI><A NAME="tex2html32"
+  HREF="idlnode9.htm">cartcursor</A>
+<LI><A NAME="tex2html33"
+  HREF="idlnode10.htm">cartview</A>
+<LI><A NAME="tex2html34"
+  HREF="idlnode11.htm">change_polcconv </A>
+<LI><A NAME="tex2html35"
+  HREF="idlnode12.htm">cl2fits</A>
+<LI><A NAME="tex2html36"
+  HREF="idlnode13.htm">convert_oldhpx2cmbfast</A>
+<LI><A NAME="tex2html37"
+  HREF="idlnode14.htm">euler_matrix_new</A>
+<LI><A NAME="tex2html38"
+  HREF="idlnode15.htm">fits2alm</A>
+<LI><A NAME="tex2html39"
+  HREF="idlnode16.htm">fits2cl</A>
+<LI><A NAME="tex2html40"
+  HREF="idlnode17.htm">gaussbeam </A>
+<LI><A NAME="tex2html41"
+  HREF="idlnode18.htm">getdisc_ring </A>
+<LI><A NAME="tex2html42"
+  HREF="idlnode19.htm">getsize_fits </A>
+<LI><A NAME="tex2html43"
+  HREF="idlnode20.htm">gnomcursor</A>
+<LI><A NAME="tex2html44"
+  HREF="idlnode21.htm">gnomview</A>
+<LI><A NAME="tex2html45"
+  HREF="idlnode22.htm">healpix_doc: PDF and HTML documentation</A>
+<LI><A NAME="tex2html46"
+  HREF="idlnode23.htm">healpixwindow </A>
+<LI><A NAME="tex2html47"
+  HREF="idlnode24.htm">hpx2gs</A>
+<LI><A NAME="tex2html48"
+  HREF="idlnode25.htm">ianafast</A>
+<LI><A NAME="tex2html49"
+  HREF="idlnode26.htm">ismoothing</A>
+<LI><A NAME="tex2html50"
+  HREF="idlnode27.htm">isynfast</A>
+<LI><A NAME="tex2html51"
+  HREF="idlnode28.htm">index2lm</A>
+<LI><A NAME="tex2html52"
+  HREF="idlnode29.htm">init_healpix and !healpix system variable</A>
+<LI><A NAME="tex2html53"
+  HREF="idlnode30.htm">lm2index</A>
+<LI><A NAME="tex2html54"
+  HREF="idlnode31.htm">median_filter </A>
+<LI><A NAME="tex2html55"
+  HREF="idlnode32.htm">mollcursor</A>
+<LI><A NAME="tex2html56"
+  HREF="idlnode33.htm">mollview</A>
+<LI><A NAME="tex2html57"
+  HREF="idlnode34.htm">neighbours_nest</A>
+<LI><A NAME="tex2html58"
+  HREF="idlnode35.htm">neighbours_ring</A>
+<LI><A NAME="tex2html59"
+  HREF="idlnode36.htm">npix2nside </A>
+<LI><A NAME="tex2html60"
+  HREF="idlnode37.htm">nside2npix</A>
+<LI><A NAME="tex2html61"
+  HREF="idlnode38.htm">nside2ntemplates</A>
+<LI><A NAME="tex2html62"
+  HREF="idlnode39.htm">orthcursor</A>
+<LI><A NAME="tex2html63"
+  HREF="idlnode40.htm">orthview</A>
+<LI><A NAME="tex2html64"
+  HREF="idlnode41.htm">pix2xxx,
+ang2xxx, vec2xxx, nest2ring,ring2nest</A>
+<LI><A NAME="tex2html65"
+  HREF="idlnode42.htm">query_disc </A>
+<LI><A NAME="tex2html66"
+  HREF="idlnode43.htm">query_polygon </A>
+<LI><A NAME="tex2html67"
+  HREF="idlnode44.htm">query_strip </A>
+<LI><A NAME="tex2html68"
+  HREF="idlnode45.htm">query_triangle </A>
+<LI><A NAME="tex2html69"
+  HREF="idlnode46.htm">read_fits_cut4 </A>
+<LI><A NAME="tex2html70"
+  HREF="idlnode47.htm">read_fits_map</A>
+<LI><A NAME="tex2html71"
+  HREF="idlnode48.htm">read_fits_s </A>
+<LI><A NAME="tex2html72"
+  HREF="idlnode49.htm">read_tqu</A>
+<LI><A NAME="tex2html73"
+  HREF="idlnode50.htm">remove_dipole</A>
+<LI><A NAME="tex2html74"
+  HREF="idlnode51.htm">reorder </A>
+<LI><A NAME="tex2html75"
+  HREF="idlnode52.htm">rotate_coord</A>
+<LI><A NAME="tex2html76"
+  HREF="idlnode53.htm">same_shape_pixels_XXXX</A>
+<LI><A NAME="tex2html77"
+  HREF="idlnode54.htm">template_pixel_xxxx</A>
+<LI><A NAME="tex2html78"
+  HREF="idlnode55.htm">ud_grade</A>
+<LI><A NAME="tex2html79"
+  HREF="idlnode56.htm">vec2ang </A>
+<LI><A NAME="tex2html80"
+  HREF="idlnode57.htm">write_fits_cut4 </A>
+<LI><A NAME="tex2html81"
+  HREF="idlnode58.htm">write_fits_map </A>
+<LI><A NAME="tex2html82"
+  HREF="idlnode59.htm">write_fits_sb</A>
+<LI><A NAME="tex2html83"
+  HREF="idlnode60.htm">write_tqu</A>
+<LI><A NAME="tex2html84"
+  HREF="idlnode61.htm">About this document ...</A>
+</UL>
+<!--End of Table of Child-Links-->
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev_g.png"> 
+<A NAME="tex2html18"
+  HREF="main.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html22"
+  HREF="idlnode1.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html20"
+  HREF="idlnode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B>Up:</B> <A NAME="tex2html19"
+  HREF="main.htm">Main Page</A>
+
+<B> Next:</B> <A NAME="tex2html23"
+  HREF="idlnode1.htm">TABLE OF CONTENTS</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+Eric Hivon
+2011-02-09
+</ADDRESS>
+</BODY>
+</HTML>

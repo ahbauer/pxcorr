@@ -1,0 +1,348 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2002-2-1 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Changes between release 2.0 and 2.20</TITLE>
+<META NAME="description" CONTENT="Changes between release 2.0 and 2.20">
+<META NAME="keywords" CONTENT="idl">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2002-2-1">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="idl.css">
+
+<LINK REL="next" HREF="idlnode4.htm">
+<LINK REL="previous" HREF="idlnode2.htm">
+<LINK REL="up" HREF="idl.htm">
+<LINK REL="next" HREF="idlnode4.htm">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><body text="#000000" bgcolor="#FFFFFA">
+<!--Navigation Panel-->
+<A NAME="tex2html167"
+  HREF="idlnode2.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html173"
+  HREF="idl.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html177"
+  HREF="idlnode4.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html175"
+  HREF="idlnode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html168"
+  HREF="idlnode2.htm">Using the HEALPix IDL</A>
+
+<B>Up:</B> <A NAME="tex2html174"
+  HREF="idl.htm">Healpix/IDL subroutines</A>
+
+<B> Next:</B> <A NAME="tex2html178"
+  HREF="idlnode4.htm">Changes between release 1.2</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION00030000000000000000">
+Changes between release 2.0 and 2.20</A>
+</H1>
+Several routines have been added or improved since version 2.0, as listed below.
+Note that thanks to the newer <TT>IDL-astron</TT> library, FITS read/write routines
+in IDL-Healpix routines can now deal with <B>FITS files larger than 2GB</B> (on architectures supporting 64bit
+addressing).
+<BR>
+Using 64 bit integers available since version 5.2 of IDL the maximum resolution parameter Nside supported has increased
+from <SPAN CLASS="MATH">2<SUP>13</SUP>=8192</SPAN> to <!-- MATH
+ $2^{29}=536870912$
+ -->
+<SPAN CLASS="MATH">2<SUP>29</SUP>=536870912</SPAN>, corresponding to <SPAN CLASS="MATH"><IMG
+ WIDTH="77" HEIGHT="22" ALIGN="BOTTOM" BORDER="0"
+ SRC="idlimg1.png"
+ ALT="$3.46\ 10^{18}$"></SPAN>
+pixels on the sphere.
+
+<P>
+<DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ Latest edition (versions 2.20 and 2.20a)
+<DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode16.htm#idl:fits2cl"><TT>fits2cl</TT></A>: addition of <TT>WMAP1</TT> and
+<TT>WMAP5</TT> keywords to read
+	best fit <SPAN CLASS="MATH"><I>C</I>(<I>l</I>)</SPAN> model to WMAP 1st and 5yr data respectively,
+	<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode33.htm#idl:mollview"><TT>cartview, gnomview, mollview, orthview</TT></A>:
+		the <A HREF="idlnode33.htm#idl:mollview:outline"><TT>OUTLINE</TT></A> option now accept
+symbols with <TT>PSYM</TT> <SPAN CLASS="MATH">&gt; 8</SPAN>, using
+<A NAME="tex2html1"
+  HREF="http://www.dfanning.com/programs/symcat.pro"><TT>symcat</TT></A>
+symbols definition.
+</DL>
+
+<P>
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ Recent editions (versions 2.15 and 2.15a)
+<DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode33.htm#idl:mollview"><TT>cartview, gnomview, mollview, orthview</TT></A>:
+        <DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ export of projected map into a FITS file (<A HREF="idlnode33.htm#idl:mollview:fits"><TT>FITS</TT></A> keyword), or an
+IDL array (<A HREF="idlnode33.htm#idl:mollview:fits"><TT>MAP_OUT</TT></A> option) now available with all viewing routines,
+		<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ added <A HREF="idlnode33.htm#idl:mollview:charthick"><TT>CHARTHICK</TT></A> support; accept array of <A HREF="idlnode33.htm#idl:mollview:outline"><TT>OUTLINE</TT></A> structures (if they have the same fields),
+		<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ correction of a bug (in <TT>loaddata_healpix</TT>) that was
+affecting the behavior of these viewing routines after consecutive calls with
+very partial cut-sky <EM>and then</EM> full-sky data sets [2.15a];
+	</DL>
+	<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode50.htm#idl:remove_dipole"><TT>remove_dipole</TT></A> now outputs the monopole and dipole
+<A HREF="idlnode50.htm#idl:remove_dipole:covariance_matrix">covariance matrix</A>;
+	<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ 
+<A HREF="idlnode58.htm#idl:write_fits_map"><TT>write_fits_map</TT></A>, 
+<A HREF="idlnode60.htm#idl:write_tqu"><TT>write_tqu</TT></A>, 
+<A HREF="idlnode59.htm#idl:write_fits_sb"><TT>write_fits_sb</TT></A>: <TT>BAD_DATA</TT> keyword added to FITS header;
+        <DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ update of <TT>astron</TT> library routines (24-May-2010) for improved WCS support.
+</DL>
+
+<P>
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ Previous edition (version 2.14a)
+ <DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode33.htm#idl:mollview"><TT>cartview, gnomview, mollview, orthview</TT></A>:
+        <DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <TT>OUTLINE=</TT>, <TT>GRATICULE=</TT>, <TT>IGRATICULE=</TT> work
+again with virtual windows (<TT>WINDOW</TT><SPAN CLASS="MATH">&lt;0</SPAN>)
+		<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <TT>YPOS=</TT> and <TT>RETAIN=</TT> keywords active again
+		<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <TT>PS=</TT> keyword fixed </DL>
+	<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode33.htm#idl:mollview"><TT>orthview</TT></A>:
+		fixed problems with <TT>/SHADE</TT> keyword, which now
+outputs 8-byte (instead of 16-byte) PNG files
+	<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode25.htm#idl:ianafast"><TT>ianafast</TT></A>, 
+		<A HREF="idlnode26.htm#idl:ismoothing"><TT>ismoothing</TT></A>: 
+	fixed problem with processing of
+polarized maps stored in memory.
+	<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode55.htm#idl:ud_grade"><TT>ud_grade</TT></A>: 
+	improved handling of flagged pixels on Double
+Precision input maps
+	<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode50.htm#idl:remove_dipole"><TT>remove_dipole</TT></A>: 
+<TT>COORD_IN=</TT> and <TT>COORD_OUT=</TT> now
+accept lower case values; <TT>/SILENT</TT> keyword added.
+ </DL></DL>
+<SMALL CLASS="FOOTNOTESIZE"></SMALL><DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ Old edition (version 2.13)
+   <DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ new <A HREF="idlnode22.htm#idl:healpix_doc"><TT>healpix_doc</TT></A> routine to
+browse HTML and PDF documentations
+	<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode33.htm#idl:mollview"><TT>cartview, gnomview, mollview, orthview</TT></A>:
+        <DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ introduction of the <TT>TRUECOLORS=</TT> keyword to generate
+color image from 3 channel map
+		<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ extended capability of the <TT>TRANSPARENT=</TT> keyword
+		<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ addition of <TT>MAP_OUT=</TT> to <TT>gnomview</TT>
+	</DL>
+	<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ improved compatibility with 
+<A NAME="tex2html2"
+  HREF="http://gnudatalanguage.sourceforge.net">GDL</A>
+(free IDL clone). See <A NAME="tex2html3"
+  HREF="install.htm">``<b>HEALPix</b> Installation Document''</A>
+for current GDL limitations.
+	<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ update of the <TT>IDL-astron</TT> library routines, which now require IDL 6.1 or more
+	<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode15.htm#idl:fits2alm"><TT>fits2alm</TT></A>: new <TT>LMAX=</TT> and <TT>LMIN=</TT> keywords
+	<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode16.htm#idl:fits2cl"><TT>fits2cl</TT></A>: new <TT>LLFACTOR=</TT>  keyword
+	<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode29.htm#idl:init_healpix"><TT>init_healpix</TT></A> defines
+substructure with complete path to <b>HEALPix</b> subdirectories (test, data, bin)
+	<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ slightly faster <A HREF="idlnode57.htm#idl:write_fits_cut4"><TT>write_fits_cut4</TT></A>
+	and <A HREF="idlnode59.htm#idl:write_fits_sb"><TT>write_fits_sb</TT></A> routines.
+	<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode25.htm#idl:ianafast"><TT>ianafast</TT></A>, 
+              <A HREF="idlnode26.htm#idl:ismoothing"><TT>ismoothing</TT></A>: solved problem with <TT>W8DIR=</TT> keyword.
+   </DL>
+
+<P>
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ Older editions (versions 2.11 and 2.12a)
+   <DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode25.htm#idl:ianafast"><TT>ianafast</TT></A>, 
+              <A HREF="idlnode26.htm#idl:ismoothing"><TT>ismoothing</TT></A>, 
+              <A HREF="idlnode27.htm#idl:isynfast"><TT>isynfast</TT></A>: the <TT>TMPDIR</TT> keyword now works properly, and <TT>$IDL_TMPDIR</TT> is used as the
+default temporary directory ; more stable behaviour of these routines
+	<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode55.htm#idl:ud_grade"><TT>ud_grade</TT></A>: 
+	<DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ correctly flags bad output pixels with <TT>bad_data</TT>
+value when upgrading maps
+		<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ cut sky map: improved, faster routine, now works for Nside <SPAN CLASS="MATH">&gt;</SPAN>
+8192
+	</DL>
+	<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode33.htm#idl:mollview"><TT>cartview, gnomview, mollview, orthview</TT></A>:
+        <DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ using a virtual window (ie, setting <TT>WINDOW</TT> to a
+negative value) now allows faster generation of GIF and PNG files (especially useful over remote connections); 
+		<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ addition of <TT>RETAIN=</TT> keyword; 
+		<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ deals correctly with user provided  <TT>MIN</TT> and <TT>MAX</TT> in
+<TT>LOG</TT> and <TT>ASINH</TT> modes
+		<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ polarization norm map can be offset (<TT>POLARIZATION=1</TT> mode)
+		<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ original color table and plot settings are restored when
+leaving these routines
+	</DL>
+	<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode33.htm#idl:mollview"><TT>orthview</TT></A>: addition of 
+              <TT>/SHADED</TT>
+	keyword for 3D rendering
+	<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ issues warning when non-integer pixel indexes are fed to <A HREF="idlnode41.htm#idl:pix_tools"><TT>nest2ring, ring2nest, pix2ang_*, pix2vec_*,</TT></A>   ...
+	<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <TT>ximview</TT>:
+		<DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ fixed problem with cut-sky FITS files
+		<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ color scale bar added to PNG output
+		<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ version 0.6.2, fixed bug in pixel coordinates
+		</DL>
+	<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ cosmetic editions to <TT>remove_dipole</TT>
+   </DL>
+
+<P>
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ New routines in version 2.10 include
+<DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <TT>ximview</TT>: visualisation routine developed by J. P. Leahy intended for quick-look inspection of HEALPix images 
+(as well as ordinary 2-D images) at the level of individual pixels. Features
+include panning, zooming, blinking, image statistics and peak finding.
+ <DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode24.htm#idl:hpx2gs"><TT>hpx2gs</TT></A>: turns a healpix data set into a
+<A NAME="tex2html4"
+  HREF="http://earth.google.com/">Google Earth</A>/<A NAME="tex2html5"
+  HREF="http://earth.google.com/sky/skyedu.html">Google Sky</A>-compatible image
+ <DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode25.htm#idl:ianafast"><TT>ianafast</TT></A>: interface to (F90) <TT>anafast</TT>
+and (C++) <TT>anafast_cxx</TT> facilities 
+ <DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode27.htm#idl:isynfast"><TT>isynfast</TT></A>: interface to F90 <TT>synfast</TT> facility
+ <DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode26.htm#idl:ismoothing"><TT>ismoothing</TT></A>: interface to F90 <TT>smoothing</TT> facility
+ <DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode7.htm#idl:bin_llcl"><TT>bin_llcl</TT></A>: <SPAN CLASS="MATH"><I>C</I>(<I>l</I>)</SPAN> binning
+ <DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode8.htm#idl:bl2fits"><TT>bl2fits</TT></A>: writes <SPAN CLASS="MATH"><I>B</I>(<I>l</I>)</SPAN> or <SPAN CLASS="MATH"><I>W</I>(<I>l</I>)</SPAN> window into
+FITS file
+ <DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode34.htm#idl:neighbours_nest"><TT>neighbours_nest</TT></A>, <A HREF="idlnode35.htm#idl:neighbours_ring"><TT>neighbours_ring</TT></A>: find immediate neighbours of a given pixel
+ <DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode44.htm#idl:query_strip"><TT>query_strip</TT></A>: find pixels lying within a colatitude strip
+</DL>	
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ Routines with extended/improved user interface or new functionalities include
+<DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode33.htm#idl:mollview"><TT>mollview, gnomview, cartview, orthview</TT></A>: 
+<DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <TT>ONLINE</TT> keyword is now redundant, 
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ introduction of <TT>GLSIZE</TT> and <TT>IGLSIZE</TT> to
+  	control automatic labeling of graticules,
+	see Fig.&nbsp;<A HREF="idlnode33.htm#fig:plot_example_execute">2</A> on page&nbsp;<A HREF="idlnode33.htm#page:plot_example_execute"><IMG  ALIGN="BOTTOM" BORDER="1" ALT="[*]" SRC="crossref.png"></A>
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ addition of <TT>SILENT</TT> and <TT>EXECUTE</TT> keywords,
+	see Fig.&nbsp;<A HREF="idlnode33.htm#fig:plot_example_execute">2</A> on
+	page&nbsp;<A HREF="idlnode33.htm#page:plot_example_execute"><IMG  ALIGN="BOTTOM" BORDER="1" ALT="[*]" SRC="crossref.png"></A>
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ addition of <TT>ASINH</TT> keyword to allow better visualisation of highly
+contrasted maps; see Figure&nbsp;<A HREF="idlnode33.htm#fig:merge_wmapKband">3</A> on page&nbsp;<A HREF="idlnode33.htm#page:merge_wmapKband"><IMG  ALIGN="BOTTOM" BORDER="1" ALT="[*]" SRC="crossref.png"></A>,
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ under certain circumstances, can process high resolution cut sky data sets
+	without creating full sky dummy maps,
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ accept gzip compressed FITS files,
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ accept polarized cut sky maps,
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ accept multi-dimensional online arrays,
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ more robust <TT>OUTLINE</TT> option.
+</DL>
+
+<P>
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode31.htm#idl:median_filter"><TT>median_filter</TT></A>: bugs correction
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode55.htm#idl:ud_grade"><TT>ud_grade</TT></A>: more robust user interface
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode11.htm#idl:change_polcconv"><TT>change_polcconv</TT></A>: new <TT>/FORCE</TT> keyword
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode50.htm#idl:remove_dipole"><TT>remove_dipole</TT></A>: more accurate
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode42.htm#idl:query_disc"><TT>query_disc</TT></A>: when the disc center is
+located at one of
+the poles, <EM>only</EM> the pixels overlapping with the disc are now returned.
+</DL>
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ Miscellaneous
+<DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode32.htm#idl:mollcursor"><TT>mollcursor, gnomcursor...</TT></A>: an X11 patch is
+given so that these routines work under Mac OS X 10.4 and 10.5.
+</DL></DL>
+<P>
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html167"
+  HREF="idlnode2.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html173"
+  HREF="idl.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html177"
+  HREF="idlnode4.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html175"
+  HREF="idlnode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html168"
+  HREF="idlnode2.htm">Using the HEALPix IDL</A>
+
+<B>Up:</B> <A NAME="tex2html174"
+  HREF="idl.htm">Healpix/IDL subroutines</A>
+
+<B> Next:</B> <A NAME="tex2html178"
+  HREF="idlnode4.htm">Changes between release 1.2</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+Eric Hivon
+2011-02-09
+</ADDRESS>
+</BODY>
+</HTML>

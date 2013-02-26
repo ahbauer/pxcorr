@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2002-2-1 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Introduction to Healpix</TITLE>
+<META NAME="description" CONTENT="Introduction to Healpix">
+<META NAME="keywords" CONTENT="intro">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2002-2-1">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="intro.css">
+
+<LINK REL="next" HREF="intronode1.htm">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><body text="#000000" bgcolor="#FFFFFA">
+<!--Navigation Panel-->
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev_g.png"> 
+<A NAME="tex2html21"
+  HREF="main.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html25"
+  HREF="intronode1.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html23"
+  HREF="intronode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B>Up:</B> <A NAME="tex2html22"
+  HREF="main.htm">Main Page</A>
+
+<B> Next:</B> <A NAME="tex2html26"
+  HREF="intronode1.htm">TABLE OF CONTENTS</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+
+<P>
+
+<P>
+<H1 ALIGN=CENTER>The <b>HEALPix</b> Primer</H1>
+<DIV>
+<b>HEALPix</b> is a Hierarchical, Equal Area, and iso-Latitude Pixelisation 
+of the sphere  designed to support efficiently
+(1) local operations on the pixel set,
+(2) a hierarchical tree structure for  multi-resolution applications, and
+(3) the global Fast Spherical Harmonic transform.
+<b>HEALPix</b> based mathematical software meets the challenges 
+which future high resolution and large volume CMB data sets, 
+including the WMAP and Planck mission products, will present.
+</DIV>
+<P ALIGN=CENTER><STRONG>Krzysztof M.&nbsp;G&#243;rski, Benjamin D.&nbsp;Wandelt, Eric Hivon, Frode K.&nbsp;Hansen,
+and Anthony J. Banday</STRONG></P>
+<BR><P ALIGN=CENTER><I>Revision: </I>Version 2.20a; February 9, 2011</P>
+
+<BR><HR>
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"></A>
+
+<UL CLASS="ChildLinks">
+<LI><A NAME="tex2html27"
+  HREF="intronode1.htm">TABLE OF CONTENTS</A>
+<LI><A NAME="tex2html28"
+  HREF="intronode2.htm">Introduction</A>
+<LI><A NAME="tex2html29"
+  HREF="intronode3.htm">Discretisation of Functions on the Sphere</A>
+<LI><A NAME="tex2html30"
+  HREF="intronode4.htm">Geometric and Algebraic Properties of <b>HEALPix</b> </A>
+<LI><A NAME="tex2html31"
+  HREF="intronode5.htm">The <b>HEALPix</b> Software Package</A>
+<LI><A NAME="tex2html32"
+  HREF="intronode6.htm"><b>HEALPix</b> conventions  </A>
+<UL>
+<LI><A NAME="tex2html33"
+  HREF="intronode7.htm">Angular power spectrum conventions</A>
+<LI><A NAME="tex2html34"
+  HREF="intronode8.htm"><b>HEALPix</b> and CMBFAST</A>
+<LI><A NAME="tex2html35"
+  HREF="intronode9.htm">Polarisation convention</A>
+<UL>
+<LI><A NAME="tex2html36"
+  HREF="intronode10.htm">Internal convention</A>
+<LI><A NAME="tex2html37"
+  HREF="intronode11.htm">Relation to previous releases</A>
+<LI><A NAME="tex2html38"
+  HREF="intronode12.htm">Relation with IAU convention</A>
+</UL>
+<LI><A NAME="tex2html39"
+  HREF="intronode13.htm">Spherical harmonic conventions</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html40"
+  HREF="intronode14.htm">Pixel window functions</A>
+<LI><A NAME="tex2html41"
+  HREF="intronode15.htm">A Comment on the Random Number Generator</A>
+<LI><A NAME="tex2html42"
+  HREF="intronode16.htm">Bibliography</A>
+<LI><A NAME="tex2html43"
+  HREF="intronode17.htm">About this document ...</A>
+</UL>
+<!--End of Table of Child-Links-->
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev_g.png"> 
+<A NAME="tex2html21"
+  HREF="main.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html25"
+  HREF="intronode1.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html23"
+  HREF="intronode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B>Up:</B> <A NAME="tex2html22"
+  HREF="main.htm">Main Page</A>
+
+<B> Next:</B> <A NAME="tex2html26"
+  HREF="intronode1.htm">TABLE OF CONTENTS</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+Eric Hivon
+2011-02-09
+</ADDRESS>
+</BODY>
+</HTML>

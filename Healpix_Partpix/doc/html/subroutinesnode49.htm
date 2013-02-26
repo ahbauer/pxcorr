@@ -1,0 +1,413 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2002-2-1 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>map2alm_spin*</TITLE>
+<META NAME="description" CONTENT="map2alm_spin*">
+<META NAME="keywords" CONTENT="subroutines">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2002-2-1">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="subroutines.css">
+
+<LINK REL="next" HREF="subroutinesnode50.htm">
+<LINK REL="previous" HREF="subroutinesnode48.htm">
+<LINK REL="up" HREF="subroutines.htm">
+<LINK REL="next" HREF="subroutinesnode50.htm">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><body text="#000000" bgcolor="#FFFFFA">
+<!--Navigation Panel-->
+<A NAME="tex2html807"
+  HREF="subroutinesnode48.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html813"
+  HREF="subroutines.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html817"
+  HREF="subroutinesnode50.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html815"
+  HREF="subroutinesnode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html808"
+  HREF="subroutinesnode48.htm">map2alm_iterative*</A>
+
+<B>Up:</B> <A NAME="tex2html814"
+  HREF="subroutines.htm">Healpix/F90 subroutines</A>
+
+<B> Next:</B> <A NAME="tex2html818"
+  HREF="subroutinesnode50.htm">medfiltmap*</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION000490000000000000000"></A>
+<A NAME="sub:map2alm_spin"></A>
+<BR>
+ 
+</H1>
+
+<P>
+<b><font size=+6><FONT COLOR="#CC0000">map2alm_spin*</FONT></font></b><hr><H2>This routine extracts the alm coefficients out of maps of spin <SPAN CLASS="MATH"><I>s</I></SPAN> and <SPAN CLASS="MATH">-<I>s</I></SPAN>.
+A (complex) map <SPAN CLASS="MATH"><I>S</I></SPAN> of spin <SPAN CLASS="MATH"><I>s</I></SPAN> is a linear combination of the spin weighted harmonics <SPAN CLASS="MATH"><SUB><I>s</I></SUB><I>Y</I><SUB><I>lm</I></SUB></SPAN>
+<BR>
+<DIV ALIGN="RIGHT" CLASS="mathdisplay">
+
+<!-- MATH
+ \begin{equation}
+{_s}S(p) = \sum_{lm} {_s}a_{lm}\ \ {_s}Y_{lm}(p)
+\end{equation}
+ -->
+<TABLE WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE"><TD ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="198" HEIGHT="49" BORDER="0"
+ SRC="subroutinesimg25.png"
+ ALT="\begin{displaymath}
+{_s}S(p) = \sum_{lm} {_s}a_{lm}\ \ {_s}Y_{lm}(p)
+\end{displaymath}"></TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+(<SPAN CLASS="arabic">8</SPAN>)</TD></TR>
+</TABLE>
+<BR CLEAR="ALL"></DIV><P></P>
+for <!-- MATH
+ $l \ge |m|, l \ge |s|$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="122" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="subroutinesimg26.png"
+ ALT="$l \ge \vert m\vert, l \ge \vert s\vert$"></SPAN>,
+and is such that <!-- MATH
+ ${_s}S^* = {_{-s}}S$
+ -->
+<SPAN CLASS="MATH"><SUB><I>s</I></SUB><I>S</I><SUP>*</SUP> = <SUB>-<I>s</I></SUB><I>S</I></SPAN>.
+<BR>
+The two (real) input maps for <FONT COLOR="#CC0000">map2alm_spin*</FONT> are defined respectively as
+<BR>
+<DIV ALIGN="CENTER">
+
+<!-- MATH
+ \begin{eqnarray}
+{_{|s|}}S^+ &\myequal& ({_{|s|}}S + {_{-|s|}}S)/2 \\
+	{_{|s|}}S^- &\myequal& ({_{|s|}}S - {_{-|s|}}S)/(2i).
+\end{eqnarray}
+ -->
+<TABLE CELLPADDING="0" ALIGN="CENTER" WIDTH="100%">
+<TR VALIGN="MIDDLE"><TD NOWRAP WIDTH="50%" ALIGN="RIGHT"><SUB>|s|</SUB><I>S</I><SUP>+</SUP></TD>
+<TD ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="19" HEIGHT="33" ALIGN="MIDDLE" BORDER="0"
+ SRC="subroutinesimg27.png"
+ ALT="$\textstyle \myequal$"></TD>
+<TD ALIGN="LEFT" WIDTH="50%" NOWRAP>(<SUB>|s|</SUB><I>S</I> + <SUB>-|s|</SUB><I>S</I>)/2</TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+(<SPAN CLASS="arabic">9</SPAN>)</TD></TR>
+<TR VALIGN="MIDDLE"><TD NOWRAP WIDTH="50%" ALIGN="RIGHT"><SUB>|s|</SUB><I>S</I><SUP>-</SUP></TD>
+<TD ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="19" HEIGHT="33" ALIGN="MIDDLE" BORDER="0"
+ SRC="subroutinesimg27.png"
+ ALT="$\textstyle \myequal$"></TD>
+<TD ALIGN="LEFT" WIDTH="50%" NOWRAP>(<SUB>|s|</SUB><I>S</I> - <SUB>-|s|</SUB><I>S</I>)/(2<I>i</I>).</TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+(<SPAN CLASS="arabic">10</SPAN>)</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+<FONT COLOR="#CC0000">map2alm_spin*</FONT> outputs the alm coefficients defined as
+	<BR>
+<DIV ALIGN="CENTER">
+
+<!-- MATH
+ \begin{eqnarray}
+{_{|s|}}a^{+}_{lm} &\myequal& - ( {_{|s|}}a_{lm} + (-1)^s {_{-|s|}}a_{lm} )/2 \\
+	{_{|s|}}a^{-}_{lm} &\myequal& - ( {_{|s|}}a_{lm} - (-1)^s {_{-|s|}}a_{lm} )/(2i)
+\end{eqnarray}
+ -->
+<TABLE CELLPADDING="0" ALIGN="CENTER" WIDTH="100%">
+<TR VALIGN="MIDDLE"><TD NOWRAP WIDTH="50%" ALIGN="RIGHT"><SUB>|s|</SUB><I>a</I><SUP>+</SUP><SUB><I>lm</I></SUB></TD>
+<TD ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="19" HEIGHT="33" ALIGN="MIDDLE" BORDER="0"
+ SRC="subroutinesimg27.png"
+ ALT="$\textstyle \myequal$"></TD>
+<TD ALIGN="LEFT" WIDTH="50%" NOWRAP>- ( <SUB>|s|</SUB><I>a</I><SUB><I>lm</I></SUB> + (-1)<SUP><I>s</I></SUP> <SUB>-|s|</SUB><I>a</I><SUB><I>lm</I></SUB> )/2</TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+(<SPAN CLASS="arabic">11</SPAN>)</TD></TR>
+<TR VALIGN="MIDDLE"><TD NOWRAP WIDTH="50%" ALIGN="RIGHT"><SUB>|s|</SUB><I>a</I><SUP>-</SUP><SUB><I>lm</I></SUB></TD>
+<TD ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="19" HEIGHT="33" ALIGN="MIDDLE" BORDER="0"
+ SRC="subroutinesimg27.png"
+ ALT="$\textstyle \myequal$"></TD>
+<TD ALIGN="LEFT" WIDTH="50%" NOWRAP>- ( <SUB>|s|</SUB><I>a</I><SUB><I>lm</I></SUB> - (-1)<SUP><I>s</I></SUP> <SUB>-|s|</SUB><I>a</I><SUB><I>lm</I></SUB> )/(2<I>i</I>)</TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+(<SPAN CLASS="arabic">12</SPAN>)</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+for <SPAN CLASS="MATH"><IMG
+ WIDTH="56" HEIGHT="33" ALIGN="MIDDLE" BORDER="0"
+ SRC="subroutinesimg28.png"
+ ALT="$m\ge 0$"></SPAN>, knowing that, just as for spin 0 maps, the
+coefficients for <SPAN CLASS="MATH"><I>m</I>&lt;0</SPAN> are given by 
+<BR>
+<DIV ALIGN="CENTER">
+
+<!-- MATH
+ \begin{eqnarray}
+{_{|s|}}a^{+}_{l-m} &\myequal& (-1)^m {_{|s|}}a^{+*}_{lm}, \\
+{_{|s|}}a^{-}_{l-m} &\myequal& (-1)^m {_{|s|}}a^{-*}_{lm}.
+\end{eqnarray}
+ -->
+<TABLE CELLPADDING="0" ALIGN="CENTER" WIDTH="100%">
+<TR VALIGN="MIDDLE"><TD NOWRAP WIDTH="50%" ALIGN="RIGHT"><SUB>|s|</SUB><I>a</I><SUP>+</SUP><SUB><I>l</I>-<I>m</I></SUB></TD>
+<TD ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="19" HEIGHT="33" ALIGN="MIDDLE" BORDER="0"
+ SRC="subroutinesimg27.png"
+ ALT="$\textstyle \myequal$"></TD>
+<TD ALIGN="LEFT" WIDTH="50%" NOWRAP>(-1)<SUP><I>m</I></SUP> <SUB>|s|</SUB><I>a</I><SUP>+*</SUP><SUB><I>lm</I></SUB>,</TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+(<SPAN CLASS="arabic">13</SPAN>)</TD></TR>
+<TR VALIGN="MIDDLE"><TD NOWRAP WIDTH="50%" ALIGN="RIGHT"><SUB>|s|</SUB><I>a</I><SUP>-</SUP><SUB><I>l</I>-<I>m</I></SUB></TD>
+<TD ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="19" HEIGHT="33" ALIGN="MIDDLE" BORDER="0"
+ SRC="subroutinesimg27.png"
+ ALT="$\textstyle \myequal$"></TD>
+<TD ALIGN="LEFT" WIDTH="50%" NOWRAP>(-1)<SUP><I>m</I></SUP> <SUB>|s|</SUB><I>a</I><SUP>-*</SUP><SUB><I>lm</I></SUB>.</TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+(<SPAN CLASS="arabic">14</SPAN>)</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+With these definitions, <SPAN CLASS="MATH"><SUB>2</SUB><I>a</I><SUP>+</SUP></SPAN>, <SPAN CLASS="MATH"><SUB>2</SUB><I>a</I><SUP>-</SUP></SPAN>, <SPAN CLASS="MATH"><SUB>2</SUB><I>S</I><SUP>+</SUP></SPAN> and <SPAN CLASS="MATH"><SUB>2</SUB><I>S</I><SUP>-</SUP></SPAN>
+match <b>HEALPix</b> polarization <SPAN CLASS="MATH"><I>a</I><SUP><I>E</I></SUP>, <I>a</I><SUP><I>B</I></SUP>, <I>Q</I></SPAN> and <SPAN CLASS="MATH"><I>U</I></SPAN> respectively. However, for
+<SPAN CLASS="MATH"><I>s</I>=0</SPAN>, <!-- MATH
+ $\ _{0}a^+_{lm} = -a^T_{lm}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="112" HEIGHT="40" ALIGN="MIDDLE" BORDER="0"
+ SRC="subroutinesimg29.png"
+ ALT="$\ _{0}a^+_{lm} = -a^T_{lm}$"></SPAN>, <!-- MATH
+ $\ _{0}a^-_{lm} = 0$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="80" HEIGHT="40" ALIGN="MIDDLE" BORDER="0"
+ SRC="subroutinesimg30.png"
+ ALT="$\ _{0}a^-_{lm} = 0$"></SPAN>, <SPAN CLASS="MATH"><IMG
+ WIDTH="81" HEIGHT="38" ALIGN="MIDDLE" BORDER="0"
+ SRC="subroutinesimg31.png"
+ ALT="$\ {_0}S^+ = T$"></SPAN>, <!-- MATH
+ $\
+{_0}S^- = 0.$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="38" ALIGN="MIDDLE" BORDER="0"
+ SRC="subroutinesimg32.png"
+ ALT="$\ {_0}S^- = 0.$"></SPAN>
+</H2><br>Location in HEALPix directory tree: <b>
+src/f90/mod/alm_tools.F90
+</b>
+
+<P>
+<hr><h1>FORMAT </h1><blockquote><h2>call <FONT COLOR="#CC0000">map2alm_spin*</FONT>(
+nsmax, nlmax, nmmax, spin, map, alm [, zbounds, w8ring_TQU]
+)</h2></blockquote>
+
+<P>
+<hr><H1>ARGUMENTS</H1>
+
+<TABLE CELLPADDING=3 BORDER="1">
+<TR><TH ALIGN="LEFT" VALIGN="TOP" WIDTH=200><SPAN  CLASS="textbf">name&nbsp;&amp;&nbsp;dimensionality</SPAN></TH>
+<TH ALIGN="LEFT" VALIGN="TOP" WIDTH=25><SPAN  CLASS="textbf">kind</SPAN></TH>
+<TH ALIGN="LEFT" VALIGN="TOP" WIDTH=25><SPAN  CLASS="textbf">in/out</SPAN></TH>
+<TH ALIGN="LEFT" VALIGN="TOP" WIDTH=200><SPAN  CLASS="textbf">description</SPAN></TH>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=200>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=25>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=25>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=200>&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=200>
+nsmax</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=25>I4B</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=25>IN</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=200>the <SPAN CLASS="MATH"><I>N</I><SUB><I>side</I></SUB></SPAN> value of the map to analyse.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=200>nlmax</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=25>I4B</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=25>IN</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=200>the maximum <SPAN CLASS="MATH"><I>l</I></SPAN> value for the analysis.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=200>nmmax</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=25>I4B</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=25>IN</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=200>the maximum <SPAN CLASS="MATH"><I>m</I></SPAN> value for the analysis.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=200>spin</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=25>I4B</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=25>IN</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=200>the spin <SPAN CLASS="MATH"><I>s</I></SPAN> of the maps to be analysed (only its absolute
+value is relevant).</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=200>map(0:12*nsmax**2-1, 1:2)</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=25>SP/ DP</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=25>IN</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=200><SPAN CLASS="MATH"><SUB>|s|</SUB><I>S</I><SUP>+</SUP></SPAN> and <SPAN CLASS="MATH"><SUB>|s|</SUB><I>S</I><SUP>-</SUP></SPAN> input maps</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=200>alm(1:2, 0:nlmax, 0:nmmax)</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=25>SPC/ DPC</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=25>OUT</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=200>The <!-- MATH
+ ${_{|s|}}a^+_{lm}$
+ -->
+<SPAN CLASS="MATH"><SUB>|s|</SUB><I>a</I><SUP>+</SUP><SUB><I>lm</I></SUB></SPAN> and
+<!-- MATH
+ ${_{|s|}}a^-_{lm}$
+ -->
+<SPAN CLASS="MATH"><SUB>|s|</SUB><I>a</I><SUP>-</SUP><SUB><I>lm</I></SUB></SPAN> output values.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=200>zbounds(1:2), OPTIONAL</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=25>DP</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=25>IN</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=200>section of the map on which to perform the <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN>
+                   analysis, expressed in terms of <!-- MATH
+ $z=\sin({\rm latitude}) =
+                   \cos(\theta).$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="219" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="subroutinesimg83.png"
+ ALT="$z=\sin({\rm latitude}) =
+\cos(\theta).$"></SPAN> If zbounds(1)<SPAN CLASS="MATH">&lt;</SPAN>zbounds(2), the analysis is
+                   performed <EM>on</EM> the strip zbounds(1)<SPAN CLASS="MATH">&lt;<I>z</I>&lt;</SPAN>zbounds(2); if not,
+                   it is performed <EM>outside</EM> of the strip
+                   zbounds(2)<SPAN CLASS="MATH">&lt;<I>z</I>&lt;</SPAN>zbounds(1).</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=200>w8ring(1:2*nsmax,1:2), OPTIONAL</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=25>DP</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=25>IN</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=200>ring weights for quadrature corrections. If ring weights are not used, this array should be 1 everywhere.</TD>
+</TR>
+</TABLE>
+
+<P>
+<HR><H1>EXAMPLE:</H1><tt><FONT SIZE=+1>
+use <A HREF="subroutinesnode42.htm#sub:healpix_types">healpix_types</A>
+<BR>
+use alm_tools
+<BR>
+use pix_tools
+<BR>
+integer(<A HREF="subroutinesnode42.htm#sub:healpix_types">i4b</A>) :: nside, lmax, spin 
+<BR>
+real(<A HREF="subroutinesnode42.htm#sub:healpix_types">sp</A>), allocatable, dimension(:,:) :: map 
+<BR>
+complex(<A HREF="subroutinesnode42.htm#sub:healpix_types">spc</A>), allocatable, dimension(:,:,:) :: alm 
+<BR>
+<BR>
+nside = 256 
+<BR>
+lmax = 512 
+<BR>
+spin = 5 
+<BR>
+allocate(map(0:nside2npix(nside)-1,1:2)) 
+<BR>
+allocate(alm(1:2, 0:lmax, 0:lmax)
+<BR>...
+<BR>
+call map2alm_spin(nside, lmax, lmax, spin, map, alm)  
+<BR></font></tt>
+<BR><blockquote>
+Analyses spin 5 and -5 maps. The maps have
+an <SPAN CLASS="MATH"><I>N</I><SUB><I>side</I></SUB></SPAN> of 256, and the analysis is performed up
+to 512 in <SPAN CLASS="MATH"><I>l</I></SPAN> and m. The resulting <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN> coefficients for
+are returned in alm.
+</blockquote>
+
+<P>
+<hr><H1>MODULES & ROUTINES</H1><H2>This section lists the modules and routines used by <FONT COLOR="#CC0000">map2alm_spin*</FONT>.</h2>
+  <DL COMPACT><DT>
+<B>ring_analysis</B>
+<DD>Performs FFT for the ring analysis.
+  <DT>
+<B>compute_lam_mm, get_pixel_layout, </B>
+<DD><DT>
+<B>gen_lamfac_der, gen_mfac,  </B>
+<DD><DT>
+<B>gen_recfac, init_rescale, l_min_ylm</B>
+<DD>Ancillary routines used
+  for <SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="subroutinesimg24.png"
+ ALT="$\ {_s}Y_{lm}$"></SPAN> recursion
+  <DT>
+<B><SPAN  CLASS="textbf">misc_util</SPAN></B>
+<DD>module, containing:
+  <DT>
+<B>assert_alloc</B>
+<DD>routine to print error message when an array is not
+  properly allocated		
+  </DL>
+Note: Starting with <A HREF="subroutinesnode3.htm#sub:new2p20">version 2.20</A>, <TT>libpsht</TT> routines will be called if <SPAN CLASS="MATH"><IMG
+ WIDTH="112" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="subroutinesimg5.png"
+ ALT="$0 &lt; \vert s\vert \le 100$"></SPAN>.
+
+<P>
+<hr><H1>RELATED ROUTINES</H1><h3>This section lists the routines related to <b><FONT COLOR="#CC0000">map2alm_spin*</FONT></b></h3>
+<BR> 
+  <DL COMPACT><DT>
+<B><A HREF="subroutinesnode13.htm#sub:alm2map_spin">alm2map_spin</A></B>
+<DD>routine performing the inverse transform
+of <FONT COLOR="#CC0000">map2alm_spin*</FONT>.
+   <DT>
+<B><A HREF="subroutinesnode47.htm#sub:map2alm">map2alm</A></B>
+<DD>routine analyzing temperature and
+polarization maps
+</DL>
+
+<P>
+
+<P>
+
+
+<P>
+
+<P>
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html807"
+  HREF="subroutinesnode48.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html813"
+  HREF="subroutines.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html817"
+  HREF="subroutinesnode50.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html815"
+  HREF="subroutinesnode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html808"
+  HREF="subroutinesnode48.htm">map2alm_iterative*</A>
+
+<B>Up:</B> <A NAME="tex2html814"
+  HREF="subroutines.htm">Healpix/F90 subroutines</A>
+
+<B> Next:</B> <A NAME="tex2html818"
+  HREF="subroutinesnode50.htm">medfiltmap*</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+Eric Hivon
+2011-02-09
+</ADDRESS>
+</BODY>
+</HTML>

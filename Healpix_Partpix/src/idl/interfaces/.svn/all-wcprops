@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/interfaces
+END
+ismoothing.pro
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/interfaces/ismoothing.pro
+END
+isynfast.pro
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/interfaces/isynfast.pro
+END
+hpx_xface_generic.pro
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/interfaces/hpx_xface_generic.pro
+END
+ianafast.pro
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/interfaces/ianafast.pro
+END
+hpx_add_parameter.pro
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/interfaces/hpx_add_parameter.pro
+END
+set_parameter.pro
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/interfaces/set_parameter.pro
+END
+hpx_file2mem.pro
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/interfaces/hpx_file2mem.pro
+END
+hpx_mem2file.pro
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/interfaces/hpx_mem2file.pro
+END

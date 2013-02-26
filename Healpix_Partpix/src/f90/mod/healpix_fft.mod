@@ -1,0 +1,133 @@
+GFORTRAN module version '6' created from healpix_fft.junk.F90 on Mon Jul 23 16:10:44 2012
+MD5:4e273f9e9cc4742dc74594e8e492bc84 -- If you edit this, you'll get what you deserve.
+
+(() () () () () () () () () () () () () () () () () () () () () () ()
+() () () ())
+
+()
+
+(('complex_fft2' 'healpix_fft' 2 3) ('complex_fft' 'healpix_fft' 4 5) (
+'real_fft' 'healpix_fft' 6 7) ('real_fft2' 'healpix_fft' 8 9))
+
+()
+
+()
+
+()
+
+(10 'destroy_fft2_plan' 'healpix_fft' 'destroy_fft2_plan' 1 ((PROCEDURE
+UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE IMPLICIT_PURE) (
+UNKNOWN 0 0 0 UNKNOWN ()) 11 0 (12) () 0 () () () 0 0)
+13 'fft2_backward' 'healpix_fft' 'fft2_backward' 1 ((PARAMETER
+UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN IMPLICIT-SAVE 0 0) (LOGICAL 4 0 0
+LOGICAL ()) 0 0 () (CONSTANT (LOGICAL 4 0 0 LOGICAL ()) 0 1) () 0 () ()
+() 0 0)
+14 'fft2_forward' 'healpix_fft' 'fft2_forward' 1 ((PARAMETER
+UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN IMPLICIT-SAVE 0 0) (LOGICAL 4 0 0
+LOGICAL ()) 0 0 () (CONSTANT (LOGICAL 4 0 0 LOGICAL ()) 0 0) () 0 () ()
+() 0 0)
+15 'init_fft2_plan' 'healpix_fft' 'init_fft2_plan' 1 ((PROCEDURE
+UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE IMPLICIT_PURE) (
+UNKNOWN 0 0 0 UNKNOWN ()) 16 0 (17) () 0 () () () 0 0)
+18 'make_fft2_plan' 'healpix_fft' 'make_fft2_plan' 1 ((PROCEDURE
+UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE IMPLICIT_PURE) (
+UNKNOWN 0 0 0 UNKNOWN ()) 19 0 (20 21 22) () 0 () () () 0 0)
+23 'planck_fft2_plan' 'healpix_fft' 'planck_fft2_plan' 1 ((DERIVED
+UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0) (UNKNOWN 0 0 0 UNKNOWN
+()) 0 0 () () 0 ((24 'direction' (LOGICAL 4 0 0 LOGICAL ()) () (
+UNKNOWN-FL UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0)
+UNKNOWN-ACCESS ()) (25 'length' (INTEGER 4 0 0 INTEGER ()) () (
+UNKNOWN-FL UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0)
+UNKNOWN-ACCESS ())) PUBLIC (() () () ()) () 0 0 9297679)
+3 'd_c_complex_fft2' 'healpix_fft' 'd_c_complex_fft2' 1 ((PROCEDURE
+UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE IMPLICIT_PURE
+ALWAYS_EXPLICIT) (UNKNOWN 0 0 0 UNKNOWN ()) 26 0 (27 28) () 0 () () () 0
+0)
+2 'd_r_complex_fft2' 'healpix_fft' 'd_r_complex_fft2' 1 ((PROCEDURE
+UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE IMPLICIT_PURE
+ALWAYS_EXPLICIT) (UNKNOWN 0 0 0 UNKNOWN ()) 29 0 (30 31) () 0 () () () 0
+0)
+9 's_real_fft2' 'healpix_fft' 's_real_fft2' 1 ((PROCEDURE UNKNOWN-INTENT
+MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE IMPLICIT_PURE ALWAYS_EXPLICIT) (
+UNKNOWN 0 0 0 UNKNOWN ()) 32 0 (33 34) () 0 () () () 0 0)
+8 'd_real_fft2' 'healpix_fft' 'd_real_fft2' 1 ((PROCEDURE UNKNOWN-INTENT
+MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE IMPLICIT_PURE ALWAYS_EXPLICIT) (
+UNKNOWN 0 0 0 UNKNOWN ()) 35 0 (36 37) () 0 () () () 0 0)
+5 'complex_fft_orig' 'healpix_fft' 'complex_fft_orig' 1 ((PROCEDURE
+UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE IMPLICIT_PURE
+ALWAYS_EXPLICIT) (UNKNOWN 0 0 0 UNKNOWN ()) 38 0 (39 40 41) () 0 () () ()
+0 0)
+4 'complex_fft_alt' 'healpix_fft' 'complex_fft_alt' 1 ((PROCEDURE
+UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE IMPLICIT_PURE
+ALWAYS_EXPLICIT) (UNKNOWN 0 0 0 UNKNOWN ()) 42 0 (43 44 45) () 0 () () ()
+0 0)
+7 's_real_fft' 'healpix_fft' 's_real_fft' 1 ((PROCEDURE UNKNOWN-INTENT
+MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE IMPLICIT_PURE ALWAYS_EXPLICIT) (
+UNKNOWN 0 0 0 UNKNOWN ()) 46 0 (47 48) () 0 () () () 0 0)
+6 'd_real_fft' 'healpix_fft' 'd_real_fft' 1 ((PROCEDURE UNKNOWN-INTENT
+MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE IMPLICIT_PURE ALWAYS_EXPLICIT) (
+UNKNOWN 0 0 0 UNKNOWN ()) 49 0 (50 51) () 0 () () () 0 0)
+17 'plan' '' 'plan' 16 ((VARIABLE INOUT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
+DUMMY) (DERIVED 23 0 0 DERIVED ()) 0 0 () () 0 () () () 0 0)
+20 'plan' '' 'plan' 19 ((VARIABLE OUT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
+DUMMY) (DERIVED 23 0 0 DERIVED ()) 0 0 () () 0 () () () 0 0)
+21 'length' '' 'length' 19 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0
+0 DUMMY) (INTEGER 4 0 0 INTEGER ()) 0 0 () () 0 () () () 0 0)
+22 'direction' '' 'direction' 19 ((VARIABLE IN UNKNOWN-PROC UNKNOWN
+UNKNOWN 0 0 DUMMY) (LOGICAL 4 0 0 LOGICAL ()) 0 0 () () 0 () () () 0 0)
+12 'plan' '' 'plan' 11 ((VARIABLE OUT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
+DUMMY) (DERIVED 23 0 0 DERIVED ()) 0 0 () () 0 () () () 0 0)
+27 'plan' '' 'plan' 26 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
+DUMMY) (DERIVED 23 0 0 DERIVED ()) 0 0 () () 0 () () () 0 0)
+28 'data' '' 'data' 26 ((VARIABLE INOUT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
+DIMENSION DUMMY) (COMPLEX 8 0 0 COMPLEX ()) 0 0 () (1 0 ASSUMED_SHAPE (
+CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '1') ()) 0 () () () 0 0)
+30 'plan' '' 'plan' 29 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
+DUMMY) (DERIVED 23 0 0 DERIVED ()) 0 0 () () 0 () () () 0 0)
+31 'data' '' 'data' 29 ((VARIABLE INOUT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
+DIMENSION DUMMY) (REAL 8 0 0 REAL ()) 0 0 () (1 0 ASSUMED_SHAPE (
+CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '1') ()) 0 () () () 0 0)
+36 'plan' '' 'plan' 35 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
+DUMMY) (DERIVED 23 0 0 DERIVED ()) 0 0 () () 0 () () () 0 0)
+37 'data' '' 'data' 35 ((VARIABLE INOUT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
+DIMENSION DUMMY) (REAL 8 0 0 REAL ()) 0 0 () (1 0 ASSUMED_SHAPE (
+CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '1') ()) 0 () () () 0 0)
+33 'plan' '' 'plan' 32 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
+DUMMY) (DERIVED 23 0 0 DERIVED ()) 0 0 () () 0 () () () 0 0)
+34 'data' '' 'data' 32 ((VARIABLE INOUT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
+DIMENSION DUMMY) (REAL 4 0 0 REAL ()) 0 0 () (1 0 ASSUMED_SHAPE (
+CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '1') ()) 0 () () () 0 0)
+39 'data' '' 'data' 38 ((VARIABLE INOUT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
+DIMENSION DUMMY) (COMPLEX 8 0 0 COMPLEX ()) 0 0 () (1 0 ASSUMED_SHAPE (
+CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '1') ()) 0 () () () 0 0)
+40 'backward' '' 'backward' 38 ((VARIABLE IN UNKNOWN-PROC UNKNOWN
+UNKNOWN 0 0 OPTIONAL DUMMY) (LOGICAL 4 0 0 LOGICAL ()) 0 0 () () 0 () ()
+() 0 0)
+41 'onlyreal' '' 'onlyreal' 38 ((VARIABLE IN UNKNOWN-PROC UNKNOWN
+UNKNOWN 0 0 OPTIONAL DUMMY) (LOGICAL 4 0 0 LOGICAL ()) 0 0 () () 0 () ()
+() 0 0)
+43 'data' '' 'data' 42 ((VARIABLE INOUT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
+DIMENSION DUMMY) (REAL 8 0 0 REAL ()) 0 0 () (1 0 ASSUMED_SHAPE (
+CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '1') ()) 0 () () () 0 0)
+44 'backward' '' 'backward' 42 ((VARIABLE IN UNKNOWN-PROC UNKNOWN
+UNKNOWN 0 0 OPTIONAL DUMMY) (LOGICAL 4 0 0 LOGICAL ()) 0 0 () () 0 () ()
+() 0 0)
+45 'onlyreal' '' 'onlyreal' 42 ((VARIABLE IN UNKNOWN-PROC UNKNOWN
+UNKNOWN 0 0 OPTIONAL DUMMY) (LOGICAL 4 0 0 LOGICAL ()) 0 0 () () 0 () ()
+() 0 0)
+50 'data' '' 'data' 49 ((VARIABLE INOUT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
+DIMENSION DUMMY) (REAL 8 0 0 REAL ()) 0 0 () (1 0 ASSUMED_SHAPE (
+CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '1') ()) 0 () () () 0 0)
+51 'backward' '' 'backward' 49 ((VARIABLE IN UNKNOWN-PROC UNKNOWN
+UNKNOWN 0 0 OPTIONAL DUMMY) (LOGICAL 4 0 0 LOGICAL ()) 0 0 () () 0 () ()
+() 0 0)
+47 'data' '' 'data' 46 ((VARIABLE INOUT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
+DIMENSION DUMMY) (REAL 4 0 0 REAL ()) 0 0 () (1 0 ASSUMED_SHAPE (
+CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '1') ()) 0 () () () 0 0)
+48 'backward' '' 'backward' 46 ((VARIABLE IN UNKNOWN-PROC UNKNOWN
+UNKNOWN 0 0 OPTIONAL DUMMY) (LOGICAL 4 0 0 LOGICAL ()) 0 0 () () 0 () ()
+() 0 0)
+)
+
+('destroy_fft2_plan' 0 10 'fft2_backward' 0 13 'fft2_forward' 0 14
+'init_fft2_plan' 0 15 'make_fft2_plan' 0 18 'planck_fft2_plan' 0 23)

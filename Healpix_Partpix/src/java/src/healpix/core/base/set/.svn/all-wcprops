@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/java/src/healpix/core/base/set
+END
+LongRangeSetBuilder.java
+K 25
+svn:wc:ra_dav:version-url
+V 122
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/java/src/healpix/core/base/set/LongRangeSetBuilder.java
+END
+LongRangeIterator.java
+K 25
+svn:wc:ra_dav:version-url
+V 120
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/java/src/healpix/core/base/set/LongRangeIterator.java
+END
+LongRangeSet.java
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/java/src/healpix/core/base/set/LongRangeSet.java
+END
+LongIterator.java
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/java/src/healpix/core/base/set/LongIterator.java
+END
+LongCollection.java
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/java/src/healpix/core/base/set/LongCollection.java
+END
+LongList.java
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/java/src/healpix/core/base/set/LongList.java
+END
+LongSet.java
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/java/src/healpix/core/base/set/LongSet.java
+END

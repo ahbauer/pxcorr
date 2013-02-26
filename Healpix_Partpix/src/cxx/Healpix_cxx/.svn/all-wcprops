@@ -1,0 +1,335 @@
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx
+END
+map2tga.cc
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/map2tga.cc
+END
+alm_powspec_tools.h
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/alm_powspec_tools.h
+END
+udgrade_cxx.cc
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/udgrade_cxx.cc
+END
+hpxtest.cc
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/hpxtest.cc
+END
+calc_powspec.cc
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/calc_powspec.cc
+END
+alm_healpix_tools.cc
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/alm_healpix_tools.cc
+END
+healpix_map_fitsio.cc
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/healpix_map_fitsio.cc
+END
+anafast_cxx_module.cc
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/anafast_cxx_module.cc
+END
+smoothing_cxx.par.txt
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/smoothing_cxx.par.txt
+END
+alm_healpix_tools.h
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/alm_healpix_tools.h
+END
+map2tga.par.txt
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/map2tga.par.txt
+END
+calc_powspec_module.cc
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/calc_powspec_module.cc
+END
+healpix_base2.h
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/healpix_base2.h
+END
+partpix_map2.h
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/PAUdm/!svn/ver/929/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/partpix_map2.h
+END
+mult_alm.cc
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/mult_alm.cc
+END
+hotspots_cxx_module.cc
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/hotspots_cxx_module.cc
+END
+healpix_data_io.cc
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/healpix_data_io.cc
+END
+alm.h
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/alm.h
+END
+mult_alm_module.cc
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/mult_alm_module.cc
+END
+rotalm_cxx.cc
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/rotalm_cxx.cc
+END
+powspec.cc
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/powspec.cc
+END
+alm2map_cxx_module.cc
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/alm2map_cxx_module.cc
+END
+partpix_map.cc
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/PAUdm/!svn/ver/929/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/partpix_map.cc
+END
+healpix_base.cc
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/healpix_base.cc
+END
+healpix_map.cc
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/healpix_map.cc
+END
+alm_fitsio.h
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/alm_fitsio.h
+END
+healpix_map.h
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/healpix_map.h
+END
+powspec_fitsio.cc
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/powspec_fitsio.cc
+END
+smoothing_cxx_module.cc
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/smoothing_cxx_module.cc
+END
+syn_alm_cxx.par.txt
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/syn_alm_cxx.par.txt
+END
+powspec_fitsio.h
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/powspec_fitsio.h
+END
+anafast_cxx.cc
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/anafast_cxx.cc
+END
+map2tga_module.cc
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/map2tga_module.cc
+END
+planck.make
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/PAUdm/!svn/ver/929/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/planck.make
+END
+udgrade_cxx_module.cc
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/udgrade_cxx_module.cc
+END
+hotspots_cxx.cc
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/hotspots_cxx.cc
+END
+healpix_map_fitsio.h
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/healpix_map_fitsio.h
+END
+healpix_base2.cc
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/healpix_base2.cc
+END
+partpix_map2.cc
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/PAUdm/!svn/ver/929/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/partpix_map2.cc
+END
+anafast_cxx.par.txt
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/anafast_cxx.par.txt
+END
+alm2map_cxx.cc
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/alm2map_cxx.cc
+END
+healpix_data_io.h
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/healpix_data_io.h
+END
+Healpix_cxx.dox
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/Healpix_cxx.dox
+END
+powspec.h
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/powspec.h
+END
+median_filter_cxx.cc
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/median_filter_cxx.cc
+END
+syn_alm_cxx.cc
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/syn_alm_cxx.cc
+END
+mult_alm.par.txt
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/mult_alm.par.txt
+END
+healpix_base.h
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/healpix_base.h
+END
+alm2map_cxx.par.txt
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/alm2map_cxx.par.txt
+END
+alm_fitsio.cc
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/alm_fitsio.cc
+END
+partpix_map.h
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/partpix_map.h
+END
+alm_powspec_tools.cc
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/alm_powspec_tools.cc
+END
+median_filter_cxx_module.cc
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/median_filter_cxx_module.cc
+END
+smoothing_cxx.cc
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/smoothing_cxx.cc
+END
+syn_alm_cxx_module.cc
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/Healpix_cxx/syn_alm_cxx_module.cc
+END

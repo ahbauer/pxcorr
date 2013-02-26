@@ -1,0 +1,155 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2002-2-1 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Changes between releases 1.2 and 2.0</TITLE>
+<META NAME="description" CONTENT="Changes between releases 1.2 and 2.0">
+<META NAME="keywords" CONTENT="subroutines">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2002-2-1">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="subroutines.css">
+
+<LINK REL="next" HREF="subroutinesnode7.htm">
+<LINK REL="previous" HREF="subroutinesnode5.htm">
+<LINK REL="up" HREF="subroutines.htm">
+<LINK REL="next" HREF="subroutinesnode7.htm">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><body text="#000000" bgcolor="#FFFFFA">
+<!--Navigation Panel-->
+<A NAME="tex2html291"
+  HREF="subroutinesnode5.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html297"
+  HREF="subroutines.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html301"
+  HREF="subroutinesnode7.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html299"
+  HREF="subroutinesnode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html292"
+  HREF="subroutinesnode5.htm">Changes between releases 2.0</A>
+
+<B>Up:</B> <A NAME="tex2html298"
+  HREF="subroutines.htm">Healpix/F90 subroutines</A>
+
+<B> Next:</B> <A NAME="tex2html302"
+  HREF="subroutinesnode7.htm">Changes between releases 1.1</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION00060000000000000000">
+Changes between releases 1.2 and 2.0</A>
+</H1>
+Some new features have been added
+<DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ Most routines dealing with maps and <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN> (eg, create_alm, map2alm, alm2map,
+  convert_inplace, convert_nest2ring, udgrade_nest, udgrade_ring) or inputting or outputting  data (read_*, write_*)
+ now accept both single and double precision arguments.
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ The routines <A HREF="subroutinesnode47.htm#sub:map2alm"><TT>map2alm</TT></A> and  <A HREF="subroutinesnode88.htm#sub:remove_dipole"><TT>remove_dipole</TT></A> can now deal with
+  <EM>non-symmetric</EM> azimuthal cut sky. For backward compatibility, the former calling sequence
+  is still accepted.
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ most routines are now parallelized with OpenMP (for shared memory architecture), and some of them are
+also parallelized with MPI (for distributed memory architecture)
+</DL>
+
+<P>
+Some new routines have been introduced since version 1.2, as listed below.
+<DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ New routines in version 2.0
+<DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="subroutinesnode9.htm#sub:add_dipole">add_dipole</A>
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="subroutinesnode10.htm#sub:alm2cl">alm2cl</A>
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="subroutinesnode12.htm#sub:alm2map_der">alm2map_der</A>
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="subroutinesnode31.htm#sub:fits2cl">fits2cl</A> (replaces read_asctab)
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="subroutinesnode66.htm#sub:nside2ntemplates">nside2ntemplates</A>
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="subroutinesnode73.htm#sub:plm_gen">plm_gen</A>
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="subroutinesnode78.htm#sub:rand_gauss">rand_gauss</A>, <A HREF="subroutinesnode79.htm#sub:rand_init">rand_init</A>, <A HREF="subroutinesnode80.htm#sub:rand_uni">rand_uni</A>
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="subroutinesnode93.htm#sub:same_shape_pixels_xxx">same_shape_pixels_nest</A>, <A HREF="subroutinesnode93.htm#sub:same_shape_pixels_xxx">same_shape_pixels_ring</A>
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="subroutinesnode97.htm#sub:template_pixel_xxx">template_pixel_nest</A>, <A HREF="subroutinesnode97.htm#sub:template_pixel_xxx">template_pixel_ring</A>
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="subroutinesnode108.htm#sub:write_plm">write_plm</A> (replaces write_dbintab)
+</DL>
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ New modules or modules with new name
+<DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <SPAN  CLASS="textbf">misc_utils:</SPAN> fatal_error, <A HREF="subroutinesnode18.htm#sub:assert">assert</A>, assert_present, assert_not_present, 
+       assert_alloc, file_present, assert_directory_present, 
+<A HREF="subroutinesnode95.htm#sub:string">string</A>
+<A HREF="subroutinesnode95.htm#sub:string">strupcase</A>
+<A HREF="subroutinesnode95.htm#sub:string">strlowcase</A>
+, upcase, lowcase, wall_clock_time, 
+<A HREF="subroutinesnode19.htm#sub:brag_openmp">brag_openmp</A>
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <SPAN  CLASS="textbf">rngmod:</SPAN> <A HREF="subroutinesnode78.htm#sub:rand_gauss">rand_gauss</A>, <A HREF="subroutinesnode79.htm#sub:rand_init">rand_init</A>, <A HREF="subroutinesnode80.htm#sub:rand_uni">rand_uni</A>
+</DL>
+
+<P>
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ The following routines are superseded.
+<DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ read_asctab (replaced by <A HREF="subroutinesnode31.htm#sub:fits2cl">fits2cl</A>)
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ write_dbintab (replaced by <A HREF="subroutinesnode108.htm#sub:write_plm">write_plm</A>)
+</DL>
+
+<P>
+</DL>
+
+<P>
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html291"
+  HREF="subroutinesnode5.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html297"
+  HREF="subroutines.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html301"
+  HREF="subroutinesnode7.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html299"
+  HREF="subroutinesnode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html292"
+  HREF="subroutinesnode5.htm">Changes between releases 2.0</A>
+
+<B>Up:</B> <A NAME="tex2html298"
+  HREF="subroutines.htm">Healpix/F90 subroutines</A>
+
+<B> Next:</B> <A NAME="tex2html302"
+  HREF="subroutinesnode7.htm">Changes between releases 1.1</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+Eric Hivon
+2011-02-09
+</ADDRESS>
+</BODY>
+</HTML>

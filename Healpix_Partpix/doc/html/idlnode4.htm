@@ -1,0 +1,153 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2002-2-1 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Changes between release 1.2 and 2.0</TITLE>
+<META NAME="description" CONTENT="Changes between release 1.2 and 2.0">
+<META NAME="keywords" CONTENT="idl">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2002-2-1">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="idl.css">
+
+<LINK REL="next" HREF="idlnode5.htm">
+<LINK REL="previous" HREF="idlnode3.htm">
+<LINK REL="up" HREF="idl.htm">
+<LINK REL="next" HREF="idlnode5.htm">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><body text="#000000" bgcolor="#FFFFFA">
+<!--Navigation Panel-->
+<A NAME="tex2html179"
+  HREF="idlnode3.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html185"
+  HREF="idl.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html189"
+  HREF="idlnode5.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html187"
+  HREF="idlnode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html180"
+  HREF="idlnode3.htm">Changes between release 2.0</A>
+
+<B>Up:</B> <A NAME="tex2html186"
+  HREF="idl.htm">Healpix/IDL subroutines</A>
+
+<B> Next:</B> <A NAME="tex2html190"
+  HREF="idlnode5.htm">alm2fits</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION00040000000000000000">
+Changes between release 1.2 and 2.0</A>
+</H1><SMALL CLASS="FOOTNOTESIZE">
+Some new routines have been introduced since version 1.2, as listed below.
+Most of the routines that already existed now have extended
+capabilities.
+Those of them with improved or extended user interface are listed
+below. They all remain backward compatible (ie, they can be used with codes written
+around version 1.1 and 1.2 without any edition).
+</SMALL>
+<P>
+<DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ New routines in version 2.0 include
+<DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode31.htm#idl:median_filter"><TT>median_filter</TT></A>
+ <DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode38.htm#idl:nside2ntemplates"><TT>nside2templates</TT></A>,
+  <A HREF="idlnode53.htm#idl:same_shape_pixels_xxx"><TT>same_shape_pixels_ring</TT></A>, 
+  <A HREF="idlnode53.htm#idl:same_shape_pixels_xxx"><TT>same_shape_pixels_nest</TT></A>,
+  <A HREF="idlnode54.htm#idl:template_pixel_xxx"><TT>template_pixel_ring</TT></A>, 
+  <A HREF="idlnode54.htm#idl:template_pixel_xxx"><TT>template_pixel_nest</TT></A>
+ <DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <TT>loaddata_healpix</TT>: replaces loaddata to avoid conflict with other
+  libraries
+ <DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ ...
+</DL>
+
+<P>
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ Routines with extended/improved user interface or new functionalities include
+<DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode16.htm#idl:fits2cl"><TT>fits2cl</TT></A>: addition of /RSHOW, /SHOW keywords to plot
+  power spectra while they are read; possibility to read power spectra from a
+file containing <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN> coefficients.
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode33.htm#idl:mollview"><TT>gnomview</TT></A>, <A HREF="idlnode33.htm#idl:mollview"><TT>mollview</TT></A>,
+  <A HREF="idlnode33.htm#idl:mollview"><TT>orthview</TT></A>, <A HREF="idlnode33.htm#idl:mollview"><TT>cartview</TT></A>
+  faster FITS file reading (by up to a factor 6);
+  can deal with WMAP polarized maps FITS format; extension
+  of the OUTLINE keyword to plot set of points; addition of the HBOUND keyword
+  to overplot pixel boundaries; ...
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode49.htm#idl:read_tqu"><TT>read_tqu</TT></A>,
+  <A HREF="idlnode46.htm#idl:read_fits_cut4"><TT>read_fits_cut4</TT></A>,
+  <A HREF="idlnode47.htm#idl:read_fits_map"><TT>read_fits_map</TT></A>: 
+   addition of output keywords   NSIDE, ORDERING, COORDSYS
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode51.htm#idl:reorder"><TT>reorder</TT></A>: simpler interface to ordering
+  conversion with addition of /N2R and /R2N keywords
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ <A HREF="idlnode60.htm#idl:write_tqu">write_tqu</A>,
+<A HREF="idlnode57.htm#idl:write_fits_cut4">write_fits_cut4</A>,
+	<A HREF="idlnode59.htm#idl:write_fits_sb">write_fits_sb</A>: faster FITS file writing
+(by a factor 10 or more);
+<DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ ...
+</DL></DL><SMALL CLASS="FOOTNOTESIZE">
+ 
+</SMALL>
+<P>
+<SMALL CLASS="FOOTNOTESIZE">
+</SMALL>
+<P>
+
+<P>
+<SMALL CLASS="FOOTNOTESIZE">
+ </SMALL>
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html179"
+  HREF="idlnode3.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html185"
+  HREF="idl.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html189"
+  HREF="idlnode5.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html187"
+  HREF="idlnode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html180"
+  HREF="idlnode3.htm">Changes between release 2.0</A>
+
+<B>Up:</B> <A NAME="tex2html186"
+  HREF="idl.htm">Healpix/IDL subroutines</A>
+
+<B> Next:</B> <A NAME="tex2html190"
+  HREF="idlnode5.htm">alm2fits</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+Eric Hivon
+2011-02-09
+</ADDRESS>
+</BODY>
+</HTML>

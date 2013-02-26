@@ -1,0 +1,327 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2002-2-1 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>plmgen</TITLE>
+<META NAME="description" CONTENT="plmgen">
+<META NAME="keywords" CONTENT="facilities">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2002-2-1">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="facilities.css">
+
+<LINK REL="next" HREF="facilitiesnode13.htm">
+<LINK REL="previous" HREF="facilitiesnode11.htm">
+<LINK REL="up" HREF="facilities.htm">
+<LINK REL="next" HREF="facilitiesnode13.htm">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><body text="#000000" bgcolor="#FFFFFA">
+<!--Navigation Panel-->
+<A NAME="tex2html178"
+  HREF="facilitiesnode11.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html184"
+  HREF="facilities.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html188"
+  HREF="facilitiesnode13.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html186"
+  HREF="facilitiesnode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html179"
+  HREF="facilitiesnode11.htm">median_filter</A>
+
+<B>Up:</B> <A NAME="tex2html185"
+  HREF="facilities.htm">Healpix/F90 facilities</A>
+
+<B> Next:</B> <A NAME="tex2html189"
+  HREF="facilitiesnode13.htm">smoothing</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION000120000000000000000"></A>
+<A NAME="fac:plmgen"></A>
+<BR>
+ 
+</H1>
+
+<P>
+<b><font size=+6><FONT COLOR="#CC0000">plmgen</FONT></font></b><hr><H2>This program can be used to create a file containing 
+the precomputed values of the associated Legendre polynomials
+<!-- MATH
+ $P_{lm}(\theta)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="facilitiesimg19.png"
+ ALT="$P_{lm}(\theta)$"></SPAN> (and, if requested, of the tensor spherical harmonics) 
+for faster execution of the <b>HEALPix</b> map analysis/synthesis. 
+The  map resolution parameter, <SPAN CLASS="MATH"><I>nsmax</I></SPAN>,
+and the maximum value of the spherical harmonic order <SPAN CLASS="MATH"><I>l</I><SUB><I>max</I></SUB></SPAN>
+must be specified.</H2><br>Location in HEALPix directory tree: <b>
+src/f90/plmgen/plmgen.f90
+</b>
+
+<P>
+<hr><h1>FORMAT </h1><blockquote><h2>%
+plmgen
+</h2></blockquote>
+
+<P>
+<hr><H1>QUALIFIERS</H1>
+<BR> 
+  <DL COMPACT><DT>
+<B>nsmax = </B>
+<DD>Defines the resolution parameter for the map to 
+be analysed/synthesized with the precomputed harmonics. 
+	(default= 32)
+    <DT>
+<B>nlmax = </B>
+<DD>Defines the <SPAN CLASS="MATH"><I>l</I><SUB><I>max</I></SUB></SPAN> value for the execution.
+(default= 64)
+     <DT>
+<B>simul_type = </B>
+<DD>Defines whether only scalar, or scalar and 
+tensor harmonics are to be precomputed, 1=scalar only, 2=scalar AND tensor.
+(default=1)
+<DT>
+<B>outfile = </B>
+<DD>Defines the name for the file that will 
+contain the precomputed harmonics.
+(default='plm.fits')
+  </DL>
+
+<P>
+<hr><H1>DESCRIPTION</H1>
+<BR> <blockquote>
+
+The recursion of Legendre polynomials 
+and tensor harmonics during the  analysis and synthesis 
+of <b>HEALPix</b> maps can be time consuming. 
+Especially when repetitive applications are desired
+there is no need to compute the recursions every time. 
+For such applications the values of <!-- MATH
+ $P_{lm}(\theta)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="facilitiesimg19.png"
+ ALT="$P_{lm}(\theta)$"></SPAN> 
+can be precomputed with <FONT COLOR="#CC0000">plmgen</FONT> 
+and stored in a file. When using <A HREF="facilitiesnode15.htm#fac:synfast">synfast</A> or <A HREF="facilitiesnode8.htm#fac:anafast">anafast</A> 
+this file can be read in to 
+shorten  the analysis/synthesis execution time. 
+
+<P>
+The memory (and disc) consumption of <FONT COLOR="#CC0000">plmgen</FONT>    is <!-- MATH
+ $8 N_\lambda N_p$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="60" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="facilitiesimg25.png"
+ ALT="$8 N_\lambda N_p$"></SPAN> bytes, with
+<!-- MATH
+ $N_\lambda = {\tt nsmax} ({\tt nlmax}+1)({\tt nlmax}+2)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="295" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="facilitiesimg26.png"
+ ALT="$N_\lambda = {\tt nsmax} ({\tt nlmax}+1)({\tt nlmax}+2)$"></SPAN> and
+<SPAN CLASS="MATH"><I>N</I><SUB><I>p</I></SUB></SPAN> is either 1 or 3, depending whether tensor harmonics are computed. 
+
+<P>
+Currently an extra limitation <!-- MATH
+ $N_\lambda < 2^{31} = 2147483648$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="196" HEIGHT="39" ALIGN="MIDDLE" BORDER="0"
+ SRC="facilitiesimg27.png"
+ ALT="$N_\lambda &lt; 2^{31} = 2147483648$"></SPAN> also applies,
+corresponding to, eg, <TT>lmax</TT> <SPAN CLASS="MATH"><IMG
+ WIDTH="62" HEIGHT="33" ALIGN="MIDDLE" BORDER="0"
+ SRC="facilitiesimg28.png"
+ ALT="$\le 1446$"></SPAN> for <TT>nsmax</TT> <SPAN CLASS="MATH">=1024</SPAN>.
+</blockquote>
+
+<P>
+<hr><H1>DATASETS</H1><h2> The following datasets are involved in the <b><FONT COLOR="#CC0000">plmgen</FONT></b>
+ processing.</h2>
+
+<TABLE CELLPADDING=3 BORDER="1">
+<TR><TH ALIGN="LEFT" VALIGN="TOP" WIDTH=150><SPAN  CLASS="textbf">Dataset</SPAN></TH>
+<TH ALIGN="LEFT" VALIGN="TOP" WIDTH=175><SPAN  CLASS="textbf">Description</SPAN></TH>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=150>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175>&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=150>
+None required</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175>&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=150>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175>&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=150></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175>&nbsp;</TD>
+</TR>
+</TABLE>
+
+<P>
+<hr><H1>SUPPORT    </H1><H2>This section lists those routines and facilities (including those <i>external</i> to the Healpix distribution) which can assist in the utilisation of <b><FONT COLOR="#CC0000">plmgen</FONT></b>.</H2><br>
+  <DL COMPACT><DT>
+<B><A HREF="facilitiesnode15.htm#fac:synfast">synfast</A></B>
+<DD>This <b>HEALPix</b> facility can generate a map using precomputed harmonics made from plmgen.
+  <DT>
+<B><A HREF="facilitiesnode8.htm#fac:anafast">anafast</A></B>
+<DD>This <b>HEALPix</b> facility can analyse a map using precomputed harmonics.
+  <DT>
+<B>plm_gen</B>
+<DD>Fortran subroutine used to generate the harmonics
+  </DL>
+
+<P>
+<hr><H1>EXAMPLE # 1:</H1><tt><FONT SIZE=+1>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT">
+plmgen</TD>
+<TD ALIGN="LEFT">&nbsp;</TD>
+</TR>
+</TABLE>
+</font></tt><br><blockquote>
+plmgen runs in interactive mode, self-explanatory.
+</blockquote>
+
+<P>
+
+<P>
+<hr><H1>EXAMPLE # 2:</H1><tt><FONT SIZE=+1>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT">
+plmgen  filename</TD>
+<TD ALIGN="LEFT">&nbsp;</TD>
+</TR>
+</TABLE>
+</font></tt><br><blockquote>When `filename' is present, plmgen enters the non-interactive mode 
+and parses
+its inputs from the file `filename'. This has the following
+structure: the first entry is a qualifier which announces to the parser
+which input immediately follows. If this input is omitted in the
+input file, the parser assumes the default value.
+If the equality sign is omitted, then the parser ignores the entry.
+In this way comments may also be included in the file.
+In this example, the file contains the following qualifiers:
+<BR>
+<tt>simul_type = 1</tt><br>
+<tt>nsmax = 32</tt><br>
+<tt>nlmax = 86</tt><br>
+<tt>outfile = plm.fits</tt><br>
+</blockquote>
+
+<P>
+<hr><H1>RELEASE NOTES</H1><blockquote>
+  <DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="blueball.png" ALT="*">
+ Initial release <b>HEALPix</b> 1.00
+  </DL>
+</blockquote>
+
+<P>
+<hr><H1>MESSAGES</H1><h2>This section describes error messages generated by <b><FONT COLOR="#CC0000">plmgen</FONT></b>
+</h2>
+
+<TABLE CELLPADDING=3 BORDER="1">
+<TR><TH ALIGN="LEFT" VALIGN="TOP" WIDTH=125><SPAN  CLASS="textbf">Message</SPAN></TH>
+<TH ALIGN="LEFT" VALIGN="TOP" WIDTH=50><SPAN  CLASS="textbf">Severity</SPAN></TH>
+<TH ALIGN="LEFT" VALIGN="TOP" WIDTH=175><SPAN  CLASS="textbf">Text</SPAN></TH>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=50>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175>&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>
+can not allocate memory for array xxx</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=50>Fatal</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175>You do not have
+                   sufficient system resources to run this
+                   facility at the map resolution you required. 
+  Try a lower map resolution.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=50>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175>&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>
+Error: these values of Nside and l_max <SPAN CLASS="MATH"><IMG
+ WIDTH="27" HEIGHT="19" ALIGN="BOTTOM" BORDER="0"
+ SRC="facilitiesimg29.png"
+ ALT="$\ldots$"></SPAN> are too large <SPAN CLASS="MATH"><IMG
+ WIDTH="27" HEIGHT="19" ALIGN="BOTTOM" BORDER="0"
+ SRC="facilitiesimg29.png"
+ ALT="$\ldots$"></SPAN></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=50>Fatal</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175>You are exceeding
+the limitation on Nside and l_max. 
+  Try a lower l_max.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=50>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175>&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=50>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175>&nbsp;</TD>
+</TR>
+</TABLE>
+
+<P>
+
+<P>
+
+
+<P>
+
+<P>
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html178"
+  HREF="facilitiesnode11.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html184"
+  HREF="facilities.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html188"
+  HREF="facilitiesnode13.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html186"
+  HREF="facilitiesnode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html179"
+  HREF="facilitiesnode11.htm">median_filter</A>
+
+<B>Up:</B> <A NAME="tex2html185"
+  HREF="facilities.htm">Healpix/F90 facilities</A>
+
+<B> Next:</B> <A NAME="tex2html189"
+  HREF="facilitiesnode13.htm">smoothing</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+Eric Hivon
+2011-02-09
+</ADDRESS>
+</BODY>
+</HTML>

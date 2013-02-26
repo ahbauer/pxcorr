@@ -1,0 +1,569 @@
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron
+END
+fxhread.pro
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxhread.pro
+END
+is_ieee_big.pro
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/is_ieee_big.pro
+END
+repchr.pro
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/repchr.pro
+END
+fxwrite.pro
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxwrite.pro
+END
+month_cnv.pro
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/month_cnv.pro
+END
+fxposit.pro
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxposit.pro
+END
+fxbdimen.pro
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxbdimen.pro
+END
+fxbtdim.pro
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxbtdim.pro
+END
+ftcreate.pro
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/ftcreate.pro
+END
+fits_read.pro
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fits_read.pro
+END
+checksum32.pro
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/checksum32.pro
+END
+wherenan.pro
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/wherenan.pro
+END
+readcol.pro
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/readcol.pro
+END
+fxbparse.pro
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxbparse.pro
+END
+repstr.pro
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/repstr.pro
+END
+fxbstate.pro
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxbstate.pro
+END
+fits_info.pro
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fits_info.pro
+END
+fxbfind.pro
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxbfind.pro
+END
+strnumber.pro
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/strnumber.pro
+END
+tbinfo.pro
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/tbinfo.pro
+END
+sxdelpar.pro
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/sxdelpar.pro
+END
+strn.pro
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/strn.pro
+END
+headfits.pro
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/headfits.pro
+END
+fxbtform.pro
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxbtform.pro
+END
+fxbhelp.pro
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxbhelp.pro
+END
+fxbheader.pro
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxbheader.pro
+END
+update_idl_astron_lib.s
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/update_idl_astron_lib.s
+END
+fits_close.pro
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fits_close.pro
+END
+store_array.pro
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/store_array.pro
+END
+fxbisopen.pro
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxbisopen.pro
+END
+symcat.pro
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/symcat.pro
+END
+fxbopen.pro
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxbopen.pro
+END
+asinh.pro
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/asinh.pro
+END
+fxbcreate.pro
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxbcreate.pro
+END
+fxmove.pro
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxmove.pro
+END
+mkhdr.pro
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/mkhdr.pro
+END
+tbget.pro
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/tbget.pro
+END
+sxaddpar.pro
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/sxaddpar.pro
+END
+mrd_skip.pro
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/mrd_skip.pro
+END
+astrolib.pro
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/astrolib.pro
+END
+fxpar.pro
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxpar.pro
+END
+ftaddcol.pro
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/ftaddcol.pro
+END
+remchar.pro
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/remchar.pro
+END
+fxbhmake.pro
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxbhmake.pro
+END
+fits_open.pro
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fits_open.pro
+END
+fits_test_checksum.pro
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fits_test_checksum.pro
+END
+detabify.pro
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/detabify.pro
+END
+fxaddpar.pro
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxaddpar.pro
+END
+fits_ascii_encode.pro
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fits_ascii_encode.pro
+END
+match.pro
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/match.pro
+END
+gettok.pro
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/gettok.pro
+END
+fxbcolnum.pro
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxbcolnum.pro
+END
+sxpar.pro
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/sxpar.pro
+END
+fits_add_checksum.pro
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fits_add_checksum.pro
+END
+expand_tilde.pro
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/expand_tilde.pro
+END
+fxparpos.pro
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxparpos.pro
+END
+ftput.pro
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/ftput.pro
+END
+check_idl_astron_dependencies.s
+K 25
+svn:wc:ra_dav:version-url
+V 122
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/check_idl_astron_dependencies.s
+END
+n_bytes.pro
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/n_bytes.pro
+END
+hprint.pro
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/hprint.pro
+END
+fxfindend.pro
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxfindend.pro
+END
+ieee_to_host.pro
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/ieee_to_host.pro
+END
+host_to_ieee.pro
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/host_to_ieee.pro
+END
+textclose.pro
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/textclose.pro
+END
+zparcheck.pro
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/zparcheck.pro
+END
+get_date.pro
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/get_date.pro
+END
+fxbfinish.pro
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxbfinish.pro
+END
+writefits.pro
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/writefits.pro
+END
+xdispstr.pro
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/xdispstr.pro
+END
+fxhmake.pro
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxhmake.pro
+END
+daycnv.pro
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/daycnv.pro
+END
+boost_array.pro
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/boost_array.pro
+END
+ftinfo.pro
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/ftinfo.pro
+END
+mrd_hread.pro
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/mrd_hread.pro
+END
+fxbaddcol.pro
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxbaddcol.pro
+END
+mrd_struct.pro
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/mrd_struct.pro
+END
+tag_exist.pro
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/tag_exist.pro
+END
+fxhclean.pro
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxhclean.pro
+END
+fxbreadm.pro
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxbreadm.pro
+END
+fxbwrite.pro
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxbwrite.pro
+END
+fxhmodify.pro
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxhmodify.pro
+END
+fxbfindlun.pro
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxbfindlun.pro
+END
+readfits.pro
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/readfits.pro
+END
+fxbwritm.pro
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxbwritm.pro
+END
+check_fits.pro
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/check_fits.pro
+END
+ftsize.pro
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/ftsize.pro
+END
+fxbclose.pro
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxbclose.pro
+END
+blkshift.pro
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/blkshift.pro
+END
+textopen.pro
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/textopen.pro
+END
+mrdfits.pro
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/mrdfits.pro
+END
+nint.pro
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/nint.pro
+END
+fxbread.pro
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxbread.pro
+END
+fxbintable.pro
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/fxbintable.pro
+END
+valid_num.pro
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/astron/valid_num.pro
+END

@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/binf90
+END
+hotspot
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/binf90/hotspot
+END
+alteralm
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/binf90/alteralm
+END
+median_filter
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/binf90/median_filter
+END
+plmgen
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/binf90/plmgen
+END
+sky_ng_sim
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/binf90/sky_ng_sim
+END
+map2gif
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/binf90/map2gif
+END
+smoothing
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/binf90/smoothing
+END
+synfast
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/binf90/synfast
+END
+sky_ng_sim_bin
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/binf90/sky_ng_sim_bin
+END
+ud_grade
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/binf90/ud_grade
+END
+anafast
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/binf90/anafast
+END

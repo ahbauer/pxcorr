@@ -1,0 +1,208 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2002-2-1 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>coordsys2euler_zyz</TITLE>
+<META NAME="description" CONTENT="coordsys2euler_zyz">
+<META NAME="keywords" CONTENT="subroutines">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2002-2-1">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="subroutines.css">
+
+<LINK REL="next" HREF="subroutinesnode27.htm">
+<LINK REL="previous" HREF="subroutinesnode25.htm">
+<LINK REL="up" HREF="subroutines.htm">
+<LINK REL="next" HREF="subroutinesnode27.htm">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><body text="#000000" bgcolor="#FFFFFA">
+<!--Navigation Panel-->
+<A NAME="tex2html531"
+  HREF="subroutinesnode25.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html537"
+  HREF="subroutines.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html541"
+  HREF="subroutinesnode27.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html539"
+  HREF="subroutinesnode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html532"
+  HREF="subroutinesnode25.htm">convert_ring2nest*</A>
+
+<B>Up:</B> <A NAME="tex2html538"
+  HREF="subroutines.htm">Healpix/F90 subroutines</A>
+
+<B> Next:</B> <A NAME="tex2html542"
+  HREF="subroutinesnode27.htm">create_alm*</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION000260000000000000000"></A>
+<A NAME="sub:coordsys2euler_zyz"></A>
+<BR>
+ 
+</H1>
+
+<P>
+<b><font size=+6><FONT COLOR="#CC0000">coordsys2euler_zyz</FONT></font></b><hr><H2>This routine returns the three Euler angles <!-- MATH
+ $\psi, \theta, \varphi$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="56" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="subroutinesimg55.png"
+ ALT="$\psi, \theta, \varphi
+$"></SPAN>, corresponding to a rotation between standard astronomical
+coordinate systems. This angles can then be used in rotate_alm</H2><br>Location in HEALPix directory tree: <b>
+src/f90/mod/coord_v_convert.f90
+</b>
+
+<P>
+<hr><h1>FORMAT </h1><blockquote><h2>call <FONT COLOR="#CC0000">coordsys2euler_zyz</FONT>(
+iepoch, oepoch, isys, osys, psi, theta, phi
+)</h2></blockquote>
+
+<P>
+<hr><H1>ARGUMENTS</H1>
+
+<TABLE CELLPADDING=3 BORDER="1">
+<TR><TH ALIGN="LEFT" VALIGN="TOP" WIDTH=130><SPAN  CLASS="textbf">name&nbsp;&amp;&nbsp;dimensionality</SPAN></TH>
+<TH ALIGN="LEFT" VALIGN="TOP" WIDTH=25><SPAN  CLASS="textbf">kind</SPAN></TH>
+<TH ALIGN="LEFT" VALIGN="TOP" WIDTH=45><SPAN  CLASS="textbf">in/out</SPAN></TH>
+<TH ALIGN="LEFT" VALIGN="TOP" WIDTH=250><SPAN  CLASS="textbf">description</SPAN></TH>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=130>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=25>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=45>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=130>
+iepoch</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=25>DP</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=45>IN</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>epoch of the input astronomical coordinate system.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=130>oepoch</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=25>DP</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=45>IN</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>epoch of the output astronomical coordinate system.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=130>isys(len=*)</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=25>CHR</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=45>IN</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>input coordinate system, should be one of 'E'=Ecliptic, 'G'=Galactic, 'C'/'Q'=Celestial/eQuatorial.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=130>osys(len=*)</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=25>CHR</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=45>IN</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>output coordinate system, same choice as above.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=130>psi</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=25>DP</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=45>OUT</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>first Euler angle: rotation <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="subroutinesimg56.png"
+ ALT="$\psi$"></SPAN> about the z-axis.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=130>theta</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=25>DP</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=45>OUT</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>second Euler angle: rotation <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="20" ALIGN="BOTTOM" BORDER="0"
+ SRC="subroutinesimg57.png"
+ ALT="$\theta$"></SPAN> about the original
+(unrotated) y-axis;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=130>phi</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=25>DP</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=45>OUT</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>third Euler angle: rotation <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="33" ALIGN="MIDDLE" BORDER="0"
+ SRC="subroutinesimg58.png"
+ ALT="$\varphi$"></SPAN> about the original (unrotated) z-axis;</TD>
+</TR>
+</TABLE>
+
+<P>
+<HR><H1>EXAMPLE:</H1><tt><FONT SIZE=+1>
+use coord_v_convert, only: coordsys2euler_zyz 
+<BR>
+use alm_tools, only: rotate_alm 
+<BR>...
+<BR>
+call coordsys2euler_zyz(2000.0_dp, 2000.0_dp, 'E', 'G', psi, theta, phi) 
+<BR>
+call rotate_alm(64, alm_TGC, psi, theta, phi)  
+<BR></font></tt>
+<BR><blockquote>
+Rotate the <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN> from Ecliptic to Galactic coordinates.
+</blockquote>
+
+<P>
+<hr><H1>RELATED ROUTINES</H1><h3>This section lists the routines related to <b><FONT COLOR="#CC0000">coordsys2euler_zyz</FONT></b></h3>
+<BR> 
+  <DL COMPACT><DT>
+<B><A HREF="subroutinesnode92.htm#sub:rotate_alm">rotate_alm</A></B>
+<DD>apply arbitrary sky rotation to a
+  set of <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN> coefficients.
+  <DT>
+<B><A HREF="subroutinesnode109.htm#sub:xcc_v_convert">xcc_v_convert</A></B>
+<DD>rotates a 3D coordinate
+vector from one astronomical coordinate system to another.
+  </DL>
+
+<P>
+
+<P>
+
+
+<P>
+
+<P>
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html531"
+  HREF="subroutinesnode25.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html537"
+  HREF="subroutines.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html541"
+  HREF="subroutinesnode27.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html539"
+  HREF="subroutinesnode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html532"
+  HREF="subroutinesnode25.htm">convert_ring2nest*</A>
+
+<B>Up:</B> <A NAME="tex2html538"
+  HREF="subroutines.htm">Healpix/F90 subroutines</A>
+
+<B> Next:</B> <A NAME="tex2html542"
+  HREF="subroutinesnode27.htm">create_alm*</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+Eric Hivon
+2011-02-09
+</ADDRESS>
+</BODY>
+</HTML>

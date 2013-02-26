@@ -1,0 +1,185 @@
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test
+END
+smo.par
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/smo.par
+END
+ana.par
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/ana.par
+END
+map_sm.fits
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/map_sm.fits
+END
+map_sm.gif
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/map_sm.gif
+END
+map.gif
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/map.gif
+END
+map.fits
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/map.fits
+END
+wmap_lcdm_pl_model_yr1_v1.fits
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/wmap_lcdm_pl_model_yr1_v1.fits
+END
+map_LOres.gif
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/map_LOres.gif
+END
+map_LOres.fits
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/map_LOres.fits
+END
+med.par
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/med.par
+END
+min.asc
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/min.asc
+END
+cl_out.fits
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/cl_out.fits
+END
+almdec.fits
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/almdec.fits
+END
+max.asc
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/max.asc
+END
+syn.par
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/syn.par
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/README
+END
+map_ngfs.fits
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/map_ngfs.fits
+END
+map_ngfs.gif
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/map_ngfs.gif
+END
+cl_old.fits
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/cl_old.fits
+END
+udg.par
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/udg.par
+END
+map_ext.gif
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/map_ext.gif
+END
+map_ext.fits
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/map_ext.fits
+END
+alt.par
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/alt.par
+END
+cl.fits
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/cl.fits
+END
+map_mf.fits
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/map_mf.fits
+END
+map_mf.gif
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/map_mf.gif
+END
+wmap_lcdm_sz_lens_wmap5_cl_v3.fits
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/wmap_lcdm_sz_lens_wmap5_cl_v3.fits
+END
+hot.par
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/hot.par
+END
+alm.fits
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/alm.fits
+END
+ngfs.par
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/test/ngfs.par
+END

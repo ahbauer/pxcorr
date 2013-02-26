@@ -1,0 +1,292 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2002-2-1 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>hpx2gs</TITLE>
+<META NAME="description" CONTENT="hpx2gs">
+<META NAME="keywords" CONTENT="idl">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2002-2-1">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="idl.css">
+
+<LINK REL="next" HREF="idlnode25.htm">
+<LINK REL="previous" HREF="idlnode23.htm">
+<LINK REL="up" HREF="idl.htm">
+<LINK REL="next" HREF="idlnode25.htm">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><body text="#000000" bgcolor="#FFFFFA">
+<!--Navigation Panel-->
+<A NAME="tex2html419"
+  HREF="idlnode23.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html425"
+  HREF="idl.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html429"
+  HREF="idlnode25.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html427"
+  HREF="idlnode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html420"
+  HREF="idlnode23.htm">healpixwindow</A>
+
+<B>Up:</B> <A NAME="tex2html426"
+  HREF="idl.htm">Healpix/IDL subroutines</A>
+
+<B> Next:</B> <A NAME="tex2html430"
+  HREF="idlnode25.htm">ianafast</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION000240000000000000000"></A>
+<A NAME="idl:hpx2gs"></A>
+<BR>
+ 
+</H1>
+<P>
+<SMALL CLASS="FOOTNOTESIZE"> 
+</SMALL>
+<P>
+<SMALL CLASS="FOOTNOTESIZE"> 
+ 
+</SMALL>
+<P>
+<b><font size=+6><FONT COLOR="#CC0000">hpx2gs</FONT></font></b><hr><H2>This IDL facility provides a means to turn a <b>HEALPix</b> map into a image that
+can be visualized with 
+<A NAME="tex2html8"
+  HREF="http://earth.google.com/">Google Earth</A>
+or 
+<A NAME="tex2html9"
+  HREF="http://earth.google.com/sky/skyedu.html">Google Sky</A>.</H2><br>Location in HEALPix directory tree: <b>
+src/idl/visu/hpx2gs.pro
+</b>
+<P>
+<hr><h1>FORMAT </h1><h2>IDL>
+<FONT COLOR="#CC0000">hpx2gs</FONT>, 
+<A HREF="#idl:hpx2gs:file">File</A>, 
+[ <A HREF="#idl:hpx2gs:select">Select</A>, ]
+[ <A HREF="#idl:hpx2gs:coord_in">COORD_IN=</A>, 
+<A HREF="#idl:hpx2gs:help">/HELP</A>, 
+<A HREF="#idl:hpx2gs:kml">KML=</A>, 
+<A HREF="#idl:hpx2gs:png">PNG=</A>, 
+<A HREF="#idl:hpx2gs:reso_arcmin">RESO_ARCMIN=</A>, 
+<A HREF="#idl:hpx2gs:subtitle">SUBTITLE=</A>, 
+<A HREF="#idl:hpx2gs:titleplot">TITLEPLOT=</A>,+ <A HREF="#idl:hpx2gs:other_keywords">most of cartview keywords</A><SPAN CLASS="MATH"><IMG
+ WIDTH="27" HEIGHT="19" ALIGN="BOTTOM" BORDER="0"
+ SRC="idlimg9.png"
+ ALT="$\ldots$"></SPAN>
+]
+
+</h2>
+<P>
+<H1>QUALIFIERS</H1>
+<BR>
+</SMALL><TABLE CELLPADDING=3 BORDER="1">
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=60><SMALL CLASS="FOOTNOTESIZE">  
+<A NAME="idl:hpx2gs:file"></A>File    </SMALL></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=425><SMALL CLASS="FOOTNOTESIZE"> Required
+<BR>
+name of a FITS file containing 
+               the <b>HEALPix</b>  map in an extension or in the image field, <BR></SMALL><SMALL CLASS="FOOTNOTESIZE"><EM>or</EM>    name of an </SMALL><SMALL CLASS="FOOTNOTESIZE"><EM>online</EM> variable (either array or
+structure) containing the <b>HEALPix</b>  map (See note below);
+<BR>
+if Save is set   :    name of an IDL saveset file containing
+               the <b>HEALPix</b>  map stored under the variable  </SMALL><SMALL CLASS="FOOTNOTESIZE"><TT>data</TT> <BR><b> (default : none)</b></SMALL></TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=60><SMALL CLASS="FOOTNOTESIZE"><A NAME="idl:hpx2gs:select"></A>Select    </SMALL></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=425><SMALL CLASS="FOOTNOTESIZE"> Optional
+<BR>
+column of the BIN FITS table to be plotted, can be either  <BR>- a name : value given in TTYPEi of the FITS file <BR>
+NOT case sensitive and can be truncated, <BR>(only letters, digits and underscore are valid) <BR>- an integer        : number i of the column
+                            containing the data, starting with 1 (also valid if
+		  </SMALL><SMALL CLASS="FOOTNOTESIZE"><TT>File</TT> is an online array) <BR><b>default:</b>1 for full sky maps, 'SIGNAL' column for FITS files
+		  containing cut sky maps</SMALL></TD>
+</TR>
+</TABLE><SMALL CLASS="FOOTNOTESIZE">
+
+<P>
+<hr><H1>KEYWORDS</H1>
+<BR> 
+  </SMALL><DL COMPACT><DT>
+<B><A NAME="idl:hpx2gs:coord_in"></A>COORD_IN =</B>
+<DD>1-character scalar, describing the input data coordinate system:
+<BR>
+either 'C' or 'Q' : Celestial2000 = eQuatorial,
+<BR>                       'E'        : Ecliptic,
+<BR>                       'G'        : Galactic.
+<BR>
+If set, it will over-ride the coordinates read from the FITS file header (when
+             applicable). In absence of information, the input coordinates is
+assumed to be celestial.
+<BR>
+The data will be rotated so that the output coordinates are Celestial, as expected by Google Sky
+
+<P>
+<DT>
+<B><A NAME="idl:hpx2gs:help"></A>/HELP</B>
+<DD>Prints out the documentation header 
+
+<P>
+<DT>
+<B><A NAME="idl:hpx2gs:kml"></A>KML =</B>
+<DD>Name of the KML file to be created (if the <TT>.kml</TT> suffix is missing,
+     it will be added automatically)
+     <b>default:</b><TT>'hpx2googlesky.kml'</TT>
+
+<P>
+<DT>
+<B><A NAME="idl:hpx2gs:png"></A>PNG =</B>
+<DD>Name of the PNG overlay file to be created. Only to be used if you want the
+     filename to be different from the default 
+	(<b>default:</b> same as KML file, with a <TT>.png</TT> suffix instead
+     of <TT>.kml</TT>)
+
+<P>
+<DT>
+<B><A NAME="idl:hpx2gs:reso_arcmin"></A>RESO_ARCMIN =</B>
+<DD>Pixel angular size in arcmin (at the equator) of the cartesian
+     map generated <b>default:</b>30
+
+<P>
+<DT>
+<B><A NAME="idl:hpx2gs:subtitle"></A>SUBTITLE =</B>
+<DD>information on the data, 
+will appear in KML file <TT>GroundOverlay
+     description</TT> field
+
+<P>
+<DT>
+<B><A NAME="idl:hpx2gs:titleplot"></A>TITLEPLOT =</B>
+<DD>information on the data, 
+will appear in KML file <TT>GroundOverlay
+     name</TT> field
+
+<P>
+<DT>
+<B><A NAME="idl:hpx2gs:other_keywords"></A>
+<A HREF="idlnode33.htm#idl:mollview:asinh">/ASINH</A>, </B>
+<DD><DT>
+<B><A HREF="idlnode33.htm#idl:mollview:colt">COLT</A>=,
+<A HREF="idlnode33.htm#idl:mollview:factor">FACTOR</A>=,
+<A HREF="idlnode33.htm#idl:mollview:flip">/FLIP</A>,
+<A HREF="idlnode33.htm#idl:mollview:glsize">GLSIZE</A>=,
+<A HREF="idlnode33.htm#idl:mollview:graticule">GRATICULE</A>=,
+<A HREF="idlnode33.htm#idl:mollview:hbound">HBOUND</A>=,</B>
+<DD><DT>
+<B><A HREF="idlnode33.htm#idl:mollview:hist_equal">/HIST_EQUAL</A>,
+<A HREF="idlnode33.htm#idl:mollview:iglsize">IGLSIZE</A>=,
+<A HREF="idlnode33.htm#idl:mollview:igraticule">IGRATICULE</A>=,
+<A HREF="idlnode33.htm#idl:mollview:log">/LOG</A>,
+<A HREF="idlnode33.htm#idl:mollview:max">MAX</A>=,
+<A HREF="idlnode33.htm#idl:mollview:min">MIN</A>=, </B>
+<DD><DT>
+<B><A HREF="idlnode33.htm#idl:mollview:nested">/NESTED</A>,
+<A HREF="idlnode33.htm#idl:mollview:no_dipole">/NO_DIPOLE</A>,
+<A HREF="idlnode33.htm#idl:mollview:no_monopole">/NO_MONOPLE</A>,
+<A HREF="idlnode33.htm#idl:mollview:offset">OFFSET</A>=, </B>
+<DD><DT>
+<B><A HREF="idlnode33.htm#idl:mollview:outline">OUTLINE</A>=,
+<A HREF="idlnode33.htm#idl:mollview:polarization">POLARIZATION</A>=,
+<A HREF="idlnode33.htm#idl:mollview:preview">/PREVIEW</A>,</B>
+<DD><DT>
+<B><A HREF="#idl:mollview:quadcube">/QUADCUBE</A>,
+<A HREF="idlnode33.htm#idl:mollview:save">SAVE</A>=,
+<A HREF="idlnode33.htm#idl:mollview:silent">/SILENT</A>, </B>
+<DD><DT>
+<B><A HREF="idlnode33.htm#idl:mollview:truecolors">TRUECOLORS</A>=</B>
+<DD>those keywords have the same meaning as in
+<A HREF="idlnode10.htm#idl:cartview">cartview</A> and 
+<A HREF="idlnode33.htm#idl:mollview">mollview</A>
+
+<P>
+</DL><SMALL CLASS="FOOTNOTESIZE">
+
+<P>
+<hr><H1>DESCRIPTION</H1>
+<BR> <blockquote>
+<FONT COLOR="#CC0000">hpx2gs</FONT> reads in a <b>HEALPix</b> sky map in FITS format or from a memory array and generates a
+cartesian projection of it in a PNG file, as well as a Google Sky compatible 
+<A NAME="tex2html7"
+  HREF="http://earth.google.com/kml">KML</A>
+file. Missing or unobserved pixels in the input data will be
+   totally 'transparent' in the output file.
+
+</blockquote>
+<P>
+<hr><H1>RELATED ROUTINES</H1><h3>This section lists the routines related to <b><FONT COLOR="#CC0000">hpx2gs</FONT></b></h3>
+<BR> 
+  </SMALL><DL COMPACT><DT>
+<DD>see <A HREF="idlnode10.htm#idl:cartview">cartview</A>
+  </DL><SMALL CLASS="FOOTNOTESIZE">
+
+<P>
+<HR><H1>EXAMPLE:</H1><tt><FONT SIZE=+1>
+</SMALL><TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT"><SMALL CLASS="FOOTNOTESIZE"> 
+</SMALL>
+<P>
+<SMALL CLASS="FOOTNOTESIZE">map  = findgen(48) </SMALL></TD>
+</TR>
+<TR><TD ALIGN="LEFT"><SMALL CLASS="FOOTNOTESIZE"> 
+<FONT COLOR="#CC0000">hpx2gs</FONT>, map, kml='my_map.kml',title='my map in Google'</SMALL></TD>
+</TR>
+</TABLE><SMALL CLASS="FOOTNOTESIZE">
+</font></tt>
+<BR><blockquote>produces in <TT>my_map.kml</TT> and in <TT>my_map.png</TT> an image of the input map that can be seen with
+Google Sky.
+To do so, start GoogleEarth or GoogleSky and open <TT>my_map.kml</TT>. Under
+MacOSX, simply type <TT>open my_map.kml</TT> on the command line.
+</blockquote>
+<P>
+<SMALL CLASS="FOOTNOTESIZE">
+</SMALL>
+<P>
+
+<P>
+<SMALL CLASS="FOOTNOTESIZE">
+ </SMALL>
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html419"
+  HREF="idlnode23.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html425"
+  HREF="idl.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html429"
+  HREF="idlnode25.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html427"
+  HREF="idlnode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html420"
+  HREF="idlnode23.htm">healpixwindow</A>
+
+<B>Up:</B> <A NAME="tex2html426"
+  HREF="idl.htm">Healpix/IDL subroutines</A>
+
+<B> Next:</B> <A NAME="tex2html430"
+  HREF="idlnode25.htm">ianafast</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+Eric Hivon
+2011-02-09
+</ADDRESS>
+</BODY>
+</HTML>

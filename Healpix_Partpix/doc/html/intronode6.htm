@@ -1,0 +1,216 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2002-2-1 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>HEALPix conventions </TITLE>
+<META NAME="description" CONTENT="HEALPix conventions ">
+<META NAME="keywords" CONTENT="intro">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2002-2-1">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="intro.css">
+
+<LINK REL="next" HREF="intronode14.htm">
+<LINK REL="previous" HREF="intronode5.htm">
+<LINK REL="up" HREF="intro.htm">
+<LINK REL="next" HREF="intronode7.htm">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><body text="#000000" bgcolor="#FFFFFA">
+<!--Navigation Panel-->
+<A NAME="tex2html118"
+  HREF="intronode5.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html124"
+  HREF="intro.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html128"
+  HREF="intronode7.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html126"
+  HREF="intronode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html119"
+  HREF="intronode5.htm">The HEALPix Software Package</A>
+
+<B>Up:</B> <A NAME="tex2html125"
+  HREF="intro.htm">Introduction to Healpix</A>
+
+<B> Next:</B> <A NAME="tex2html129"
+  HREF="intronode7.htm">Angular power spectrum conventions</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION00060000000000000000"></A>
+<A NAME="conventions"></A>
+<BR>
+ <b>HEALPix</b> conventions  
+</H1>A bandlimited function <SPAN CLASS="MATH"><I>f</I></SPAN> on the sphere can
+be expanded in spherical harmonics, <SPAN CLASS="MATH"><I>Y</I><SUB><I>lm</I></SUB></SPAN>,
+as
+<BR>
+<DIV ALIGN="CENTER"><A NAME="eq:alms"></A>
+<!-- MATH
+ \begin{eqnarray}
+f({ \gamma})&\myequal &\sum_{l=0}^{l_{max}}\sum_{m}a_{lm}Y_{lm}(\gamma),
+\end{eqnarray}
+ -->
+<TABLE CELLPADDING="0" ALIGN="CENTER" WIDTH="100%">
+<TR VALIGN="MIDDLE"><TD NOWRAP WIDTH="50%" ALIGN="RIGHT"><IMG
+ WIDTH="41" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="introimg9.png"
+ ALT="$\displaystyle f({ \gamma})$"></TD>
+<TD ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="19" HEIGHT="33" ALIGN="MIDDLE" BORDER="0"
+ SRC="introimg10.png"
+ ALT="$\textstyle \myequal $"></TD>
+<TD ALIGN="LEFT" WIDTH="50%" NOWRAP><IMG
+ WIDTH="147" HEIGHT="71" ALIGN="MIDDLE" BORDER="0"
+ SRC="introimg11.png"
+ ALT="$\displaystyle \sum_{l=0}^{l_{max}}\sum_{m}a_{lm}Y_{lm}(\gamma),$"></TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+(<SPAN CLASS="arabic">1</SPAN>)</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+where <SPAN CLASS="MATH"><IMG
+ WIDTH="15" HEIGHT="33" ALIGN="MIDDLE" BORDER="0"
+ SRC="introimg12.png"
+ ALT="${{\gamma}}$"></SPAN> denotes a unit vector pointing at polar angle <!-- MATH
+ $\theta\in[0,\pi]$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="77" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="introimg13.png"
+ ALT="$\theta\in[0,\pi]$"></SPAN> and
+azimuth <!-- MATH
+ $\phi\in[0,2\pi)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="90" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="introimg14.png"
+ ALT="$\phi\in[0,2\pi)$"></SPAN>. Here we have assumed that there is insignificant signal power in modes
+with <SPAN CLASS="MATH"><I>l</I>&gt;<I>l</I><SUB><I>max</I></SUB></SPAN> and introduce the  notation that all sums over <SPAN CLASS="MATH"><I>m</I></SPAN> run from
+<SPAN CLASS="MATH">-<I>l</I><SUB><I>max</I></SUB></SPAN> to <SPAN CLASS="MATH"><I>l</I><SUB><I>max</I></SUB></SPAN> but all quantities with index <SPAN CLASS="MATH"><I>lm</I></SPAN> vanish
+for <SPAN CLASS="MATH"><I>m</I>&gt;<I>l</I></SPAN>. Our conventions for <SPAN CLASS="MATH"><I>Y</I><SUB><I>lm</I></SUB></SPAN> are defined in subsection
+<A HREF="intronode13.htm#sphericalstuff">A.4</A> below.
+
+<P>
+Pixelising <SPAN CLASS="MATH"><IMG
+ WIDTH="41" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="introimg15.png"
+ ALT="$f({ \gamma})$"></SPAN> corresponds to sampling it at <SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="introimg16.png"
+ ALT="$N_{\rm {pix}}$"></SPAN>
+ locations <SPAN CLASS="MATH"><IMG
+ WIDTH="22" HEIGHT="33" ALIGN="MIDDLE" BORDER="0"
+ SRC="introimg17.png"
+ ALT="$\gamma_{p}$"></SPAN>, <!-- MATH
+ $p\in[0,N_{\rm {pix}}-1]$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="132" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="introimg18.png"
+ ALT="$p\in[0,N_{\rm {pix}}-1]$"></SPAN>. The sample
+function values <SPAN CLASS="MATH"><I>f</I><SUB><I>p</I></SUB></SPAN> can then be used  
+to estimate  <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN>. A straightforward estimator is
+<BR>
+<DIV ALIGN="CENTER"><A NAME="eq:hata"></A>
+<!-- MATH
+ \begin{eqnarray}
+\hat{a}_{lm}&\myequal & \frac{4\pi}{N_{\rm {pix}}}\sum_{p=0}^{N_{\rm {pix}}-1}
+  Y^\ast_{lm}(\gamma_p) f(\gamma_p),
+\end{eqnarray}
+ -->
+<TABLE CELLPADDING="0" ALIGN="CENTER" WIDTH="100%">
+<TR VALIGN="MIDDLE"><TD NOWRAP WIDTH="50%" ALIGN="RIGHT"><IMG
+ WIDTH="31" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="introimg19.png"
+ ALT="$\displaystyle \hat{a}_{lm}$"></TD>
+<TD ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="19" HEIGHT="33" ALIGN="MIDDLE" BORDER="0"
+ SRC="introimg10.png"
+ ALT="$\textstyle \myequal $"></TD>
+<TD ALIGN="LEFT" WIDTH="50%" NOWRAP><IMG
+ WIDTH="202" HEIGHT="77" ALIGN="MIDDLE" BORDER="0"
+ SRC="introimg20.png"
+ ALT="$\displaystyle \frac{4\pi}{N_{\rm {pix}}}\sum_{p=0}^{N_{\rm {pix}}-1}
+Y^\ast_{lm}(\gamma_p) f(\gamma_p),$"></TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+(<SPAN CLASS="arabic">2</SPAN>)</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+where the superscript star denotes complex  conjugation, and an equal weight was assumed for each pixel. This
+zeroth order estimator, as well as  higher order  estimators, are implemented in the
+Fortran90 facility <TT>anafast</TT>, included in the
+package. Publications discussing these estimators and the  generalised
+quadrature problem on the sphere (Hivon <EM>et al.&nbsp;</EM>) are  in preparation.
+
+<P>
+<BR><HR>
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL CLASS="ChildLinks">
+<LI><A NAME="tex2html130"
+  HREF="intronode7.htm">Angular power spectrum conventions</A>
+<LI><A NAME="tex2html131"
+  HREF="intronode8.htm"><b>HEALPix</b> and CMBFAST</A>
+<LI><A NAME="tex2html132"
+  HREF="intronode9.htm">Polarisation convention</A>
+<UL>
+<LI><A NAME="tex2html133"
+  HREF="intronode10.htm">Internal convention</A>
+<LI><A NAME="tex2html134"
+  HREF="intronode11.htm">Relation to previous releases</A>
+<LI><A NAME="tex2html135"
+  HREF="intronode12.htm">Relation with IAU convention</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html136"
+  HREF="intronode13.htm">Spherical harmonic conventions</A>
+</UL>
+<!--End of Table of Child-Links-->
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html118"
+  HREF="intronode5.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html124"
+  HREF="intro.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html128"
+  HREF="intronode7.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html126"
+  HREF="intronode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html119"
+  HREF="intronode5.htm">The HEALPix Software Package</A>
+
+<B>Up:</B> <A NAME="tex2html125"
+  HREF="intro.htm">Introduction to Healpix</A>
+
+<B> Next:</B> <A NAME="tex2html129"
+  HREF="intronode7.htm">Angular power spectrum conventions</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+Eric Hivon
+2011-02-09
+</ADDRESS>
+</BODY>
+</HTML>

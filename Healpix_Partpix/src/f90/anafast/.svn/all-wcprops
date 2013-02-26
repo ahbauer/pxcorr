@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/anafast
+END
+anafast.f90
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/anafast/anafast.f90
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/anafast/Makefile
+END
+anamod.mod
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/anafast/anamod.mod
+END
+ana_sub_inc.f90
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/anafast/ana_sub_inc.f90
+END

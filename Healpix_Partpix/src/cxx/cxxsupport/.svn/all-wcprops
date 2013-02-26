@@ -1,0 +1,191 @@
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport
+END
+wigner.cc
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/wigner.cc
+END
+openmp_support.h
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/openmp_support.h
+END
+wigner.h
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/wigner.h
+END
+error_handling.cc
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/error_handling.cc
+END
+trafos.cc
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/trafos.cc
+END
+bstream.h
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/bstream.h
+END
+error_handling.h
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/error_handling.h
+END
+xcomplex.h
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/xcomplex.h
+END
+paramfile.h
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/paramfile.h
+END
+cxxsupport.dox
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/cxxsupport.dox
+END
+fftpack_support.h
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/fftpack_support.h
+END
+lsconstants.h
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/lsconstants.h
+END
+planck_rng.h
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/planck_rng.h
+END
+ls_image.cc
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/ls_image.cc
+END
+arr.h
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/arr.h
+END
+rotmatrix.cc
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/rotmatrix.cc
+END
+pointing.h
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/pointing.h
+END
+rotmatrix.h
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/rotmatrix.h
+END
+trafos.h
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/trafos.h
+END
+planck.make
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/planck.make
+END
+datatypes.h
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/datatypes.h
+END
+vec3.h
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/vec3.h
+END
+geom_utils.h
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/geom_utils.h
+END
+fitshandle.cc
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/fitshandle.cc
+END
+ls_image.h
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/ls_image.h
+END
+cxxutils.cc
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/cxxutils.cc
+END
+fitshandle.h
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/fitshandle.h
+END
+font_data.inc
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/font_data.inc
+END
+cxxutils.h
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/cxxutils.h
+END
+levels_facilities.h
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/levels_facilities.h
+END
+safe_cast.h
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/cxxsupport/safe_cast.h
+END

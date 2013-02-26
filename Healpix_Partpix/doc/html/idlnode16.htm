@@ -1,0 +1,291 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2002-2-1 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>fits2cl</TITLE>
+<META NAME="description" CONTENT="fits2cl">
+<META NAME="keywords" CONTENT="idl">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2002-2-1">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="idl.css">
+
+<LINK REL="next" HREF="idlnode17.htm">
+<LINK REL="previous" HREF="idlnode15.htm">
+<LINK REL="up" HREF="idl.htm">
+<LINK REL="next" HREF="idlnode17.htm">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><body text="#000000" bgcolor="#FFFFFA">
+<!--Navigation Panel-->
+<A NAME="tex2html323"
+  HREF="idlnode15.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html329"
+  HREF="idl.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html333"
+  HREF="idlnode17.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html331"
+  HREF="idlnode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html324"
+  HREF="idlnode15.htm">fits2alm</A>
+
+<B>Up:</B> <A NAME="tex2html330"
+  HREF="idl.htm">Healpix/IDL subroutines</A>
+
+<B> Next:</B> <A NAME="tex2html334"
+  HREF="idlnode17.htm">gaussbeam</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION000160000000000000000"></A>
+<A NAME="idl:fits2cl"></A>
+<BR>
+ 
+</H1>
+<P>
+<b><font size=+6><FONT COLOR="#CC0000">fits2cl</FONT></font></b><hr><H2>This IDL facility provides a means to
+read from a FITS file an ascii or binary table extension containing power 
+spectrum (<SPAN CLASS="MATH"><I>C</I>(<I>l</I>)</SPAN>) or spherical harmonics (<SPAN CLASS="MATH"><I>a</I><SUB><I>l m</I></SUB></SPAN>) coefficients, and returns
+the corresponding power spectrum (<!-- MATH
+ $C(l) = \sum_m a_{lm}a^*_{lm} / (2l+1)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="223" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="idlimg18.png"
+ ALT="$C(l) = \sum_m a_{lm}a^*_{lm} / (2l+1)$"></SPAN>). Reads primary and extension headers if
+required. The facility is intended to enable the user to read the
+output from the <b>HEALPix</b> facility <SPAN  CLASS="textbf">anafast</SPAN>.
+</H2><br>Location in HEALPix directory tree: <b>
+src/idl/fits/fits2cl.pro
+</b>
+<P>
+<hr><h1>FORMAT </h1><h2>IDL>
+<FONT COLOR="#CC0000">fits2cl</FONT>, 
+<A HREF="#idl:fits2cl_idl:cl_array">cl_array</A>, 
+[<A HREF="#idl:fits2cl_idl:fitsfile">fitsfile</A>, <A HREF="#idl:fits2cl_idl:hdr">HDR=</A> ,
+<A HREF="#idl:fits2cl_idl:help">/HELP</A>, 
+<A HREF="#idl:fits2cl_idl:interactive">/INTERACTIVE</A>, 
+<A HREF="#idl:fits2cl_idl:llfactor">LLFACTOR=</A>, 
+<A HREF="#idl:fits2cl_idl:multipoles">MULTIPOLES=</A>,  
+<A HREF="#idl:fits2cl_idl:rshow">/RSHOW</A>, 
+<A HREF="#idl:fits2cl_idl:show">/SHOW</A>, 
+<A HREF="#idl:fits2cl_idl:silent">/SILENT=</A>, 
+<A HREF="#idl:fits2cl_idl:wmap1">/WMAP1=</A>, 
+<A HREF="#idl:fits2cl_idl:wmap5">/WMAP5=</A>, 
+<A HREF="#idl:fits2cl_idl:xhdr">XHDR=</A>]
+</h2>
+<P>
+<hr><H1>QUALIFIERS</H1>
+<BR> 
+  </SMALL><DL COMPACT><DT>
+<B>cl_array</B>
+<DD><A NAME="idl:fits2cl_idl:cl_array"></A>real array of <SPAN CLASS="MATH"><I>C</I><SUB><I>l</I></SUB></SPAN> coefficients read or computed from the
+      file. The output dimension depends on the contents of the file. 
+	This has dimension either (lmax+1,6) given in the sequence T E B
+      TxE TxB ExB <B>or</B> (lmax+1,4) for T E B TxE <B>or</B> (lmax+1) for T
+    alone. 
+     The convention for the power spectrum is that it is not
+      normalised by the Harrison-Zeldovich (flat) spectrum.
+<DT>
+<B>fitsfile</B>
+<DD><A NAME="idl:fits2cl_idl:fitsfile"></A>String containing the name of the FITS file to be read. The
+    file contains either <SPAN CLASS="MATH"><I>C</I>(<I>l</I>)</SPAN> power spectra or <SPAN CLASS="MATH"><I>a</I><SUB><I>l m</I></SUB></SPAN> coefficients. In either
+    cases, <SPAN CLASS="MATH"><I>C</I>(<I>l</I>)</SPAN> is returned. If <TT>fitsfile</TT> is not set, then
+<A HREF="#idl:fits2cl_idl:wmap1"><TT>/WMAP1</TT></A> or
+<A HREF="#idl:fits2cl_idl:wmap5"><TT>/WMAP5</TT></A> must be set.
+  </DL><SMALL CLASS="FOOTNOTESIZE">
+
+<P>
+<hr><H1>KEYWORDS</H1>
+<BR> 
+  </SMALL><DL COMPACT><DT>
+<B>HDR =</B>
+<DD><A NAME="idl:fits2cl_idl:hdr"></A>String array containing on output the primary header
+      read from the FITS file. 
+    <DT>
+<B>/HELP</B>
+<DD><A NAME="idl:fits2cl_idl:help"></A>If set, produces an extended help message (using the doc_library
+    IDL command). 
+    <DT>
+<B>/INTERACTIVE</B>
+<DD><A NAME="idl:fits2cl_idl:interactive"></A>If set, the plots generated by <A HREF="#idl:fits2cl_idl:show"><TT>/SHOW</TT></A> and <A HREF="#idl:fits2cl_idl:rshow"><TT>/RSHOW</TT></A> options are produced using iPlot routine, allowing 
+           for interactive cropping, zooming and annotation of the plots. This
+           requires IDL 6.4 or newer to work properly.
+    <DT>
+<B>LLFACTOR =</B>
+<DD><A NAME="idl:fits2cl_idl:llfactor"></A>vector containing on output the factor <SPAN CLASS="MATH"><IMG
+ WIDTH="93" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="idlimg12.png"
+ ALT="$l(l+1)/2\pi$"></SPAN> which is often
+          applied to <SPAN CLASS="MATH"><I>C</I>(<I>l</I>)</SPAN> to flatten it for plotting purposes
+    <DT>
+<B>MULTIPOLES =</B>
+<DD><A NAME="idl:fits2cl_idl:multipoles"></A>vector containing on output the multipoles
+    <SPAN CLASS="MATH"><I>l</I></SPAN> for which the power spectra are provided. They are either
+<BR>           - read from the file (1st column in the Planck format),
+<BR>          - or generated by the routine (assuming that all
+               multipoles from 0 to lmax included are provided).
+    <DT>
+<B>/RSHOW</B>
+<DD><A NAME="idl:fits2cl_idl:rshow"></A>If set, the raw power spectra <SPAN CLASS="MATH"><I>C</I>(<I>l</I>)</SPAN> read from the file are plotted
+    <DT>
+<B>/SHOW</B>
+<DD><A NAME="idl:fits2cl_idl:show"></A>If set, the rescaled power spectra <!-- MATH
+ $l(l+1)C(l)/2\pi$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="129" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="idlimg19.png"
+ ALT="$l(l+1)C(l)/2\pi$"></SPAN> are plotted
+    <DT>
+<B>/SILENT</B>
+<DD><A NAME="idl:fits2cl_idl:silent"></A>If set, no message is issued during normal execution
+    <DT>
+<B>/WMAP1</B>
+<DD><A NAME="idl:fits2cl_idl:wmap1"></A>If set, and <A HREF="#idl:fits2cl_idl:fitsfile"><TT>fitsfile</TT></A> 
+           is not provided, then one WMAP-1yr best fit
+          model
+(<A HREF="idlnode29.htm#idl:init_healpix">!healpix</A>.path.test+'wmap_lcdm_pl_model_yr1_v1.fits'
+which currently matches !healpix.path.test+'cl.fits') 
+          defined up to l=3000, is read.
+<BR>
+See !healpix.path.test+'README' for details
+    <DT>
+<B>/WMAP5</B>
+<DD><A NAME="idl:fits2cl_idl:wmap5"></A>If set, and <A HREF="#idl:fits2cl_idl:fitsfile"><TT>fitsfile</TT></A>
+           is not provided, then one WMAP-5yr best fit
+          model (<A HREF="idlnode29.htm#idl:init_healpix">!healpix</A>.path.test+'wmap_lcdm_sz_lens_wmap5_cl_v3.fits') 
+          defined up to l=2000, is read.
+<BR>
+See !healpix.path.test+'README' for details
+    <DT>
+<B>XHDR =</B>
+<DD><A NAME="idl:fits2cl_idl:xhdr"></A>String array containing on output the extension header
+      read from the FITS file. 
+  </DL><SMALL CLASS="FOOTNOTESIZE">
+<SMALL CLASS="FOOTNOTESIZE">  
+</SMALL>
+<P>
+<hr><H1>DESCRIPTION</H1>
+<BR> <blockquote>
+<FONT COLOR="#CC0000">fits2cl</FONT> reads the power spectrum coefficients from a FITS
+file containing an ascii table extension. Descriptive headers conforming
+to the FITS convention can also be read from the input file.
+
+</blockquote>
+<P>
+<hr><H1>RELATED ROUTINES</H1><h3>This section lists the routines related to <b><FONT COLOR="#CC0000">fits2cl</FONT></b></h3>
+<BR> 
+  </SMALL><DL COMPACT><DT>
+<B>idl</B>
+<DD>version 6.1 or more is necessary to run <FONT COLOR="#CC0000">fits2cl</FONT>.
+    <DT>
+<B><A HREF="idlnode7.htm#idl:bin_llcl">bin_llcl</A></B>
+<DD>facility to bin a spectrum read
+with <FONT COLOR="#CC0000">fits2cl</FONT>.
+    <DT>
+<B><A HREF="idlnode8.htm#idl:bl2fits">bl2fits</A></B>
+<DD>facility to write a window function into a FITS file.
+    <DT>
+<B><A HREF="idlnode12.htm#idl:cl2fits">cl2fits</A></B>
+<DD>provides the complimentary routine to write a
+      power spectrum to a FITS file.
+    <DT>
+<B><A HREF="idlnode15.htm#idl:fits2alm">fits2alm</A>, <A HREF="idlnode5.htm#idl:alm2fits">alm2fits</A></B>
+<DD>routines to read and write <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN> coefficients
+    <DT>
+<B><A HREF="idlnode25.htm#idl:ianafast">ianafast</A></B>
+<DD>IDL routine computing <SPAN CLASS="MATH"><I>C</I>(<I>l</I>)</SPAN> files
+that can be read by <FONT COLOR="#CC0000">fits2cl</FONT>.
+    <DT>
+<B>anafast</B>
+<DD>F90 facility computing <SPAN CLASS="MATH"><I>C</I>(<I>l</I>)</SPAN> files that can be read by <FONT COLOR="#CC0000">fits2cl</FONT>.
+  </DL><SMALL CLASS="FOOTNOTESIZE">
+
+<P>
+<HR><H1>EXAMPLE:</H1><tt><FONT SIZE=+1>
+</SMALL><TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT"><SMALL CLASS="FOOTNOTESIZE"> 
+<FONT COLOR="#CC0000">fits2cl</FONT>, pwrsp, '$HEALPIX/test/cl.fits', $ </SMALL></TD>
+</TR>
+<TR><TD ALIGN="LEFT"><SMALL CLASS="FOOTNOTESIZE"> 
+	HDR=hdr, XHDR=xhdr, MULTI=l, LLFACT=fll </SMALL></TD>
+</TR>
+<TR><TD ALIGN="LEFT"><SMALL CLASS="FOOTNOTESIZE"> 
+plot, l, powrsp[*,0]*fll
+</SMALL></TD>
+</TR>
+</TABLE><SMALL CLASS="FOOTNOTESIZE">
+</font></tt>
+<BR><blockquote>
+<FONT COLOR="#CC0000">fits2cl</FONT> reads a power spectrum <SPAN CLASS="MATH"><I>C</I>(<I>l</I>)</SPAN> from the input FITS file 
+<TT>$HEALPIX/test/cl.fits</TT>
+into the variable <TT>pwrsp</TT>,  with optional headers
+passed by the string variables <TT>hdr</TT> and <TT>xhdr</TT>. The multipoles <SPAN CLASS="MATH"><I>l</I></SPAN> and
+factors <SPAN CLASS="MATH"><IMG
+ WIDTH="93" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="idlimg12.png"
+ ALT="$l(l+1)/2\pi$"></SPAN> are read into <TT>l</TT> and <TT>fll</TT> respectively.
+<!-- MATH
+ $l(l+1) C(l)/2\pi$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="129" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="idlimg19.png"
+ ALT="$l(l+1)C(l)/2\pi$"></SPAN> vs <SPAN CLASS="MATH"><I>l</I></SPAN> is then plotted.
+</blockquote>
+<P>
+<SMALL CLASS="FOOTNOTESIZE"></SMALL>
+<P>
+
+<P>
+
+<P>
+<SMALL CLASS="FOOTNOTESIZE">
+ </SMALL>
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html323"
+  HREF="idlnode15.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html329"
+  HREF="idl.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html333"
+  HREF="idlnode17.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html331"
+  HREF="idlnode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html324"
+  HREF="idlnode15.htm">fits2alm</A>
+
+<B>Up:</B> <A NAME="tex2html330"
+  HREF="idl.htm">Healpix/IDL subroutines</A>
+
+<B> Next:</B> <A NAME="tex2html334"
+  HREF="idlnode17.htm">gaussbeam</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+Eric Hivon
+2011-02-09
+</ADDRESS>
+</BODY>
+</HTML>

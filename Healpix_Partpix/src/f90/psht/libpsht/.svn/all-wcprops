@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/psht/libpsht
+END
+psht.c
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/psht/libpsht/psht.c
+END
+psht_almhelpers.h
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/psht/libpsht/psht_almhelpers.h
+END
+ylmgen_c.h
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/psht/libpsht/ylmgen_c.h
+END
+psht.h
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/psht/libpsht/psht.h
+END
+psht_inc.c
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/psht/libpsht/psht_inc.c
+END
+psht_geomhelpers.c
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/psht/libpsht/psht_geomhelpers.c
+END
+psht_almhelpers.c
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/psht/libpsht/psht_almhelpers.c
+END
+psht_geomhelpers.h
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/psht/libpsht/psht_geomhelpers.h
+END
+ylmgen_c.c
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/psht/libpsht/ylmgen_c.c
+END

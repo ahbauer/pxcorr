@@ -1,0 +1,306 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2002-2-1 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Contents</TITLE>
+<META NAME="description" CONTENT="Contents">
+<META NAME="keywords" CONTENT="subroutines">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2002-2-1">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="subroutines.css">
+
+<LINK REL="next" HREF="subroutinesnode2.htm">
+<LINK REL="previous" HREF="subroutines.htm">
+<LINK REL="up" HREF="subroutines.htm">
+<LINK REL="next" HREF="subroutinesnode2.htm">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><body text="#000000" bgcolor="#FFFFFA">
+<!--Navigation Panel-->
+<A NAME="tex2html125"
+  HREF="subroutines.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html131"
+  HREF="subroutines.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html133"
+  HREF="subroutinesnode2.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A>   
+<BR>
+<B> Previous:</B> <A NAME="tex2html126"
+  HREF="subroutines.htm">Healpix/F90 subroutines</A>
+
+<B>Up:</B> <A NAME="tex2html132"
+  HREF="subroutines.htm">Healpix/F90 subroutines</A>
+
+<B> Next:</B> <A NAME="tex2html134"
+  HREF="subroutinesnode2.htm">Conventions</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+<BR>
+
+<H2><A NAME="SECTION00010000000000000000">
+Contents</A>
+</H2>
+<!--Table of Contents-->
+
+<UL CLASS="TofC">
+<LI><A NAME="tex2html135"
+  HREF="subroutinesnode2.htm">Conventions</A>
+<LI><A NAME="tex2html136"
+  HREF="subroutinesnode3.htm">Changes between releases 2.14 and
+2.20</A>
+<LI><A NAME="tex2html137"
+  HREF="subroutinesnode4.htm">Changes between releases 2.13 and 2.14</A>
+<LI><A NAME="tex2html138"
+  HREF="subroutinesnode5.htm">Changes between releases 2.0 and 2.13</A>
+<LI><A NAME="tex2html139"
+  HREF="subroutinesnode6.htm">Changes between releases 1.2 and 2.0</A>
+<LI><A NAME="tex2html140"
+  HREF="subroutinesnode7.htm">Changes between releases 1.1 and 1.2</A>
+<LI><A NAME="tex2html141"
+  HREF="subroutinesnode8.htm">add_card</A>
+<LI><A NAME="tex2html142"
+  HREF="subroutinesnode9.htm">add_dipole*</A>
+<LI><A NAME="tex2html143"
+  HREF="subroutinesnode10.htm">alm2cl*</A>
+<LI><A NAME="tex2html144"
+  HREF="subroutinesnode11.htm">alm2map*</A>
+<LI><A NAME="tex2html145"
+  HREF="subroutinesnode12.htm">alm2map_der*</A>
+<LI><A NAME="tex2html146"
+  HREF="subroutinesnode13.htm">alm2map_spin*</A>
+<LI><A NAME="tex2html147"
+  HREF="subroutinesnode14.htm">alms2fits*</A>
+<LI><A NAME="tex2html148"
+  HREF="subroutinesnode15.htm">alter_alm*</A>
+<LI><A NAME="tex2html149"
+  HREF="subroutinesnode16.htm">ang2vec</A>
+<LI><A NAME="tex2html150"
+  HREF="subroutinesnode17.htm">angdist</A>
+<LI><A NAME="tex2html151"
+  HREF="subroutinesnode18.htm">assert, assert_alloc, assert_directory_present, assert_not_present, assert_present</A>
+<LI><A NAME="tex2html152"
+  HREF="subroutinesnode19.htm">brag_openmp</A>
+<LI><A NAME="tex2html153"
+  HREF="subroutinesnode20.htm">complex_fft</A>
+<LI><A NAME="tex2html154"
+  HREF="subroutinesnode21.htm">compute_statistics*</A>
+<LI><A NAME="tex2html155"
+  HREF="subroutinesnode22.htm">concatnl</A>
+<LI><A NAME="tex2html156"
+  HREF="subroutinesnode23.htm">convert_inplace*</A>
+<LI><A NAME="tex2html157"
+  HREF="subroutinesnode24.htm">convert_nest2ring*</A>
+<LI><A NAME="tex2html158"
+  HREF="subroutinesnode25.htm">convert_ring2nest*</A>
+<LI><A NAME="tex2html159"
+  HREF="subroutinesnode26.htm">coordsys2euler_zyz</A>
+<LI><A NAME="tex2html160"
+  HREF="subroutinesnode27.htm">create_alm*</A>
+<LI><A NAME="tex2html161"
+  HREF="subroutinesnode28.htm">del_card</A>
+<LI><A NAME="tex2html162"
+  HREF="subroutinesnode29.htm">dump_alms*</A>
+<LI><A NAME="tex2html163"
+  HREF="subroutinesnode30.htm">fits2alms*</A>
+<LI><A NAME="tex2html164"
+  HREF="subroutinesnode31.htm">fits2cl*</A>
+<LI><A NAME="tex2html165"
+  HREF="subroutinesnode32.htm">gaussbeam</A>
+<LI><A NAME="tex2html166"
+  HREF="subroutinesnode33.htm">generate_beam</A>
+<LI><A NAME="tex2html167"
+  HREF="subroutinesnode34.htm">get_card</A>
+<LI><A NAME="tex2html168"
+  HREF="subroutinesnode35.htm">get_healpix_data_dir, get_healpix_main_dir, get_healpix_test_dir</A>
+<LI><A NAME="tex2html169"
+  HREF="subroutinesnode36.htm">getArgument</A>
+<LI><A NAME="tex2html170"
+  HREF="subroutinesnode37.htm">getEnvironment</A>
+<LI><A NAME="tex2html171"
+  HREF="subroutinesnode38.htm">getdisc_ring</A>
+<LI><A NAME="tex2html172"
+  HREF="subroutinesnode39.htm">getnumext_fits</A>
+<LI><A NAME="tex2html173"
+  HREF="subroutinesnode40.htm">getsize_fits</A>
+<LI><A NAME="tex2html174"
+  HREF="subroutinesnode41.htm">healpix_modules module</A>
+<LI><A NAME="tex2html175"
+  HREF="subroutinesnode42.htm">healpix_types module</A>
+<LI><A NAME="tex2html176"
+  HREF="subroutinesnode43.htm">in_ring</A>
+<LI><A NAME="tex2html177"
+  HREF="subroutinesnode44.htm">input_map*</A>
+<LI><A NAME="tex2html178"
+  HREF="subroutinesnode45.htm">input_tod*</A>
+<LI><A NAME="tex2html179"
+  HREF="subroutinesnode46.htm">long_count,&nbsp;long_size</A>
+<LI><A NAME="tex2html180"
+  HREF="subroutinesnode47.htm">map2alm*</A>
+<LI><A NAME="tex2html181"
+  HREF="subroutinesnode48.htm">map2alm_iterative*</A>
+<LI><A NAME="tex2html182"
+  HREF="subroutinesnode49.htm">map2alm_spin*</A>
+<LI><A NAME="tex2html183"
+  HREF="subroutinesnode50.htm">medfiltmap*</A>
+<LI><A NAME="tex2html184"
+  HREF="subroutinesnode51.htm">median*</A>
+<LI><A NAME="tex2html185"
+  HREF="subroutinesnode52.htm">merge_headers</A>
+<LI><A NAME="tex2html186"
+  HREF="subroutinesnode53.htm">mpi_alm_tools*</A>
+<LI><A NAME="tex2html187"
+  HREF="subroutinesnode54.htm">mpi_alm2map*</A>
+<LI><A NAME="tex2html188"
+  HREF="subroutinesnode55.htm">mpi_alm2map_simple*</A>
+<LI><A NAME="tex2html189"
+  HREF="subroutinesnode56.htm">mpi_alm2map_slave</A>
+<LI><A NAME="tex2html190"
+  HREF="subroutinesnode57.htm">mpi_cleanup_alm_tools</A>
+<LI><A NAME="tex2html191"
+  HREF="subroutinesnode58.htm">mpi_initialize_alm_tools</A>
+<LI><A NAME="tex2html192"
+  HREF="subroutinesnode59.htm">mpi_map2alm*</A>
+<LI><A NAME="tex2html193"
+  HREF="subroutinesnode60.htm">mpi_map2alm_simple*</A>
+<LI><A NAME="tex2html194"
+  HREF="subroutinesnode61.htm">mpi_map2alm_slave</A>
+<LI><A NAME="tex2html195"
+  HREF="subroutinesnode62.htm">nArguments</A>
+<LI><A NAME="tex2html196"
+  HREF="subroutinesnode63.htm">neighbours_nest</A>
+<LI><A NAME="tex2html197"
+  HREF="subroutinesnode64.htm">npix2nside</A>
+<LI><A NAME="tex2html198"
+  HREF="subroutinesnode65.htm">nside2npix</A>
+<LI><A NAME="tex2html199"
+  HREF="subroutinesnode66.htm">nside2ntemplates</A>
+<LI><A NAME="tex2html200"
+  HREF="subroutinesnode67.htm">number_of_alms</A>
+<LI><A NAME="tex2html201"
+  HREF="subroutinesnode68.htm">output_map*</A>
+<LI><A NAME="tex2html202"
+  HREF="subroutinesnode69.htm">parse_xxx</A>
+<LI><A NAME="tex2html203"
+  HREF="subroutinesnode70.htm">pixel_window</A>
+<LI><A NAME="tex2html204"
+  HREF="subroutinesnode71.htm">pix2xxx,ang2xxx,vec2xxx, nest2ring,ring2nest</A>
+<LI><A NAME="tex2html205"
+  HREF="subroutinesnode72.htm">planck_rng derived type</A>
+<LI><A NAME="tex2html206"
+  HREF="subroutinesnode73.htm">plm_gen</A>
+<LI><A NAME="tex2html207"
+  HREF="subroutinesnode74.htm">query_disc</A>
+<LI><A NAME="tex2html208"
+  HREF="subroutinesnode75.htm">query_polygon</A>
+<LI><A NAME="tex2html209"
+  HREF="subroutinesnode76.htm">query_strip</A>
+<LI><A NAME="tex2html210"
+  HREF="subroutinesnode77.htm">query_triangle</A>
+<LI><A NAME="tex2html211"
+  HREF="subroutinesnode78.htm">rand_gauss</A>
+<LI><A NAME="tex2html212"
+  HREF="subroutinesnode79.htm">rand_init</A>
+<LI><A NAME="tex2html213"
+  HREF="subroutinesnode80.htm">rand_uni</A>
+<LI><A NAME="tex2html214"
+  HREF="subroutinesnode81.htm">read_asctab*</A>
+<LI><A NAME="tex2html215"
+  HREF="subroutinesnode82.htm">read_bintab*</A>
+<LI><A NAME="tex2html216"
+  HREF="subroutinesnode83.htm">read_conbintab*</A>
+<LI><A NAME="tex2html217"
+  HREF="subroutinesnode84.htm">read_dbintab</A>
+<LI><A NAME="tex2html218"
+  HREF="subroutinesnode85.htm">read_fits_cut4</A>
+<LI><A NAME="tex2html219"
+  HREF="subroutinesnode86.htm">read_par</A>
+<LI><A NAME="tex2html220"
+  HREF="subroutinesnode87.htm">real_fft</A>
+<LI><A NAME="tex2html221"
+  HREF="subroutinesnode88.htm">remove_dipole*</A>
+<LI><A NAME="tex2html222"
+  HREF="subroutinesnode89.htm">ring_analysis</A>
+<LI><A NAME="tex2html223"
+  HREF="subroutinesnode90.htm">ring_num</A>
+<LI><A NAME="tex2html224"
+  HREF="subroutinesnode91.htm">ring_synthesis</A>
+<LI><A NAME="tex2html225"
+  HREF="subroutinesnode92.htm">rotate_alm*</A>
+<LI><A NAME="tex2html226"
+  HREF="subroutinesnode93.htm">same_shape_pixels_nest, same_shape_pixels_ring</A>
+<LI><A NAME="tex2html227"
+  HREF="subroutinesnode94.htm">scan_directories</A>
+<LI><A NAME="tex2html228"
+  HREF="subroutinesnode95.htm">string, strlowcase, strupcase</A>
+<LI><A NAME="tex2html229"
+  HREF="subroutinesnode96.htm">surface_triangle</A>
+<LI><A NAME="tex2html230"
+  HREF="subroutinesnode97.htm">template_pixel_nest, template_pixel_ring</A>
+<LI><A NAME="tex2html231"
+  HREF="subroutinesnode98.htm">udgrade_nest*</A>
+<LI><A NAME="tex2html232"
+  HREF="subroutinesnode99.htm">udgrade_ring*</A>
+<LI><A NAME="tex2html233"
+  HREF="subroutinesnode100.htm">vec2ang</A>
+<LI><A NAME="tex2html234"
+  HREF="subroutinesnode101.htm">vect_prod</A>
+<LI><A NAME="tex2html235"
+  HREF="subroutinesnode102.htm">write_asctab*</A>
+<LI><A NAME="tex2html236"
+  HREF="subroutinesnode103.htm">write_bintab*</A>
+<LI><A NAME="tex2html237"
+  HREF="subroutinesnode104.htm">write_bintabh</A>
+<LI><A NAME="tex2html238"
+  HREF="subroutinesnode105.htm">write_dbintab</A>
+<LI><A NAME="tex2html239"
+  HREF="subroutinesnode106.htm">write_fits_cut4</A>
+<LI><A NAME="tex2html240"
+  HREF="subroutinesnode107.htm">write_minimal_header</A>
+<LI><A NAME="tex2html241"
+  HREF="subroutinesnode108.htm">write_plm</A>
+<LI><A NAME="tex2html242"
+  HREF="subroutinesnode109.htm">xcc_v_convert</A>
+</UL>
+<!--End of Table of Contents-->
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html125"
+  HREF="subroutines.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html131"
+  HREF="subroutines.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html133"
+  HREF="subroutinesnode2.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A>   
+<BR>
+<B> Previous:</B> <A NAME="tex2html126"
+  HREF="subroutines.htm">Healpix/F90 subroutines</A>
+
+<B>Up:</B> <A NAME="tex2html132"
+  HREF="subroutines.htm">Healpix/F90 subroutines</A>
+
+<B> Next:</B> <A NAME="tex2html134"
+  HREF="subroutinesnode2.htm">Conventions</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+Eric Hivon
+2011-02-09
+</ADDRESS>
+</BODY>
+</HTML>

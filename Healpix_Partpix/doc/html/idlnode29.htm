@@ -1,0 +1,184 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2002-2-1 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>init_healpix and !healpix system variable</TITLE>
+<META NAME="description" CONTENT="init_healpix and !healpix system variable">
+<META NAME="keywords" CONTENT="idl">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2002-2-1">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="idl.css">
+
+<LINK REL="next" HREF="idlnode30.htm">
+<LINK REL="previous" HREF="idlnode28.htm">
+<LINK REL="up" HREF="idl.htm">
+<LINK REL="next" HREF="idlnode30.htm">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><body text="#000000" bgcolor="#FFFFFA">
+<!--Navigation Panel-->
+<A NAME="tex2html479"
+  HREF="idlnode28.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html485"
+  HREF="idl.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html489"
+  HREF="idlnode30.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html487"
+  HREF="idlnode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html480"
+  HREF="idlnode28.htm">index2lm</A>
+
+<B>Up:</B> <A NAME="tex2html486"
+  HREF="idl.htm">Healpix/IDL subroutines</A>
+
+<B> Next:</B> <A NAME="tex2html490"
+  HREF="idlnode30.htm">lm2index</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION000290000000000000000"></A>
+<A NAME="idl:init_healpix"></A>
+<BR>
+ 
+</H1>
+<P>
+<b><font size=+6><FONT COLOR="#CC0000">init_healpix</FONT></font></b><hr><H2>This IDL facility creates an IDL system variable (!HEALPIX) containing various
+<b>HEALPix</b> related quantities</H2><br>Location in HEALPix directory tree: <b>
+src/idl/misc/init_healpix.pro
+</b>
+<P>
+<hr><h1>FORMAT </h1><h2>IDL>
+INIT_HEALPIX [,VERBOSE=]
+</h2>
+<P>
+<hr><H1>KEYWORDS</H1>
+<BR> 
+  </SMALL><DL COMPACT><DT>
+<B>VERBOSE =</B>
+<DD>if set, turn on the verbose mode, giving a short
+    description of the variables just created.
+  </DL><SMALL CLASS="FOOTNOTESIZE">
+<SMALL CLASS="FOOTNOTESIZE">  
+</SMALL>
+<P>
+<hr><H1>DESCRIPTION</H1>
+<BR> <blockquote>
+<FONT COLOR="#CC0000">init_healpix</FONT>  defines the IDL system variable and structure !HEALPIX
+containing several quantities and character string necessary to <b>HEALPix</b> , eg : allowed
+resolution parameters Nside, full path to package directory, package version...
+</blockquote>
+<P>
+<hr><H1>RELATED ROUTINES</H1><h3>This section lists the routines related to <b><FONT COLOR="#CC0000">init_healpix</FONT></b></h3>
+<BR> 
+  </SMALL><DL COMPACT><DT>
+<B>idl</B>
+<DD>version 6.1 or more is necessary to run <FONT COLOR="#CC0000">init_healpix</FONT>.	
+    <DT>
+<B>!HEALPIX</B>
+<DD>IDL system variable defined by <FONT COLOR="#CC0000">init_healpix</FONT>.
+  </DL><SMALL CLASS="FOOTNOTESIZE">
+
+<P>
+<hr><H1>EXAMPLE # 1:</H1><tt><FONT SIZE=+1>
+</SMALL><TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT"><SMALL CLASS="FOOTNOTESIZE"> 
+<FONT COLOR="#CC0000">init_healpix</FONT>,/verbose
+</SMALL></TD>
+<TD></TD>
+</TR>
+</TABLE><SMALL CLASS="FOOTNOTESIZE">
+</font></tt><br><blockquote><FONT COLOR="#CC0000">init_healpix</FONT>  will create the system variable !Healpix, and give a short
+description of the tags available, as shown below
+</SMALL>
+<P>
+<SMALL CLASS="FOOTNOTESIZE"><TT><SMALL CLASS="FOOTNOTESIZE">Initializing !HEALPIX system variable <BR>
+This system variable contains some information on Healpix : <BR>
+!HEALPIX.VERSION   = current version number,
+<BR>
+!HEALPIX.DATE      = date of release,
+<BR>
+!HEALPIX.DIRECTORY = directory containing Healpix package,
+<BR>
+!HEALPIX.PATH      = structure containing:
+<BR>
+!HEALPIX.PATH.BIN  = structure containing binary path :
+<BR>
+!HEALPIX.PATH.BIN.CXX  =     C++
+<BR>
+!HEALPIX.PATH.BIN.F90  =     Fortran90
+<BR>
+!HEALPIX.PATH.DATA = path to data subdirectory,
+<BR>
+!HEALPIX.PATH.DOC  = path to doc subdirectories (.html, .pdf),
+<BR>
+!HEALPIX.PATH.TEST = path to test subdirectory,
+<BR>
+!HEALPIX.NSIDE     = list of all valid values of Nside parameter,
+<BR>
+!HEALPIX.BAD_VALUE = value of flag given to missing pixels in FITS files,
+<BR>
+!HEALPIX.COMMENT   = this description.
+</SMALL></TT>
+</blockquote><SMALL CLASS="FOOTNOTESIZE"></SMALL><hr><H1>EXAMPLE # 2:</H1><tt><FONT SIZE=+1>
+</SMALL><TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT"><SMALL CLASS="FOOTNOTESIZE"> 
+help, !healpix, /structure
+</SMALL></TD>
+<TD></TD>
+</TR>
+</TABLE><SMALL CLASS="FOOTNOTESIZE">
+</font></tt><br><blockquote>will print the content of the !Healpix system structure.
+</blockquote><SMALL CLASS="FOOTNOTESIZE">
+</SMALL>
+<P>
+
+<P>
+<SMALL CLASS="FOOTNOTESIZE">
+ </SMALL>
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html479"
+  HREF="idlnode28.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html485"
+  HREF="idl.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html489"
+  HREF="idlnode30.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html487"
+  HREF="idlnode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html480"
+  HREF="idlnode28.htm">index2lm</A>
+
+<B>Up:</B> <A NAME="tex2html486"
+  HREF="idl.htm">Healpix/IDL subroutines</A>
+
+<B> Next:</B> <A NAME="tex2html490"
+  HREF="idlnode30.htm">lm2index</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+Eric Hivon
+2011-02-09
+</ADDRESS>
+</BODY>
+</HTML>

@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/ud_grade
+END
+ud_grade.f90
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/ud_grade/ud_grade.f90
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/ud_grade/Makefile
+END
+udgmod.mod
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/ud_grade/udgmod.mod
+END
+udg_sub_inc.f90
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/f90/ud_grade/udg_sub_inc.f90
+END

@@ -1,0 +1,165 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2002-2-1 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>rotate_coord</TITLE>
+<META NAME="description" CONTENT="rotate_coord">
+<META NAME="keywords" CONTENT="idl">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2002-2-1">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="idl.css">
+
+<LINK REL="next" HREF="idlnode53.htm">
+<LINK REL="previous" HREF="idlnode51.htm">
+<LINK REL="up" HREF="idl.htm">
+<LINK REL="next" HREF="idlnode53.htm">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><body text="#000000" bgcolor="#FFFFFA">
+<!--Navigation Panel-->
+<A NAME="tex2html755"
+  HREF="idlnode51.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html761"
+  HREF="idl.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html765"
+  HREF="idlnode53.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html763"
+  HREF="idlnode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html756"
+  HREF="idlnode51.htm">reorder</A>
+
+<B>Up:</B> <A NAME="tex2html762"
+  HREF="idl.htm">Healpix/IDL subroutines</A>
+
+<B> Next:</B> <A NAME="tex2html766"
+  HREF="idlnode53.htm">same_shape_pixels_XXXX</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION000520000000000000000"></A>
+<A NAME="idl:rotate_coord"></A>
+<BR>
+ 
+</H1>
+<P>
+<b><font size=+6><FONT COLOR="#CC0000">rotate_coord</FONT></font></b><hr><H2>This IDL facility provides a means to rotate a set of 3D position
+vectors (and their Stokes parameters Q and U) between to astrophysical coordinate systems
+or by an arbitrary rotation.
+</H2><br>Location in HEALPix directory tree: <b>
+src/idl/misc/rotate_coord.pro
+</b>
+<P>
+<hr><h1>FORMAT </h1><h2>IDL>
+Outvec = ROTATE_COORD( Invec [, Inco=, Outco=, Euler_Matrix=, Stokes_Parameters=] )
+</h2>
+<P>
+<hr><H1>QUALIFIERS</H1>
+<BR> 
+  </SMALL><DL COMPACT><DT>
+<B>Invec</B>
+<DD>input,  array of size (n,3) : set of 3D position vectors
+    <DT>
+<B>Outvec</B>
+<DD>output, array of size (n,3) : rotated 3D vectors
+    <DT>
+<B>Inco=</B>
+<DD>input, character string (either 'Q' or 'C': equatorial,
+    'G': galactic or 'E': ecliptic) describing the input coordinate system 
+    <DT>
+<B>Outco=</B>
+<DD>input, character string (see above) describing the output
+          coordinate system.
+<BR>
+Can not be used together with Euler_Matrix
+    <DT>
+<B>Euler_Matrix=</B>
+<DD>input, array of size (3,3). Euler Matrix
+       describing the rotation to apply to vectors.
+       <b>default:</b>unity : no rotation.
+<BR>
+Can not be used together with a change in coordinates.
+    <DT>
+<B>Stokes_Parameters=</B>
+<DD>input and output, array of size (n, 2) :
+      values of the Q and U Stokes parameters on the sphere for each of
+      the input position vector. Q and U are defined wrt the local
+      parallel and meridian and are therefore transformed in a non
+      trivial way in case of rotation
+  </DL><SMALL CLASS="FOOTNOTESIZE">
+
+<P>
+<hr><H1>DESCRIPTION</H1>
+<BR> <blockquote>
+<FONT COLOR="#CC0000">rotate_coord</FONT> is a generalisation of the Astro library routine <TT>skyconv</TT>. It allows
+a rotation of 3D position vectors between two standard astronomic coordinates
+system but also an arbitrary rotation described by its Euler Matrix.
+It can also be applied to compute the effect of a rotation on the
+linear polarization Stokes parameters (Q and U) expressed in local
+coordinates system at the location of each of the input 3D vectors.
+</blockquote>
+<P>
+<hr><H1>RELATED ROUTINES</H1><h3>This section lists the routines related to <b><FONT COLOR="#CC0000">rotate_coord</FONT></b></h3>
+<BR> 
+  </SMALL><DL COMPACT><DT>
+<B>idl</B>
+<DD>version 6.1 or more is necessary to run <FONT COLOR="#CC0000">rotate_coord</FONT>.
+    <DT>
+<B><A HREF="idlnode14.htm#idl:euler_matrix_new">euler_matrix_new</A></B>
+<DD>constructs the Euler Matrix for a set of
+    three angles and three axes of rotation
+  </DL><SMALL CLASS="FOOTNOTESIZE">
+
+<P>
+<SMALL CLASS="FOOTNOTESIZE"></SMALL>
+<P>
+
+<P>
+<SMALL CLASS="FOOTNOTESIZE">
+ </SMALL>
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html755"
+  HREF="idlnode51.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html761"
+  HREF="idl.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html765"
+  HREF="idlnode53.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html763"
+  HREF="idlnode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html756"
+  HREF="idlnode51.htm">reorder</A>
+
+<B>Up:</B> <A NAME="tex2html762"
+  HREF="idl.htm">Healpix/IDL subroutines</A>
+
+<B> Next:</B> <A NAME="tex2html766"
+  HREF="idlnode53.htm">same_shape_pixels_XXXX</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+Eric Hivon
+2011-02-09
+</ADDRESS>
+</BODY>
+</HTML>

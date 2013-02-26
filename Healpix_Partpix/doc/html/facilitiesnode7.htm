@@ -1,0 +1,454 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2002-2-1 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>alteralm</TITLE>
+<META NAME="description" CONTENT="alteralm">
+<META NAME="keywords" CONTENT="facilities">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2002-2-1">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="facilities.css">
+
+<LINK REL="next" HREF="facilitiesnode8.htm">
+<LINK REL="previous" HREF="facilitiesnode6.htm">
+<LINK REL="up" HREF="facilities.htm">
+<LINK REL="next" HREF="facilitiesnode8.htm">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><body text="#000000" bgcolor="#FFFFFA">
+<!--Navigation Panel-->
+<A NAME="tex2html118"
+  HREF="facilitiesnode6.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html124"
+  HREF="facilities.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html128"
+  HREF="facilitiesnode8.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html126"
+  HREF="facilitiesnode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html119"
+  HREF="facilitiesnode6.htm">Changes between releases 1.2</A>
+
+<B>Up:</B> <A NAME="tex2html125"
+  HREF="facilities.htm">Healpix/F90 facilities</A>
+
+<B> Next:</B> <A NAME="tex2html129"
+  HREF="facilitiesnode8.htm">anafast</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION00070000000000000000"></A>
+<A NAME="fac:alteralm"></A>
+<BR>
+ 
+</H1>
+
+<P>
+<b><font size=+6><FONT COLOR="#CC0000">alteralm</FONT></font></b><hr><H2>This program can be used to modify a set of <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN> spherical harmonics
+  coefficients, as those extracted by <A HREF="facilitiesnode8.htm#fac:anafast">anafast</A> or 
+  simulated by <A HREF="facilitiesnode15.htm#fac:synfast">synfast</A>, before
+  they are used as constraints on a synfast run. Currently the alterations
+  possible are 
+<DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ rotation (using Wigner matrices) of the <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN> from the input
+    coordinate system to any other standard astrophysical coordinate system. The
+    resulting <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN> can be used with e.g. synfast to generate a map in the
+    new coordinate system.
+    <DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="greenball.png" ALT="*">
+ removal of the pixel and beam window functions of the input
+  <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN> (corresponding to the pixel size and beam shape of the map from which
+  they were extracted) and implementation of an arbitrary pixel and beam window
+  function.
+ <BR>
+<DIV ALIGN="RIGHT" CLASS="mathdisplay">
+
+<!-- MATH
+ \begin{equation}
+a_{lm}^{\rm OUT} = a_{lm}^{\rm IN} \frac{B^{\rm OUT}(l) P^{\rm
+ OUT}(l)}{B^{\rm IN}(l) P^{\rm IN}(l)},
+\end{equation}
+ -->
+<A NAME="eq:alteralm"></A>
+<TABLE WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE"><TD ALIGN="CENTER" NOWRAP><A NAME="eq:alteralm"></A><IMG
+ WIDTH="233" HEIGHT="53" BORDER="0"
+ SRC="facilitiesimg5.png"
+ ALT="\begin{displaymath}a_{lm}^{\rm OUT} = a_{lm}^{\rm IN} \frac{B^{\rm OUT}(l) P^{\rm
+OUT}(l)}{B^{\rm IN}(l) P^{\rm IN}(l)},
+\end{displaymath}"></TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+(<SPAN CLASS="arabic">1</SPAN>)</TD></TR>
+</TABLE>
+<BR CLEAR="ALL"></DIV><P></P>
+where <SPAN CLASS="MATH"><I>P</I>(<I>l</I>)</SPAN> is the pixel window function, and <SPAN CLASS="MATH"><I>B</I>(<I>l</I>)</SPAN> is the beam window
+ function (assuming a circular beam) or any other <SPAN CLASS="MATH"><I>l</I></SPAN> space filter (eg,
+ Wiener filter). For an infinitely small pixel (or beam) one would have <SPAN CLASS="MATH"><I>P</I>(<I>l</I>) =
+ 1</SPAN> (resp. <SPAN CLASS="MATH"><I>B</I>(<I>l</I>) = 1</SPAN>) for any <SPAN CLASS="MATH"><I>l</I></SPAN>.
+</DL>
+</H2><br>Location in HEALPix directory tree: <b>
+src/f90/alteralm/alteralm.f90
+</b>
+
+<P>
+<hr><h1>FORMAT </h1><blockquote><h2>%
+alteralm [options] [parameter_file]
+</h2></blockquote>
+
+<P>
+<hr><H1>COMMAND LINE OPTIONS</H1>
+<BR> 
+  <DL COMPACT><DT>
+<B><TT>-d</TT></B>
+<DD><DT>
+<B><TT>--double</TT></B>
+<DD>double precision mode (see Notes on double/single precision modes on page&nbsp;<A HREF="facilitiesnode2.htm#page:ioprec"><IMG  ALIGN="BOTTOM" BORDER="1" ALT="[*]" SRC="crossref.png"></A>)
+    <DT>
+<B><TT>-s</TT></B>
+<DD><DT>
+<B><TT>--single</TT></B>
+<DD>single precision mode (default)
+  </DL>
+
+<P>
+<hr><H1>QUALIFIERS</H1>
+<BR> 
+  <DL COMPACT><DT>
+<B>infile_alms = </B>
+<DD>Defines the FITS file from which to read the input
+	<SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN>.
+    <DT>
+<B>outfile_alms = </B>
+<DD>Defines the FITS file in which to write the altered
+	<SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN>.
+    <DT>
+<B>fwhm_arcmin_in = </B>
+<DD>Defines the FWHM size in arcminutes 
+      of the Gaussian beam present in the input <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN>. The output <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN> will be
+      corrected from it, see Eq.&nbsp;(<A HREF="#eq:alteralm">1</A>). (default= value of FWHM keyword in <TT>infile_alms</TT>).
+    <DT>
+<B>beam_file_in = </B>
+<DD>Defines the FITS file describing the
+      Legendre window function of the circular beam present in the input <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN>. The output <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN> will be
+      corrected from it, see Eq.&nbsp;(<A HREF="#eq:alteralm">1</A>). If set to an existing file name, it will override the
+    <TT>fhwm_arcmin_in</TT> given above. (default= value of the BEAM_LEG keyword in <TT>infile_alms</TT>)
+     <DT>
+<B>nlmax_out = </B>
+<DD>Defines the maximum <SPAN CLASS="MATH"><I>l</I></SPAN> value 
+       to be used for the output <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN>s. (default= maximum <SPAN CLASS="MATH"><I>l</I></SPAN> of input
+       <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN> = value of MAX-LPOL keyword in <TT>infile_alms</TT>).
+     <DT>
+<B>nsmax_in = </B>
+<DD>If it can not be determined from the input file <TT>infile_alms</TT>, asks
+       for the <b>HEALPix</b> resolution parameter <!-- MATH
+ ${N_{\rm side}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="43" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="facilitiesimg6.png"
+ ALT="${N_{\rm side}}$"></SPAN> whose
+       window function is applied to the input <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN>
+     <DT>
+<B>nsmax_out = </B>
+<DD>Defines the <b>HEALPix</b> resolution parameter <!-- MATH
+ ${N_{\rm side}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="43" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="facilitiesimg6.png"
+ ALT="${N_{\rm side}}$"></SPAN> whose
+       window function will be applied to the output <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN>. Could be set
+       to 0 for infinitely small pixels, ie no pixel window function (default= same as input's <!-- MATH
+ ${N_{\rm side}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="43" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="facilitiesimg6.png"
+ ALT="${N_{\rm side}}$"></SPAN>).
+    <DT>
+<B>fwhm_arcmin_out = </B>
+<DD>Defines the FWHM size in arcminutes 
+      of the Gaussian beam to be applied to <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN>, see
+      Eq.&nbsp;(<A HREF="#eq:alteralm">1</A>). (default= <TT>fwhm_arcmin_in</TT>).
+    <DT>
+<B>beam_file_out = </B>
+<DD>Defines the FITS file describing the
+      Legendre window function of the circular beam to be applied <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN>. If
+      set to an existing file name, it will override the 
+    <TT>fhwm_arcmin_out</TT> given above. (default= `` '' )
+    <DT>
+<B>coord_in = </B>
+<DD>Defines astrophysical coordinates used to compute the
+    input <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN>. Valid choices are 'G' = Galactic, 'E' = Ecliptic, 
+    'C'/'Q' = Celestial = eQuatorial. (default = value of COORDSYS keyword read
+    from input FITS file)
+    <DT>
+<B>epoch_in = </B>
+<DD>Defines astronomical epoch of input coordinate system (default=2000)
+    <DT>
+<B>coord_out = </B>
+<DD>Defines astrophysical coordinates into which to rotate
+    the <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN> (default = <TT>coord_in</TT>)
+    <DT>
+<B>epoch_out = </B>
+<DD>Defines astronomical epoch of output coordinate system
+    (default=<TT>epoch_in</TT>)
+
+<P>
+</DL>
+
+<P>
+<hr><H1>DESCRIPTION</H1>
+<BR> <blockquote>
+Alteralm can modify temperature as well as polarisation <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN>. It will also
+modify the error on the <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN> if those are provided. It works best if the
+input FITS file contains the relevant information on the beam size and shape,
+maximum multipoles, ...
+
+</blockquote>
+
+<P>
+<hr><H1>DATASETS</H1><h2> The following datasets are involved in the <b><FONT COLOR="#CC0000">alteralm</FONT></b>
+ processing.</h2>
+
+<TABLE CELLPADDING=3 BORDER="1">
+<TR><TH ALIGN="LEFT" VALIGN="TOP" WIDTH=150><SPAN  CLASS="textbf">Dataset</SPAN></TH>
+<TH ALIGN="LEFT" VALIGN="TOP" WIDTH=175><SPAN  CLASS="textbf">Description</SPAN></TH>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=150>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175>&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=150>
+/data/pixel_window_nxxxx.fits</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175>Files containing pixel windows for
+                   various nsmax.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=150>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175>&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=150></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175>&nbsp;</TD>
+</TR>
+</TABLE>
+
+<P>
+<hr><H1>SUPPORT    </H1><H2>This section lists those routines and facilities (including those <i>external</i> to the Healpix distribution) which can assist in the utilisation of <b><FONT COLOR="#CC0000">alteralm</FONT></b>.</H2><br>
+  <DL COMPACT><DT>
+<B><A HREF="facilitiesnode8.htm#fac:anafast">anafast</A></B>
+<DD>This <b>HEALPix</b> Fortran facility can
+     	       analyse a <b>HEALPix</b> map to extract the <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN> that can be
+     	       altered by <FONT COLOR="#CC0000">alteralm</FONT>.
+  <DT>
+<B><A HREF="facilitiesnode15.htm#fac:synfast">synfast</A></B>
+<DD>This <b>HEALPix</b> facility can generate a
+  <b>HEALPix</b> map from a power spectrum <SPAN CLASS="MATH"><I>C</I><SUB><I>l</I></SUB></SPAN>, with the possibility of including
+  constraining <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN> as those obtained with <FONT COLOR="#CC0000">alteralm</FONT>.
+
+<P>
+</DL>
+
+<P>
+<hr><H1>EXAMPLE # 1:</H1><tt><FONT SIZE=+1>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT">
+alteralm</TD>
+<TD ALIGN="LEFT">&nbsp;</TD>
+</TR>
+</TABLE>
+</font></tt><br><blockquote>
+Alteralm runs in interactive mode, self-explanatory.
+</blockquote>
+
+<P>
+<hr><H1>EXAMPLE # 2:</H1><tt><FONT SIZE=+1>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT">
+alteralm  filename</TD>
+<TD ALIGN="LEFT">&nbsp;</TD>
+</TR>
+</TABLE>
+</font></tt><br><blockquote>When 'filename' is present, alteralm enters the non-interactive mode and parses
+its inputs from the file 'filename'. This has the following
+structure: the first entry is a qualifier which announces to the parser
+which input immediately follows. If this input is omitted in the
+input file, the parser assumes the default value.
+If the equality sign is omitted, then the parser ignores the entry.
+In this way comments may also be included in the file.
+In this example, the file contains the following qualifiers:
+<BR>
+<tt>infile_alms = alm.fits</tt><br>
+<tt>nlmax_out = 512</tt><br>
+<tt>fwhm_arcmin_out = 20.0</tt><br>
+<tt>coord_out = G</tt><br>
+<tt>outfile_alms = newalm.fits</tt><br>
+
+<P>
+Alteralm reads the <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN> from 'alm.fits'. Since <BR>
+<tt>nsmax_in </tt><br>
+<tt>nsmax_out </tt><br>
+<tt>fwhm_arcmin_in </tt><br>
+<tt>beam_file_in </tt><br> 
+<tt>coord_in </tt><br>
+<tt>epoch_in </tt><br>
+<tt>epoch_out </tt><br>
+have their default values, the pixel size will remain the same, the <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN> will be corrected
+from its input beam (whatever it was, assuming the relevant information can be
+found), and a gaussian beam of 20.0 arcmin will be applied
+instead, the <SPAN CLASS="MATH"><I>a</I><SUB><I>lm</I></SUB></SPAN> will also be rotated from their original coordinate system
+(whatever it was, assuming the relevant information can be found)
+into Galactic coordinates, assuming a year 2000 epoch for both,
+ and only the multipoles up to 512 will be written in
+'newalm.fits'.
+</blockquote>
+
+<P>
+<hr><H1>RELEASE NOTES</H1><blockquote>
+  <DL COMPACT><DT><DD><IMG WIDTH="14" HEIGHT="14" SRC="blueball.png" ALT="*">
+ Initial release (<b>HEALPix</b> 2.00)
+  </DL>
+</blockquote>
+
+<P>
+<hr><H1>MESSAGES</H1><h2>This section describes error messages generated by <b><FONT COLOR="#CC0000">alteralm</FONT></b>
+</h2>
+
+<TABLE CELLPADDING=3 BORDER="1">
+<TR><TH ALIGN="LEFT" VALIGN="TOP" WIDTH=125><SPAN  CLASS="textbf">Message</SPAN></TH>
+<TH ALIGN="LEFT" VALIGN="TOP" WIDTH=50><SPAN  CLASS="textbf">Severity</SPAN></TH>
+<TH ALIGN="LEFT" VALIGN="TOP" WIDTH=175><SPAN  CLASS="textbf">Text</SPAN></TH>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=50>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175>&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>
+can not allocate memory for array xxx</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=50>Fatal</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175>You do not have
+                   sufficient system resources to run this
+                   facility at the map resolution you required. 
+  Try a lower map resolution.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=50>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175>&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>
+
+<P>
+this is not a binary table</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=50>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175>the fitsfile you have specified is not 
+of the proper format</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=50>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175>&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>
+there are undefined values in the table!</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=50>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175>the fitsfile you have specified is not 
+of the proper format</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=50>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175>&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>
+the header in xxx is too long</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=50>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175>the fitsfile you have specified is not 
+of the proper format</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=50>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175>&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>
+XXX-keyword not found</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=50>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175>the fitsfile you have specified is not 
+of the proper format</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=50>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175>&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>
+found xxx in the file, expected:yyyy</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=50>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175>the specified fitsfile does not
+contain the proper amount of data.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=50>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175>&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>
+
+<P>
+alteralm<SPAN CLASS="MATH">&gt;</SPAN> no information found on input alms beam</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=50>Fatal</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175>no information on
+the input beam was found, neither from parsing the FITS file header, nor from
+what the user provided.
+
+<P></TD>
+</TR>
+</TABLE>
+
+<P>
+
+<P>
+
+
+<P>
+
+<P>
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html118"
+  HREF="facilitiesnode6.htm">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html124"
+  HREF="facilities.htm">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html128"
+  HREF="facilitiesnode8.htm">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html126"
+  HREF="facilitiesnode1.htm">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Previous:</B> <A NAME="tex2html119"
+  HREF="facilitiesnode6.htm">Changes between releases 1.2</A>
+
+<B>Up:</B> <A NAME="tex2html125"
+  HREF="facilities.htm">Healpix/F90 facilities</A>
+
+<B> Next:</B> <A NAME="tex2html129"
+  HREF="facilitiesnode8.htm">anafast</A>
+<B> Top:</B> <a href="main.htm">Main Page</a></DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+Eric Hivon
+2011-02-09
+</ADDRESS>
+</BODY>
+</HTML>

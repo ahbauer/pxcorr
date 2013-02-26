@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/cgis
+END
+axisxy.pro
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/cgis/axisxy.pro
+END
+incube.pro
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/cgis/incube.pro
+END
+xyaxis.pro
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/cgis/xyaxis.pro
+END
+loadsky.pro
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/cgis/loadsky.pro
+END
+round.pro
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/cgis/round.pro
+END
+fij2pix.pro
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/cgis/fij2pix.pro
+END
+pix2fij.pro
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/cgis/pix2fij.pro
+END
+skyconv.pro
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/cgis/skyconv.pro
+END
+pix2uv.pro
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/cgis/pix2uv.pro
+END
+uv2pix.pro
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/cgis/uv2pix.pro
+END
+fwdcube.pro
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/idl/zzz_external/cgis/fwdcube.pro
+END

@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/config
+END
+config.aix64
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/config/config.aix64
+END
+config.linux_icc
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/config/config.linux_icc
+END
+rules.common
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/config/rules.common
+END
+config.irix64
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/config/config.irix64
+END
+config.generic_gcc
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/config/config.generic_gcc
+END
+config.osx
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/PAUdm/!svn/ver/924/trunk/src/pipeline/science/Healpix_Partpix/src/cxx/config/config.osx
+END
