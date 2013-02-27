@@ -1,0 +1,5 @@
+"ang_mean": [0.1, 0.2, 0.3, 0.5]
+"bright.z_width": [0.2]
+"Fourier": False
+"bright.z_mean": [0.5]
+"ang_width": [0.1, 0.1, 0.1, 0.2]
