@@ -254,7 +254,7 @@ template<typename T> class Partpix_Map2: public Healpix_Base2
     /*! Imports the map \a orig into the current map, adjusting the
         ordering scheme. \a orig must have the same resolution as the
         current map. */
-    void Import_nograde (const Partpix_Map2<T> &orig, const Healpix_Map<T>& resolutionMask)
+    void Import_nograde (const Partpix_Map2<T> &orig, const Healpix_Map<double>& resolutionMask)
       {
       planck_assert (nside_==orig.nside_,
         "Import_nograde: maps have different nside");
@@ -281,6 +281,33 @@ template<typename T> class Partpix_Map2: public Healpix_Base2
 }
         }
       }
+      void Import_nograde (const Partpix_Map2<T> &orig, const Healpix_Map<int>& resolutionMask)
+        {
+        planck_assert (nside_==orig.nside_,
+          "Import_nograde: maps have different nside");
+        if (orig.scheme_ == scheme_)
+          for (int64 m=0; m<npartpix_; ++m){
+              partmap[m] = orig.partmap[m];
+          }
+        else
+          {
+          swapfunc swapper = (scheme_ == NEST) ?
+            &Healpix_Base2::ring2nest : &Healpix_Base2::nest2ring;
+  //#pragma omp parallel
+  {
+          int64 m;
+          int64 arrayindex=0;
+  //#pragma omp for schedule (dynamic,5000)
+          for (m=0; m<npix_; ++m){ 
+              if( resolutionMask[resolutionMask.ang2pix(orig.pix2ang(m))] == 1 ){
+                  pixel_mapping_arraytohigh[arrayindex] = (this->*swapper)(m);
+                  partmap[arrayindex] = orig.partmap_at_highresindex(m);
+                  ++arrayindex;
+              }
+          }
+  }
+          }
+        }
 
     /*! Imports the map \a orig into the current map, adjusting the
         ordering scheme and the map resolution. \a orig must have higher
@@ -375,7 +402,8 @@ template<typename T> class Partpix_Map2: public Healpix_Base2
         high-resolution pixels are defined.
 
         This method is instantiated for \a float and \a double only. */
-        void Import_degrade (const Partpix_Map2<T> &orig, const Healpix_Map<T>& resolutionMask, bool pessimistic=false, double cutoff=Healpix_undef);
+        void Import_degrade (const Partpix_Map2<T> &orig, const Healpix_Map<double>& resolutionMask, bool pessimistic=false, double cutoff=Healpix_undef);
+        void Import_degrade (const Partpix_Map2<T> &orig, const Healpix_Map<int>& resolutionMask, bool pessimistic=false, double cutoff=Healpix_undef);
 
     /*! Imports the map \a orig into the current map, adjusting the
         ordering scheme and the map resolution if necessary.

@@ -362,7 +362,8 @@ template<typename T> class Partpix_Map: public Healpix_Base
         high-resolution pixels are defined.
 
         This method is instantiated for \a float and \a double only. */
-    void Import_degrade (const Partpix_Map<T> &orig, const Healpix_Map<T>& resolutionMask, bool pessimistic=false, double cutoff=Healpix_undef);
+    void Import_degrade (const Partpix_Map<T> &orig, const Healpix_Map<double>& resolutionMask, bool pessimistic=false, double cutoff=Healpix_undef);
+    void Import_degrade (const Partpix_Map<T> &orig, const Healpix_Map<int>& resolutionMask, bool pessimistic=false, double cutoff=Healpix_undef);
 
     /*! Imports the map \a orig into the current map, adjusting the
         ordering scheme and the map resolution if necessary.

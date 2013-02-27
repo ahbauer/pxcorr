@@ -53,7 +53,7 @@
   </div>
   <div id="nav-path" class="navpath">
     <ul>
-      <li class="navelem"><a class="el" href="dir_66beb03eb6ea72c77153ebcb6953dc4e.html">Healpix_cxx</a>      </li>
+      <li class="navelem"><a class="el" href="dir_d5be700382460aa26a23bc32c0bc83f2.html">Healpix_cxx</a>      </li>
     </ul>
   </div>
 </div>
@@ -318,7 +318,7 @@
 <a name="l00254"></a>00254 <span class="comment">    /*! Imports the map \a orig into the current map, adjusting the</span>
 <a name="l00255"></a>00255 <span class="comment">        ordering scheme. \a orig must have the same resolution as the</span>
 <a name="l00256"></a>00256 <span class="comment">        current map. */</span>
-<a name="l00257"></a><a class="code" href="classPartpix__Map2.html#aeb6329b3b1580e42cec640e8c580f328">00257</a>     <span class="keywordtype">void</span> <a class="code" href="classPartpix__Map2.html#aeb6329b3b1580e42cec640e8c580f328">Import_nograde</a> (<span class="keyword">const</span> <a class="code" href="classPartpix__Map2.html">Partpix_Map2&lt;T&gt;</a> &amp;orig, <span class="keyword">const</span> <a class="code" href="classHealpix__Map.html">Healpix_Map&lt;T&gt;</a>&amp; resolutionMask)
+<a name="l00257"></a><a class="code" href="classPartpix__Map2.html#a61e79e28684b2a309c93849646a9ca30">00257</a>     <span class="keywordtype">void</span> <a class="code" href="classPartpix__Map2.html#a61e79e28684b2a309c93849646a9ca30">Import_nograde</a> (<span class="keyword">const</span> <a class="code" href="classPartpix__Map2.html">Partpix_Map2&lt;T&gt;</a> &amp;orig, <span class="keyword">const</span> <a class="code" href="classHealpix__Map.html">Healpix_Map&lt;double&gt;</a>&amp; resolutionMask)
 <a name="l00258"></a>00258       {
 <a name="l00259"></a>00259       <a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/group__errorgroup.html#gaad84f2bf5d93ccf2837650b21b07a38d">planck_assert</a> (<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>==orig.<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>,
 <a name="l00260"></a>00260         <span class="stringliteral">&quot;Import_nograde: maps have different nside&quot;</span>);
@@ -345,431 +345,459 @@
 <a name="l00281"></a>00281 }
 <a name="l00282"></a>00282         }
 <a name="l00283"></a>00283       }
-<a name="l00284"></a>00284 <span class="comment"></span>
-<a name="l00285"></a>00285 <span class="comment">    /*! Imports the map \a orig into the current map, adjusting the</span>
-<a name="l00286"></a>00286 <span class="comment">        ordering scheme and the map resolution. \a orig must have higher</span>
-<a name="l00287"></a>00287 <span class="comment">        resolution than the current map. */</span>
-<a name="l00288"></a>00288         
-<a name="l00289"></a><a class="code" href="classPartpix__Map2.html#a7e7063938c60110d050a28f6996f1fe4">00289</a>     <span class="keywordtype">void</span> <a class="code" href="classPartpix__Map2.html#a7e7063938c60110d050a28f6996f1fe4">Import_upgrade</a> (<span class="keyword">const</span> <a class="code" href="classPartpix__Map2.html">Partpix_Map2&lt;T&gt;</a> &amp;orig, <span class="keyword">const</span> <a class="code" href="classHealpix__Map.html">Healpix_Map&lt;T&gt;</a>&amp; resolutionMask)
-<a name="l00290"></a>00290       {
-<a name="l00291"></a>00291       <a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/group__errorgroup.html#gaad84f2bf5d93ccf2837650b21b07a38d">planck_assert</a>(<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>&gt;orig.<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>,<span class="stringliteral">&quot;Import_upgrade: this is no upgrade&quot;</span>);
-<a name="l00292"></a>00292       <span class="keywordtype">int</span> fact = <a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>/orig.<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>;
-<a name="l00293"></a>00293       <a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/group__errorgroup.html#gaad84f2bf5d93ccf2837650b21b07a38d">planck_assert</a> (<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>==orig.<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>*fact,
-<a name="l00294"></a>00294         <span class="stringliteral">&quot;the larger Nside must be a multiple of the smaller one&quot;</span>);
-<a name="l00295"></a>00295       <span class="comment">// pix2xyf to_xyf = (orig.scheme_==RING) ?</span>
-<a name="l00296"></a>00296       <span class="comment">//   &amp;Healpix_Base2::ring2xyf : &amp;Healpix_Base2::nest2xyf;</span>
-<a name="l00297"></a>00297       xyf2pix from_xyf = (<a class="code" href="classHealpix__Base2.html#ab32e12895fe5203e0964297dd2e4f6ca">scheme_</a>==<a class="code" href="healpix__base_8h.html#a6b968c7b00a536bb8df400c874c122e9a748a0629cb9a7ad410c546fc80e8c81b">RING</a>) ?
-<a name="l00298"></a>00298         &amp;Healpix_Base2::xyf2ring : &amp;Healpix_Base2::xyf2nest;
-<a name="l00299"></a>00299 
-<a name="l00300"></a>00300     int64 arrayindex = 0;
-<a name="l00301"></a>00301     <span class="keywordtype">int</span> factr = orig.<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>/resolutionMask.<a class="code" href="classHealpix__Base.html#a8032c64d7d3c26a85526518bf29eb412">Nside</a>();
-<a name="l00302"></a>00302     <span class="keywordflow">for</span>( <span class="keywordtype">int</span> mr=0; mr&lt;resolutionMask.<a class="code" href="classHealpix__Base.html#ac8797409a93d264511f17a47e56fc526">Npix</a>(); ++mr ){
-<a name="l00303"></a>00303         <span class="keywordflow">if</span>( resolutionMask[mr] &lt; 0.5 )
-<a name="l00304"></a>00304             <span class="keywordflow">continue</span>;
-<a name="l00305"></a>00305         <span class="keywordtype">int</span> xr,yr,fr;
-<a name="l00306"></a>00306         <span class="keywordflow">if</span>( resolutionMask.<a class="code" href="classHealpix__Base.html#a034007cd291363d9c55a1def359a5a68">Scheme</a>()==<a class="code" href="healpix__base_8h.html#a6b968c7b00a536bb8df400c874c122e9a748a0629cb9a7ad410c546fc80e8c81b">RING</a> )
-<a name="l00307"></a>00307             resolutionMask.ring2xyf(mr,xr,yr,fr);
-<a name="l00308"></a>00308         <span class="keywordflow">else</span>
-<a name="l00309"></a>00309             resolutionMask.nest2xyf(mr,xr,yr,fr);
-<a name="l00310"></a>00310         <span class="keywordtype">int</span> jrmax = factr*(yr+1);
-<a name="l00311"></a>00311         int64 irmax = factr*(xr+1);
-<a name="l00312"></a>00312         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> jr=factr*yr; jr&lt;jrmax; ++jr){
-<a name="l00313"></a>00313           <span class="keywordflow">for</span> (int64 ir=factr*xr; ir&lt;irmax; ++ir){
-<a name="l00314"></a>00314               int64 origpix = (orig.*from_xyf)(ir,jr,fr);
-<a name="l00315"></a>00315               <span class="comment">// int x,y,f;</span>
-<a name="l00316"></a>00316               <span class="comment">// (orig.*to_xyf)(origpix,x,y,f);</span>
-<a name="l00317"></a>00317               int64 jmax = fact*(jr+1);
-<a name="l00318"></a>00318               int64 imax = fact*(ir+1);
-<a name="l00319"></a>00319               <span class="keywordflow">for</span> (int64 j=fact*jr; j&lt;jmax; ++j){
-<a name="l00320"></a>00320                 <span class="keywordflow">for</span> (int64 i=fact*ir; i&lt;imax; ++i){
-<a name="l00321"></a>00321                   int64 mypix = (this-&gt;*from_xyf)(i,j,fr);
-<a name="l00322"></a>00322                   pixel_mapping_arraytohigh[arrayindex] = mypix;
-<a name="l00323"></a>00323                   partmap[arrayindex] = orig.partmap_at_highresindex(origpix);
-<a name="l00324"></a>00324                   ++arrayindex;
-<a name="l00325"></a>00325                 }
-<a name="l00326"></a>00326               }
-<a name="l00327"></a>00327           }
-<a name="l00328"></a>00328         }
-<a name="l00329"></a>00329       }
-<a name="l00330"></a>00330       sort_partmap( pixel_mapping_arraytohigh, partmap );    
-<a name="l00331"></a>00331     } <span class="comment">// Import_upgrade</span>
-<a name="l00332"></a>00332         
-<a name="l00333"></a>00333         
-<a name="l00334"></a>00334       <span class="comment">/*  </span>
-<a name="l00335"></a>00335 <span class="comment">    void Import_upgrade (const Partpix_Map2&lt;T&gt; &amp;orig, const Healpix_Map&lt;T&gt;&amp; resolutionMask)</span>
-<a name="l00336"></a>00336 <span class="comment">      {</span>
-<a name="l00337"></a>00337 <span class="comment">      planck_assert(nside_&gt;orig.nside_,&quot;Import_upgrade: this is no upgrade&quot;);</span>
-<a name="l00338"></a>00338 <span class="comment">      int fact = nside_/orig.nside_;</span>
-<a name="l00339"></a>00339 <span class="comment">      planck_assert (nside_==orig.nside_*fact,</span>
-<a name="l00340"></a>00340 <span class="comment">        &quot;the larger Nside must be a multiple of the smaller one&quot;);</span>
-<a name="l00341"></a>00341 <span class="comment">      pix2xyf to_xyf = (orig.scheme_==RING) ?</span>
-<a name="l00342"></a>00342 <span class="comment">        &amp;Healpix_Base2::ring2xyf : &amp;Healpix_Base2::nest2xyf;</span>
-<a name="l00343"></a>00343 <span class="comment">      xyf2pix from_xyf = (scheme_==RING) ?</span>
-<a name="l00344"></a>00344 <span class="comment">        &amp;Healpix_Base2::xyf2ring : &amp;Healpix_Base2::xyf2nest;</span>
-<a name="l00345"></a>00345 <span class="comment"></span>
-<a name="l00346"></a>00346 <span class="comment">//#pragma omp parallel</span>
-<a name="l00347"></a>00347 <span class="comment">{</span>
-<a name="l00348"></a>00348 <span class="comment">      int64 m;</span>
-<a name="l00349"></a>00349 <span class="comment">      int64 arrayindex=0;</span>
-<a name="l00350"></a>00350 <span class="comment">//#pragma omp for schedule (dynamic,5000)</span>
-<a name="l00351"></a>00351 <span class="comment">      for (m=0; m&lt;orig.npix_; ++m){</span>
-<a name="l00352"></a>00352 <span class="comment">        int x,y,f;</span>
-<a name="l00353"></a>00353 <span class="comment">        (orig.*to_xyf)(m,x,y,f);</span>
-<a name="l00354"></a>00354 <span class="comment">        for (int j=fact*y; j&lt;fact*(y+1); ++j){</span>
-<a name="l00355"></a>00355 <span class="comment">          for (int i=fact*x; i&lt;fact*(x+1); ++i){</span>
-<a name="l00356"></a>00356 <span class="comment">            int mypix = (this-&gt;*from_xyf)(i,j,f);</span>
-<a name="l00357"></a>00357 <span class="comment">            if( resolutionMask[resolutionMask.ang2pix(Healpix_Base2::pix2ang(mypix))] &gt; 0.5 ){</span>
-<a name="l00358"></a>00358 <span class="comment">                pixel_mapping_arraytohigh[arrayindex] = mypix;</span>
-<a name="l00359"></a>00359 <span class="comment">                partmap[arrayindex] = orig.partmap_at_highresindex(m);</span>
-<a name="l00360"></a>00360 <span class="comment">                ++arrayindex;</span>
-<a name="l00361"></a>00361 <span class="comment">            }</span>
-<a name="l00362"></a>00362 <span class="comment"></span>
-<a name="l00363"></a>00363 <span class="comment">          }</span>
-<a name="l00364"></a>00364 <span class="comment">        }</span>
-<a name="l00365"></a>00365 <span class="comment">      }</span>
-<a name="l00366"></a>00366 <span class="comment">}</span>
-<a name="l00367"></a>00367 <span class="comment">    }</span>
-<a name="l00368"></a>00368 <span class="comment">    */</span>
-<a name="l00369"></a>00369 <span class="comment"></span>
-<a name="l00370"></a>00370 <span class="comment">    /*! Imports the partmap \a orig into the current map, adjusting the</span>
-<a name="l00371"></a>00371 <span class="comment">        ordering scheme and the map resolution. \a orig must have higher</span>
-<a name="l00372"></a>00372 <span class="comment">        resolution than the current map.</span>
-<a name="l00373"></a>00373 <span class="comment">        \a pessimistic determines whether or not</span>
-<a name="l00374"></a>00374 <span class="comment">        pixels are set to \a Healpix_undef when not all of the corresponding</span>
-<a name="l00375"></a>00375 <span class="comment">        high-resolution pixels are defined.</span>
-<a name="l00376"></a>00376 <span class="comment"></span>
-<a name="l00377"></a>00377 <span class="comment">        This method is instantiated for \a float and \a double only. */</span>
-<a name="l00378"></a>00378         <span class="keywordtype">void</span> <a class="code" href="classPartpix__Map2.html#a2e59cf303514e558236076407e6f0196">Import_degrade</a> (<span class="keyword">const</span> <a class="code" href="classPartpix__Map2.html">Partpix_Map2&lt;T&gt;</a> &amp;orig, <span class="keyword">const</span> <a class="code" href="classHealpix__Map.html">Healpix_Map&lt;T&gt;</a>&amp; resolutionMask, <span class="keywordtype">bool</span> pessimistic=<span class="keyword">false</span>, <span class="keywordtype">double</span> cutoff=<a class="code" href="healpix__map_8h.html#ae2a4c592445abef24754fd3760207af8" title="Healpix value representing &quot;undefined&quot;.">Healpix_undef</a>);
-<a name="l00379"></a>00379 <span class="comment"></span>
-<a name="l00380"></a>00380 <span class="comment">    /*! Imports the map \a orig into the current map, adjusting the</span>
-<a name="l00381"></a>00381 <span class="comment">        ordering scheme and the map resolution if necessary.</span>
-<a name="l00382"></a>00382 <span class="comment">        When downgrading, \a pessimistic determines whether or not</span>
-<a name="l00383"></a>00383 <span class="comment">        pixels are set to \a Healpix_undef when not all of the corresponding</span>
-<a name="l00384"></a>00384 <span class="comment">        high-resolution pixels are defined.</span>
-<a name="l00385"></a>00385 <span class="comment"></span>
-<a name="l00386"></a>00386 <span class="comment">        This method is instantiated for \a float and \a double only. */</span>
-<a name="l00387"></a>00387     <span class="comment">// void Import (const Partpix_Map&lt;T&gt; &amp;orig, bool pessimistic=false)</span>
-<a name="l00388"></a>00388     <span class="comment">//   {</span>
-<a name="l00389"></a>00389     <span class="comment">//   if (orig.nside_ == nside_) // no up/degrading</span>
-<a name="l00390"></a>00390     <span class="comment">//     Import_nograde(orig);</span>
-<a name="l00391"></a>00391     <span class="comment">//   else if (orig.nside_ &lt; nside_) // upgrading</span>
-<a name="l00392"></a>00392     <span class="comment">//     Import_upgrade(orig);</span>
-<a name="l00393"></a>00393     <span class="comment">//   else</span>
-<a name="l00394"></a>00394     <span class="comment">//     Import_degrade(orig,pessimistic);</span>
-<a name="l00395"></a>00395     <span class="comment">//   }</span>
+<a name="l00284"></a>00284       <span class="keywordtype">void</span> <a class="code" href="classPartpix__Map2.html#a61e79e28684b2a309c93849646a9ca30">Import_nograde</a> (<span class="keyword">const</span> <a class="code" href="classPartpix__Map2.html">Partpix_Map2&lt;T&gt;</a> &amp;orig, <span class="keyword">const</span> <a class="code" href="classHealpix__Map.html">Healpix_Map&lt;int&gt;</a>&amp; resolutionMask)
+<a name="l00285"></a>00285         {
+<a name="l00286"></a>00286         <a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/group__errorgroup.html#gaad84f2bf5d93ccf2837650b21b07a38d">planck_assert</a> (<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>==orig.<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>,
+<a name="l00287"></a>00287           <span class="stringliteral">&quot;Import_nograde: maps have different nside&quot;</span>);
+<a name="l00288"></a>00288         <span class="keywordflow">if</span> (orig.<a class="code" href="classHealpix__Base2.html#ab32e12895fe5203e0964297dd2e4f6ca">scheme_</a> == <a class="code" href="classHealpix__Base2.html#ab32e12895fe5203e0964297dd2e4f6ca">scheme_</a>)
+<a name="l00289"></a>00289           <span class="keywordflow">for</span> (int64 m=0; m&lt;npartpix_; ++m){
+<a name="l00290"></a>00290               partmap[m] = orig.partmap[m];
+<a name="l00291"></a>00291           }
+<a name="l00292"></a>00292         <span class="keywordflow">else</span>
+<a name="l00293"></a>00293           {
+<a name="l00294"></a>00294           swapfunc swapper = (<a class="code" href="classHealpix__Base2.html#ab32e12895fe5203e0964297dd2e4f6ca">scheme_</a> == <a class="code" href="healpix__base_8h.html#a6b968c7b00a536bb8df400c874c122e9a5f0b5e8a99b9441721ea34f14ccc60fe">NEST</a>) ?
+<a name="l00295"></a>00295             &amp;<a class="code" href="classHealpix__Base2.html#a1f9ac22ed7f4f2202634da8c49e60e4f">Healpix_Base2::ring2nest</a> : &amp;<a class="code" href="classHealpix__Base2.html#a5f2a16aebba0f0752d37df01a81e6f7c">Healpix_Base2::nest2ring</a>;
+<a name="l00296"></a>00296   <span class="comment">//#pragma omp parallel</span>
+<a name="l00297"></a>00297   {
+<a name="l00298"></a>00298           int64 m;
+<a name="l00299"></a>00299           int64 arrayindex=0;
+<a name="l00300"></a>00300   <span class="comment">//#pragma omp for schedule (dynamic,5000)</span>
+<a name="l00301"></a>00301           <span class="keywordflow">for</span> (m=0; m&lt;npix_; ++m){ 
+<a name="l00302"></a>00302               <span class="keywordflow">if</span>( resolutionMask[resolutionMask.<a class="code" href="classHealpix__Base.html#a6296dfe42ab7308a1756eb5b5cb4c788">ang2pix</a>(orig.<a class="code" href="classHealpix__Base2.html#ae060670d4aff62cbcd628c66c66caa1b">pix2ang</a>(m))] == 1 ){
+<a name="l00303"></a>00303                   pixel_mapping_arraytohigh[arrayindex] = (this-&gt;*swapper)(m);
+<a name="l00304"></a>00304                   partmap[arrayindex] = orig.partmap_at_highresindex(m);
+<a name="l00305"></a>00305                   ++arrayindex;
+<a name="l00306"></a>00306               }
+<a name="l00307"></a>00307           }
+<a name="l00308"></a>00308   }
+<a name="l00309"></a>00309           }
+<a name="l00310"></a>00310         }
+<a name="l00311"></a>00311 <span class="comment"></span>
+<a name="l00312"></a>00312 <span class="comment">    /*! Imports the map \a orig into the current map, adjusting the</span>
+<a name="l00313"></a>00313 <span class="comment">        ordering scheme and the map resolution. \a orig must have higher</span>
+<a name="l00314"></a>00314 <span class="comment">        resolution than the current map. */</span>
+<a name="l00315"></a>00315         
+<a name="l00316"></a><a class="code" href="classPartpix__Map2.html#a7e7063938c60110d050a28f6996f1fe4">00316</a>     <span class="keywordtype">void</span> <a class="code" href="classPartpix__Map2.html#a7e7063938c60110d050a28f6996f1fe4">Import_upgrade</a> (<span class="keyword">const</span> <a class="code" href="classPartpix__Map2.html">Partpix_Map2&lt;T&gt;</a> &amp;orig, <span class="keyword">const</span> <a class="code" href="classHealpix__Map.html">Healpix_Map&lt;T&gt;</a>&amp; resolutionMask)
+<a name="l00317"></a>00317       {
+<a name="l00318"></a>00318       <a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/group__errorgroup.html#gaad84f2bf5d93ccf2837650b21b07a38d">planck_assert</a>(<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>&gt;orig.<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>,<span class="stringliteral">&quot;Import_upgrade: this is no upgrade&quot;</span>);
+<a name="l00319"></a>00319       <span class="keywordtype">int</span> fact = <a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>/orig.<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>;
+<a name="l00320"></a>00320       <a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/group__errorgroup.html#gaad84f2bf5d93ccf2837650b21b07a38d">planck_assert</a> (<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>==orig.<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>*fact,
+<a name="l00321"></a>00321         <span class="stringliteral">&quot;the larger Nside must be a multiple of the smaller one&quot;</span>);
+<a name="l00322"></a>00322       <span class="comment">// pix2xyf to_xyf = (orig.scheme_==RING) ?</span>
+<a name="l00323"></a>00323       <span class="comment">//   &amp;Healpix_Base2::ring2xyf : &amp;Healpix_Base2::nest2xyf;</span>
+<a name="l00324"></a>00324       xyf2pix from_xyf = (<a class="code" href="classHealpix__Base2.html#ab32e12895fe5203e0964297dd2e4f6ca">scheme_</a>==<a class="code" href="healpix__base_8h.html#a6b968c7b00a536bb8df400c874c122e9a748a0629cb9a7ad410c546fc80e8c81b">RING</a>) ?
+<a name="l00325"></a>00325         &amp;Healpix_Base2::xyf2ring : &amp;Healpix_Base2::xyf2nest;
+<a name="l00326"></a>00326 
+<a name="l00327"></a>00327     int64 arrayindex = 0;
+<a name="l00328"></a>00328     <span class="keywordtype">int</span> factr = orig.<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>/resolutionMask.<a class="code" href="classHealpix__Base.html#a8032c64d7d3c26a85526518bf29eb412">Nside</a>();
+<a name="l00329"></a>00329     <span class="keywordflow">for</span>( <span class="keywordtype">int</span> mr=0; mr&lt;resolutionMask.<a class="code" href="classHealpix__Base.html#ac8797409a93d264511f17a47e56fc526">Npix</a>(); ++mr ){
+<a name="l00330"></a>00330         <span class="keywordflow">if</span>( resolutionMask[mr] &lt; 0.5 )
+<a name="l00331"></a>00331             <span class="keywordflow">continue</span>;
+<a name="l00332"></a>00332         <span class="keywordtype">int</span> xr,yr,fr;
+<a name="l00333"></a>00333         <span class="keywordflow">if</span>( resolutionMask.<a class="code" href="classHealpix__Base.html#a034007cd291363d9c55a1def359a5a68">Scheme</a>()==<a class="code" href="healpix__base_8h.html#a6b968c7b00a536bb8df400c874c122e9a748a0629cb9a7ad410c546fc80e8c81b">RING</a> )
+<a name="l00334"></a>00334             resolutionMask.ring2xyf(mr,xr,yr,fr);
+<a name="l00335"></a>00335         <span class="keywordflow">else</span>
+<a name="l00336"></a>00336             resolutionMask.nest2xyf(mr,xr,yr,fr);
+<a name="l00337"></a>00337         <span class="keywordtype">int</span> jrmax = factr*(yr+1);
+<a name="l00338"></a>00338         int64 irmax = factr*(xr+1);
+<a name="l00339"></a>00339         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> jr=factr*yr; jr&lt;jrmax; ++jr){
+<a name="l00340"></a>00340           <span class="keywordflow">for</span> (int64 ir=factr*xr; ir&lt;irmax; ++ir){
+<a name="l00341"></a>00341               int64 origpix = (orig.*from_xyf)(ir,jr,fr);
+<a name="l00342"></a>00342               <span class="comment">// int x,y,f;</span>
+<a name="l00343"></a>00343               <span class="comment">// (orig.*to_xyf)(origpix,x,y,f);</span>
+<a name="l00344"></a>00344               int64 jmax = fact*(jr+1);
+<a name="l00345"></a>00345               int64 imax = fact*(ir+1);
+<a name="l00346"></a>00346               <span class="keywordflow">for</span> (int64 j=fact*jr; j&lt;jmax; ++j){
+<a name="l00347"></a>00347                 <span class="keywordflow">for</span> (int64 i=fact*ir; i&lt;imax; ++i){
+<a name="l00348"></a>00348                   int64 mypix = (this-&gt;*from_xyf)(i,j,fr);
+<a name="l00349"></a>00349                   pixel_mapping_arraytohigh[arrayindex] = mypix;
+<a name="l00350"></a>00350                   partmap[arrayindex] = orig.partmap_at_highresindex(origpix);
+<a name="l00351"></a>00351                   ++arrayindex;
+<a name="l00352"></a>00352                 }
+<a name="l00353"></a>00353               }
+<a name="l00354"></a>00354           }
+<a name="l00355"></a>00355         }
+<a name="l00356"></a>00356       }
+<a name="l00357"></a>00357       sort_partmap( pixel_mapping_arraytohigh, partmap );    
+<a name="l00358"></a>00358     } <span class="comment">// Import_upgrade</span>
+<a name="l00359"></a>00359         
+<a name="l00360"></a>00360         
+<a name="l00361"></a>00361       <span class="comment">/*  </span>
+<a name="l00362"></a>00362 <span class="comment">    void Import_upgrade (const Partpix_Map2&lt;T&gt; &amp;orig, const Healpix_Map&lt;T&gt;&amp; resolutionMask)</span>
+<a name="l00363"></a>00363 <span class="comment">      {</span>
+<a name="l00364"></a>00364 <span class="comment">      planck_assert(nside_&gt;orig.nside_,&quot;Import_upgrade: this is no upgrade&quot;);</span>
+<a name="l00365"></a>00365 <span class="comment">      int fact = nside_/orig.nside_;</span>
+<a name="l00366"></a>00366 <span class="comment">      planck_assert (nside_==orig.nside_*fact,</span>
+<a name="l00367"></a>00367 <span class="comment">        &quot;the larger Nside must be a multiple of the smaller one&quot;);</span>
+<a name="l00368"></a>00368 <span class="comment">      pix2xyf to_xyf = (orig.scheme_==RING) ?</span>
+<a name="l00369"></a>00369 <span class="comment">        &amp;Healpix_Base2::ring2xyf : &amp;Healpix_Base2::nest2xyf;</span>
+<a name="l00370"></a>00370 <span class="comment">      xyf2pix from_xyf = (scheme_==RING) ?</span>
+<a name="l00371"></a>00371 <span class="comment">        &amp;Healpix_Base2::xyf2ring : &amp;Healpix_Base2::xyf2nest;</span>
+<a name="l00372"></a>00372 <span class="comment"></span>
+<a name="l00373"></a>00373 <span class="comment">//#pragma omp parallel</span>
+<a name="l00374"></a>00374 <span class="comment">{</span>
+<a name="l00375"></a>00375 <span class="comment">      int64 m;</span>
+<a name="l00376"></a>00376 <span class="comment">      int64 arrayindex=0;</span>
+<a name="l00377"></a>00377 <span class="comment">//#pragma omp for schedule (dynamic,5000)</span>
+<a name="l00378"></a>00378 <span class="comment">      for (m=0; m&lt;orig.npix_; ++m){</span>
+<a name="l00379"></a>00379 <span class="comment">        int x,y,f;</span>
+<a name="l00380"></a>00380 <span class="comment">        (orig.*to_xyf)(m,x,y,f);</span>
+<a name="l00381"></a>00381 <span class="comment">        for (int j=fact*y; j&lt;fact*(y+1); ++j){</span>
+<a name="l00382"></a>00382 <span class="comment">          for (int i=fact*x; i&lt;fact*(x+1); ++i){</span>
+<a name="l00383"></a>00383 <span class="comment">            int mypix = (this-&gt;*from_xyf)(i,j,f);</span>
+<a name="l00384"></a>00384 <span class="comment">            if( resolutionMask[resolutionMask.ang2pix(Healpix_Base2::pix2ang(mypix))] &gt; 0.5 ){</span>
+<a name="l00385"></a>00385 <span class="comment">                pixel_mapping_arraytohigh[arrayindex] = mypix;</span>
+<a name="l00386"></a>00386 <span class="comment">                partmap[arrayindex] = orig.partmap_at_highresindex(m);</span>
+<a name="l00387"></a>00387 <span class="comment">                ++arrayindex;</span>
+<a name="l00388"></a>00388 <span class="comment">            }</span>
+<a name="l00389"></a>00389 <span class="comment"></span>
+<a name="l00390"></a>00390 <span class="comment">          }</span>
+<a name="l00391"></a>00391 <span class="comment">        }</span>
+<a name="l00392"></a>00392 <span class="comment">      }</span>
+<a name="l00393"></a>00393 <span class="comment">}</span>
+<a name="l00394"></a>00394 <span class="comment">    }</span>
+<a name="l00395"></a>00395 <span class="comment">    */</span>
 <a name="l00396"></a>00396 <span class="comment"></span>
-<a name="l00397"></a>00397 <span class="comment">    /*! Returns a constant reference to the pixel with the number \a pix. */</span>
-<a name="l00398"></a><a class="code" href="classPartpix__Map2.html#ab623a4d5ae124e522183717243a970f7">00398</a>     <span class="keyword">const</span> T &amp;<a class="code" href="classPartpix__Map2.html#ab623a4d5ae124e522183717243a970f7">operator[] </a>(int64 pix)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> partmap_ref_at_highresindex(pix); }<span class="comment"></span>
-<a name="l00399"></a>00399 <span class="comment">    /*! Returns a reference to the pixel with the number \a pix. */</span>
-<a name="l00400"></a><a class="code" href="classPartpix__Map2.html#a854afde0634892e6e7d23edcd466ef16">00400</a>     T &amp;<a class="code" href="classPartpix__Map2.html#ab623a4d5ae124e522183717243a970f7">operator[] </a>(int64 pix) { <span class="keywordflow">return</span> partmap_ref_at_highresindex(pix); }
-<a name="l00401"></a>00401 <span class="comment"></span>
-<a name="l00402"></a>00402 <span class="comment">    /*! Swaps the map ordering from RING to NEST and vice versa.</span>
-<a name="l00403"></a>00403 <span class="comment">        This is done in-place (i.e. with negligible space overhead). */</span>
-<a name="l00404"></a>00404     <span class="comment">// void swap_scheme()</span>
-<a name="l00405"></a>00405     <span class="comment">//   {</span>
-<a name="l00406"></a>00406     <span class="comment">//   static const int clen[] = { 0,7,5,4,12,10,13,18,14,19,18,17,27,21 };</span>
-<a name="l00407"></a>00407     <span class="comment">//   static const int cycle[][30] = {</span>
-<a name="l00408"></a>00408     <span class="comment">//     { },</span>
-<a name="l00409"></a>00409     <span class="comment">//     { 0,1,8,12,16,21,40 },</span>
-<a name="l00410"></a>00410     <span class="comment">//     { 0,1,2,40,114 },</span>
-<a name="l00411"></a>00411     <span class="comment">//     { 0,4,160,263 },</span>
-<a name="l00412"></a>00412     <span class="comment">//     { 0,4,30,49,51,87,526,1027,1105,1387,1807,2637 },</span>
-<a name="l00413"></a>00413     <span class="comment">//     { 0,8,10,18,39,74,146,307,452,4737 },</span>
-<a name="l00414"></a>00414     <span class="comment">//     { 0,1,2,7,9,17,80,410,1526,1921,32859,33566,38931 },</span>
-<a name="l00415"></a>00415     <span class="comment">//     { 0,5,6,10,12,24,27,95,372,494,924,1409,3492,4248,9137,66043,103369,</span>
-<a name="l00416"></a>00416     <span class="comment">//       156899 },</span>
-<a name="l00417"></a>00417     <span class="comment">//     { 0,1,2,3,4,45,125,351,697,24337,102940,266194,341855,419857 },</span>
-<a name="l00418"></a>00418     <span class="comment">//     { 0,1,2,3,9,16,1705,2082,2126,8177,12753,15410,52642,80493,83235,</span>
-<a name="l00419"></a>00419     <span class="comment">//       88387,99444,1675361,2495125 },</span>
-<a name="l00420"></a>00420     <span class="comment">//     { 0,2,6,8,9,11,20,50,93,152,183,2137,13671,44794,486954,741908,</span>
-<a name="l00421"></a>00421     <span class="comment">//       4803258,5692573 },</span>
-<a name="l00422"></a>00422     <span class="comment">//     { 0,1,5,6,44,53,470,2847,3433,4906,13654,14710,400447,1797382,</span>
-<a name="l00423"></a>00423     <span class="comment">//       2744492,18775974,23541521 },</span>
-<a name="l00424"></a>00424     <span class="comment">//     { 0,4,9,10,16,33,83,117,318,451,5759,10015,128975,171834,211256,</span>
-<a name="l00425"></a>00425     <span class="comment">//       347608,1278690,2154097,2590798,3427694,5581717,21012301,27023976,</span>
-<a name="l00426"></a>00426     <span class="comment">//       72522811,95032729,139166747,171822389 },</span>
-<a name="l00427"></a>00427     <span class="comment">//     { 0,5,10,267,344,363,2968,3159,9083,18437,76602,147614,1246902,</span>
-<a name="l00428"></a>00428     <span class="comment">//       1593138,2035574,6529391,9511830,11340287,29565945,281666026,</span>
-<a name="l00429"></a>00429     <span class="comment">//       677946848 } };</span>
-<a name="l00430"></a>00430     <span class="comment">// </span>
-<a name="l00431"></a>00431     <span class="comment">//   swapfunc swapper = (scheme_ == NEST) ?</span>
-<a name="l00432"></a>00432     <span class="comment">//     &amp;Healpix_Base::ring2nest : &amp;Healpix_Base::nest2ring;</span>
-<a name="l00433"></a>00433     <span class="comment">// </span>
-<a name="l00434"></a>00434     <span class="comment">//   planck_assert (order_&gt;=0, &quot;swap_scheme(): need hierarchical map&quot;);</span>
-<a name="l00435"></a>00435     <span class="comment">// </span>
-<a name="l00436"></a>00436     <span class="comment">//   for (int m=0; m&lt;clen[order_]; ++m)</span>
-<a name="l00437"></a>00437     <span class="comment">//     {</span>
-<a name="l00438"></a>00438     <span class="comment">//     int istart = cycle[order_][m];</span>
-<a name="l00439"></a>00439     <span class="comment">// </span>
-<a name="l00440"></a>00440     <span class="comment">//     T pixbuf = partmap[istart];</span>
-<a name="l00441"></a>00441     <span class="comment">//     int iold = istart, inew = (this-&gt;*swapper)(istart);</span>
-<a name="l00442"></a>00442     <span class="comment">//     while (inew != istart)</span>
-<a name="l00443"></a>00443     <span class="comment">//       {</span>
-<a name="l00444"></a>00444     <span class="comment">//       partmap[iold] = partmap[inew];</span>
-<a name="l00445"></a>00445     <span class="comment">//       iold = inew;</span>
-<a name="l00446"></a>00446     <span class="comment">//       inew = (this-&gt;*swapper)(inew);</span>
-<a name="l00447"></a>00447     <span class="comment">//       }</span>
-<a name="l00448"></a>00448     <span class="comment">//     partmap[iold] = pixbuf;</span>
-<a name="l00449"></a>00449     <span class="comment">//     }</span>
-<a name="l00450"></a>00450     <span class="comment">//   scheme_ = (scheme_==RING) ? NEST : RING;</span>
-<a name="l00451"></a>00451     <span class="comment">//   }</span>
-<a name="l00452"></a>00452 <span class="comment"></span>
-<a name="l00453"></a>00453 <span class="comment">    /*! performs the actual interpolation using \a pix and \a wgt. */</span>
-<a name="l00454"></a><a class="code" href="classPartpix__Map2.html#ac8a61f005157b9b8169a539bc987a4ba">00454</a>     T <a class="code" href="classPartpix__Map2.html#ac8a61f005157b9b8169a539bc987a4ba">interpolation</a> (<span class="keyword">const</span> <a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/classfix__arr.html">fix_arr&lt;int,4&gt;</a> &amp;pix,
-<a name="l00455"></a>00455       <span class="keyword">const</span> <a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/classfix__arr.html">fix_arr&lt;double,4&gt;</a> &amp;wgt)<span class="keyword"> const</span>
-<a name="l00456"></a>00456 <span class="keyword">      </span>{
-<a name="l00457"></a>00457       <span class="keywordflow">return</span> T(partmap_at_highresindex(pix[0])*wgt[0] + partmap_at_highresindex(pix[1])*wgt[1]
-<a name="l00458"></a>00458              + partmap_at_highresindex(pix[2])*wgt[2] + partmap_at_highresindex(pix[3])*wgt[3]);
-<a name="l00459"></a>00459       }<span class="comment"></span>
-<a name="l00460"></a>00460 <span class="comment">    /*! Returns the interpolated map value at \a ptg */</span>
-<a name="l00461"></a>00461     <span class="comment">// T interpolated_value (const pointing &amp;ptg) const</span>
-<a name="l00462"></a>00462     <span class="comment">//   {</span>
-<a name="l00463"></a>00463     <span class="comment">//   fix_arr&lt;int,4&gt; pix;</span>
-<a name="l00464"></a>00464     <span class="comment">//   fix_arr&lt;double,4&gt; wgt;</span>
-<a name="l00465"></a>00465     <span class="comment">//   get_interpol (ptg, pix, wgt);</span>
-<a name="l00466"></a>00466     <span class="comment">//   return interpolation (pix, wgt);</span>
-<a name="l00467"></a>00467     <span class="comment">//   }</span>
-<a name="l00468"></a>00468 <span class="comment"></span>
-<a name="l00469"></a>00469 <span class="comment">    /*! Returns a constant reference to the map data. */</span>
-<a name="l00470"></a><a class="code" href="classPartpix__Map2.html#a4347f3eb99abd403d808eed56df4c67b">00470</a>     <span class="keyword">const</span> <a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/classarr.html">arr&lt;T&gt;</a> &amp;<a class="code" href="classPartpix__Map2.html#a4347f3eb99abd403d808eed56df4c67b">Map</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> partmap; }
-<a name="l00471"></a>00471 <span class="comment"></span>
-<a name="l00472"></a>00472 <span class="comment">    /*! Returns the minimum and maximum value of the map in</span>
-<a name="l00473"></a>00473 <span class="comment">        \a Min and \a Max.</span>
-<a name="l00474"></a>00474 <span class="comment"></span>
-<a name="l00475"></a>00475 <span class="comment">        This method is instantiated for \a float and \a double only. */</span>
-<a name="l00476"></a>00476     <span class="keywordtype">void</span> <a class="code" href="classPartpix__Map2.html#a79fe1434bf26d95b74155886d0bb7680">minmax</a> (T &amp;Min, T &amp;Max) <span class="keyword">const</span>;
-<a name="l00477"></a>00477 <span class="comment"></span>
-<a name="l00478"></a>00478 <span class="comment">    /*! Swaps the contents of two Partpix_Map objects. */</span>
-<a name="l00479"></a>00479     <span class="comment">// void swap (Partpix_Map &amp;other)</span>
-<a name="l00480"></a>00480     <span class="comment">//   {</span>
-<a name="l00481"></a>00481     <span class="comment">//   Healpix_Base::swap(other);</span>
-<a name="l00482"></a>00482     <span class="comment">//   partmap.swap(other.partmap);</span>
-<a name="l00483"></a>00483     <span class="comment">//   }</span>
-<a name="l00484"></a>00484 <span class="comment"></span>
-<a name="l00485"></a>00485 <span class="comment">    /*! Returns the average of all defined map pixels. */</span>
-<a name="l00486"></a><a class="code" href="classPartpix__Map2.html#ac7e7e8284d7fa0a565c7d39938f2bb40">00486</a>     <span class="keywordtype">double</span> <a class="code" href="classPartpix__Map2.html#ac7e7e8284d7fa0a565c7d39938f2bb40">average</a>()<span class="keyword"> const</span>
-<a name="l00487"></a>00487 <span class="keyword">      </span>{
-<a name="l00488"></a>00488       <span class="keywordtype">double</span> avg=0;
-<a name="l00489"></a>00489       int64 pix=0;
-<a name="l00490"></a>00490       <span class="keywordflow">for</span> (int64 m=0; m&lt;npartpix_; ++m)
-<a name="l00491"></a>00491         <span class="keywordflow">if</span> (!approx&lt;double&gt;(partmap[m],<a class="code" href="healpix__map_8h.html#ae2a4c592445abef24754fd3760207af8" title="Healpix value representing &quot;undefined&quot;.">Healpix_undef</a>))
-<a name="l00492"></a>00492           { ++pix; avg+=partmap[m]; }
-<a name="l00493"></a>00493       <span class="keywordflow">return</span> avg/pix;
-<a name="l00494"></a>00494       }
-<a name="l00495"></a>00495 <span class="comment"></span>
-<a name="l00496"></a>00496 <span class="comment">    /*! Adds \a val to all defined map pixels. */</span>
-<a name="l00497"></a><a class="code" href="classPartpix__Map2.html#aaca6080207b0441e4a454dd586c54633">00497</a>     <span class="keywordtype">void</span> <a class="code" href="classPartpix__Map2.html#aaca6080207b0441e4a454dd586c54633">Add</a> (T val)
-<a name="l00498"></a>00498       {
-<a name="l00499"></a>00499       <span class="keywordflow">for</span> (int64 m=0; m&lt;npartpix_; ++m)
-<a name="l00500"></a>00500         <span class="keywordflow">if</span> (!approx&lt;double&gt;(partmap[m],<a class="code" href="healpix__map_8h.html#ae2a4c592445abef24754fd3760207af8" title="Healpix value representing &quot;undefined&quot;.">Healpix_undef</a>))
-<a name="l00501"></a>00501           { partmap[m]+=val; }
-<a name="l00502"></a>00502       }
-<a name="l00503"></a>00503 <span class="comment"></span>
-<a name="l00504"></a>00504 <span class="comment">    /*! Multiplies all defined map pixels by \a val. */</span>
-<a name="l00505"></a><a class="code" href="classPartpix__Map2.html#ad59d3dd627cc477ec7d079d88e44fadc">00505</a>     <span class="keywordtype">void</span> <a class="code" href="classPartpix__Map2.html#ad59d3dd627cc477ec7d079d88e44fadc">Scale</a> (T val)
-<a name="l00506"></a>00506       {
-<a name="l00507"></a>00507       <span class="keywordflow">for</span> (int64 m=0; m&lt;npartpix_; ++m)
-<a name="l00508"></a>00508         <span class="keywordflow">if</span> (!approx&lt;double&gt;(partmap[m],<a class="code" href="healpix__map_8h.html#ae2a4c592445abef24754fd3760207af8" title="Healpix value representing &quot;undefined&quot;.">Healpix_undef</a>))
-<a name="l00509"></a>00509           { partmap[m]*=val; }
-<a name="l00510"></a>00510       }
-<a name="l00511"></a>00511 <span class="comment"></span>
-<a name="l00512"></a>00512 <span class="comment">    /*! Returns the root mean square of the map, not counting undefined</span>
-<a name="l00513"></a>00513 <span class="comment">        pixels. */</span>
-<a name="l00514"></a><a class="code" href="classPartpix__Map2.html#a8b2d8d55d9fa7bbb9cdf23b272c74b31">00514</a>     <span class="keywordtype">double</span> <a class="code" href="classPartpix__Map2.html#a8b2d8d55d9fa7bbb9cdf23b272c74b31">rms</a>()<span class="keyword"> const</span>
+<a name="l00397"></a>00397 <span class="comment">    /*! Imports the partmap \a orig into the current map, adjusting the</span>
+<a name="l00398"></a>00398 <span class="comment">        ordering scheme and the map resolution. \a orig must have higher</span>
+<a name="l00399"></a>00399 <span class="comment">        resolution than the current map.</span>
+<a name="l00400"></a>00400 <span class="comment">        \a pessimistic determines whether or not</span>
+<a name="l00401"></a>00401 <span class="comment">        pixels are set to \a Healpix_undef when not all of the corresponding</span>
+<a name="l00402"></a>00402 <span class="comment">        high-resolution pixels are defined.</span>
+<a name="l00403"></a>00403 <span class="comment"></span>
+<a name="l00404"></a>00404 <span class="comment">        This method is instantiated for \a float and \a double only. */</span>
+<a name="l00405"></a>00405         <span class="keywordtype">void</span> <a class="code" href="classPartpix__Map2.html#a8b9ac2d8d7863e3a0bca949d53340dc1">Import_degrade</a> (<span class="keyword">const</span> <a class="code" href="classPartpix__Map2.html">Partpix_Map2&lt;T&gt;</a> &amp;orig, <span class="keyword">const</span> <a class="code" href="classHealpix__Map.html">Healpix_Map&lt;double&gt;</a>&amp; resolutionMask, <span class="keywordtype">bool</span> pessimistic=<span class="keyword">false</span>, <span class="keywordtype">double</span> cutoff=<a class="code" href="healpix__map_8h.html#ae2a4c592445abef24754fd3760207af8" title="Healpix value representing &quot;undefined&quot;.">Healpix_undef</a>);
+<a name="l00406"></a>00406         <span class="keywordtype">void</span> <a class="code" href="classPartpix__Map2.html#a8b9ac2d8d7863e3a0bca949d53340dc1">Import_degrade</a> (<span class="keyword">const</span> <a class="code" href="classPartpix__Map2.html">Partpix_Map2&lt;T&gt;</a> &amp;orig, <span class="keyword">const</span> <a class="code" href="classHealpix__Map.html">Healpix_Map&lt;int&gt;</a>&amp; resolutionMask, <span class="keywordtype">bool</span> pessimistic=<span class="keyword">false</span>, <span class="keywordtype">double</span> cutoff=<a class="code" href="healpix__map_8h.html#ae2a4c592445abef24754fd3760207af8" title="Healpix value representing &quot;undefined&quot;.">Healpix_undef</a>);
+<a name="l00407"></a>00407 <span class="comment"></span>
+<a name="l00408"></a>00408 <span class="comment">    /*! Imports the map \a orig into the current map, adjusting the</span>
+<a name="l00409"></a>00409 <span class="comment">        ordering scheme and the map resolution if necessary.</span>
+<a name="l00410"></a>00410 <span class="comment">        When downgrading, \a pessimistic determines whether or not</span>
+<a name="l00411"></a>00411 <span class="comment">        pixels are set to \a Healpix_undef when not all of the corresponding</span>
+<a name="l00412"></a>00412 <span class="comment">        high-resolution pixels are defined.</span>
+<a name="l00413"></a>00413 <span class="comment"></span>
+<a name="l00414"></a>00414 <span class="comment">        This method is instantiated for \a float and \a double only. */</span>
+<a name="l00415"></a>00415     <span class="comment">// void Import (const Partpix_Map&lt;T&gt; &amp;orig, bool pessimistic=false)</span>
+<a name="l00416"></a>00416     <span class="comment">//   {</span>
+<a name="l00417"></a>00417     <span class="comment">//   if (orig.nside_ == nside_) // no up/degrading</span>
+<a name="l00418"></a>00418     <span class="comment">//     Import_nograde(orig);</span>
+<a name="l00419"></a>00419     <span class="comment">//   else if (orig.nside_ &lt; nside_) // upgrading</span>
+<a name="l00420"></a>00420     <span class="comment">//     Import_upgrade(orig);</span>
+<a name="l00421"></a>00421     <span class="comment">//   else</span>
+<a name="l00422"></a>00422     <span class="comment">//     Import_degrade(orig,pessimistic);</span>
+<a name="l00423"></a>00423     <span class="comment">//   }</span>
+<a name="l00424"></a>00424 <span class="comment"></span>
+<a name="l00425"></a>00425 <span class="comment">    /*! Returns a constant reference to the pixel with the number \a pix. */</span>
+<a name="l00426"></a><a class="code" href="classPartpix__Map2.html#ab623a4d5ae124e522183717243a970f7">00426</a>     <span class="keyword">const</span> T &amp;<a class="code" href="classPartpix__Map2.html#ab623a4d5ae124e522183717243a970f7">operator[] </a>(int64 pix)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> partmap_ref_at_highresindex(pix); }<span class="comment"></span>
+<a name="l00427"></a>00427 <span class="comment">    /*! Returns a reference to the pixel with the number \a pix. */</span>
+<a name="l00428"></a><a class="code" href="classPartpix__Map2.html#a854afde0634892e6e7d23edcd466ef16">00428</a>     T &amp;<a class="code" href="classPartpix__Map2.html#ab623a4d5ae124e522183717243a970f7">operator[] </a>(int64 pix) { <span class="keywordflow">return</span> partmap_ref_at_highresindex(pix); }
+<a name="l00429"></a>00429 <span class="comment"></span>
+<a name="l00430"></a>00430 <span class="comment">    /*! Swaps the map ordering from RING to NEST and vice versa.</span>
+<a name="l00431"></a>00431 <span class="comment">        This is done in-place (i.e. with negligible space overhead). */</span>
+<a name="l00432"></a>00432     <span class="comment">// void swap_scheme()</span>
+<a name="l00433"></a>00433     <span class="comment">//   {</span>
+<a name="l00434"></a>00434     <span class="comment">//   static const int clen[] = { 0,7,5,4,12,10,13,18,14,19,18,17,27,21 };</span>
+<a name="l00435"></a>00435     <span class="comment">//   static const int cycle[][30] = {</span>
+<a name="l00436"></a>00436     <span class="comment">//     { },</span>
+<a name="l00437"></a>00437     <span class="comment">//     { 0,1,8,12,16,21,40 },</span>
+<a name="l00438"></a>00438     <span class="comment">//     { 0,1,2,40,114 },</span>
+<a name="l00439"></a>00439     <span class="comment">//     { 0,4,160,263 },</span>
+<a name="l00440"></a>00440     <span class="comment">//     { 0,4,30,49,51,87,526,1027,1105,1387,1807,2637 },</span>
+<a name="l00441"></a>00441     <span class="comment">//     { 0,8,10,18,39,74,146,307,452,4737 },</span>
+<a name="l00442"></a>00442     <span class="comment">//     { 0,1,2,7,9,17,80,410,1526,1921,32859,33566,38931 },</span>
+<a name="l00443"></a>00443     <span class="comment">//     { 0,5,6,10,12,24,27,95,372,494,924,1409,3492,4248,9137,66043,103369,</span>
+<a name="l00444"></a>00444     <span class="comment">//       156899 },</span>
+<a name="l00445"></a>00445     <span class="comment">//     { 0,1,2,3,4,45,125,351,697,24337,102940,266194,341855,419857 },</span>
+<a name="l00446"></a>00446     <span class="comment">//     { 0,1,2,3,9,16,1705,2082,2126,8177,12753,15410,52642,80493,83235,</span>
+<a name="l00447"></a>00447     <span class="comment">//       88387,99444,1675361,2495125 },</span>
+<a name="l00448"></a>00448     <span class="comment">//     { 0,2,6,8,9,11,20,50,93,152,183,2137,13671,44794,486954,741908,</span>
+<a name="l00449"></a>00449     <span class="comment">//       4803258,5692573 },</span>
+<a name="l00450"></a>00450     <span class="comment">//     { 0,1,5,6,44,53,470,2847,3433,4906,13654,14710,400447,1797382,</span>
+<a name="l00451"></a>00451     <span class="comment">//       2744492,18775974,23541521 },</span>
+<a name="l00452"></a>00452     <span class="comment">//     { 0,4,9,10,16,33,83,117,318,451,5759,10015,128975,171834,211256,</span>
+<a name="l00453"></a>00453     <span class="comment">//       347608,1278690,2154097,2590798,3427694,5581717,21012301,27023976,</span>
+<a name="l00454"></a>00454     <span class="comment">//       72522811,95032729,139166747,171822389 },</span>
+<a name="l00455"></a>00455     <span class="comment">//     { 0,5,10,267,344,363,2968,3159,9083,18437,76602,147614,1246902,</span>
+<a name="l00456"></a>00456     <span class="comment">//       1593138,2035574,6529391,9511830,11340287,29565945,281666026,</span>
+<a name="l00457"></a>00457     <span class="comment">//       677946848 } };</span>
+<a name="l00458"></a>00458     <span class="comment">// </span>
+<a name="l00459"></a>00459     <span class="comment">//   swapfunc swapper = (scheme_ == NEST) ?</span>
+<a name="l00460"></a>00460     <span class="comment">//     &amp;Healpix_Base::ring2nest : &amp;Healpix_Base::nest2ring;</span>
+<a name="l00461"></a>00461     <span class="comment">// </span>
+<a name="l00462"></a>00462     <span class="comment">//   planck_assert (order_&gt;=0, &quot;swap_scheme(): need hierarchical map&quot;);</span>
+<a name="l00463"></a>00463     <span class="comment">// </span>
+<a name="l00464"></a>00464     <span class="comment">//   for (int m=0; m&lt;clen[order_]; ++m)</span>
+<a name="l00465"></a>00465     <span class="comment">//     {</span>
+<a name="l00466"></a>00466     <span class="comment">//     int istart = cycle[order_][m];</span>
+<a name="l00467"></a>00467     <span class="comment">// </span>
+<a name="l00468"></a>00468     <span class="comment">//     T pixbuf = partmap[istart];</span>
+<a name="l00469"></a>00469     <span class="comment">//     int iold = istart, inew = (this-&gt;*swapper)(istart);</span>
+<a name="l00470"></a>00470     <span class="comment">//     while (inew != istart)</span>
+<a name="l00471"></a>00471     <span class="comment">//       {</span>
+<a name="l00472"></a>00472     <span class="comment">//       partmap[iold] = partmap[inew];</span>
+<a name="l00473"></a>00473     <span class="comment">//       iold = inew;</span>
+<a name="l00474"></a>00474     <span class="comment">//       inew = (this-&gt;*swapper)(inew);</span>
+<a name="l00475"></a>00475     <span class="comment">//       }</span>
+<a name="l00476"></a>00476     <span class="comment">//     partmap[iold] = pixbuf;</span>
+<a name="l00477"></a>00477     <span class="comment">//     }</span>
+<a name="l00478"></a>00478     <span class="comment">//   scheme_ = (scheme_==RING) ? NEST : RING;</span>
+<a name="l00479"></a>00479     <span class="comment">//   }</span>
+<a name="l00480"></a>00480 <span class="comment"></span>
+<a name="l00481"></a>00481 <span class="comment">    /*! performs the actual interpolation using \a pix and \a wgt. */</span>
+<a name="l00482"></a><a class="code" href="classPartpix__Map2.html#ac8a61f005157b9b8169a539bc987a4ba">00482</a>     T <a class="code" href="classPartpix__Map2.html#ac8a61f005157b9b8169a539bc987a4ba">interpolation</a> (<span class="keyword">const</span> <a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/classfix__arr.html">fix_arr&lt;int,4&gt;</a> &amp;pix,
+<a name="l00483"></a>00483       <span class="keyword">const</span> <a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/classfix__arr.html">fix_arr&lt;double,4&gt;</a> &amp;wgt)<span class="keyword"> const</span>
+<a name="l00484"></a>00484 <span class="keyword">      </span>{
+<a name="l00485"></a>00485       <span class="keywordflow">return</span> T(partmap_at_highresindex(pix[0])*wgt[0] + partmap_at_highresindex(pix[1])*wgt[1]
+<a name="l00486"></a>00486              + partmap_at_highresindex(pix[2])*wgt[2] + partmap_at_highresindex(pix[3])*wgt[3]);
+<a name="l00487"></a>00487       }<span class="comment"></span>
+<a name="l00488"></a>00488 <span class="comment">    /*! Returns the interpolated map value at \a ptg */</span>
+<a name="l00489"></a>00489     <span class="comment">// T interpolated_value (const pointing &amp;ptg) const</span>
+<a name="l00490"></a>00490     <span class="comment">//   {</span>
+<a name="l00491"></a>00491     <span class="comment">//   fix_arr&lt;int,4&gt; pix;</span>
+<a name="l00492"></a>00492     <span class="comment">//   fix_arr&lt;double,4&gt; wgt;</span>
+<a name="l00493"></a>00493     <span class="comment">//   get_interpol (ptg, pix, wgt);</span>
+<a name="l00494"></a>00494     <span class="comment">//   return interpolation (pix, wgt);</span>
+<a name="l00495"></a>00495     <span class="comment">//   }</span>
+<a name="l00496"></a>00496 <span class="comment"></span>
+<a name="l00497"></a>00497 <span class="comment">    /*! Returns a constant reference to the map data. */</span>
+<a name="l00498"></a><a class="code" href="classPartpix__Map2.html#a4347f3eb99abd403d808eed56df4c67b">00498</a>     <span class="keyword">const</span> <a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/classarr.html">arr&lt;T&gt;</a> &amp;<a class="code" href="classPartpix__Map2.html#a4347f3eb99abd403d808eed56df4c67b">Map</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> partmap; }
+<a name="l00499"></a>00499 <span class="comment"></span>
+<a name="l00500"></a>00500 <span class="comment">    /*! Returns the minimum and maximum value of the map in</span>
+<a name="l00501"></a>00501 <span class="comment">        \a Min and \a Max.</span>
+<a name="l00502"></a>00502 <span class="comment"></span>
+<a name="l00503"></a>00503 <span class="comment">        This method is instantiated for \a float and \a double only. */</span>
+<a name="l00504"></a>00504     <span class="keywordtype">void</span> <a class="code" href="classPartpix__Map2.html#a79fe1434bf26d95b74155886d0bb7680">minmax</a> (T &amp;Min, T &amp;Max) <span class="keyword">const</span>;
+<a name="l00505"></a>00505 <span class="comment"></span>
+<a name="l00506"></a>00506 <span class="comment">    /*! Swaps the contents of two Partpix_Map objects. */</span>
+<a name="l00507"></a>00507     <span class="comment">// void swap (Partpix_Map &amp;other)</span>
+<a name="l00508"></a>00508     <span class="comment">//   {</span>
+<a name="l00509"></a>00509     <span class="comment">//   Healpix_Base::swap(other);</span>
+<a name="l00510"></a>00510     <span class="comment">//   partmap.swap(other.partmap);</span>
+<a name="l00511"></a>00511     <span class="comment">//   }</span>
+<a name="l00512"></a>00512 <span class="comment"></span>
+<a name="l00513"></a>00513 <span class="comment">    /*! Returns the average of all defined map pixels. */</span>
+<a name="l00514"></a><a class="code" href="classPartpix__Map2.html#ac7e7e8284d7fa0a565c7d39938f2bb40">00514</a>     <span class="keywordtype">double</span> <a class="code" href="classPartpix__Map2.html#ac7e7e8284d7fa0a565c7d39938f2bb40">average</a>()<span class="keyword"> const</span>
 <a name="l00515"></a>00515 <span class="keyword">      </span>{
-<a name="l00516"></a>00516       <span class="keyword">using namespace </span>std;
-<a name="l00517"></a>00517 
-<a name="l00518"></a>00518       <span class="keywordtype">double</span> result=0;
-<a name="l00519"></a>00519       int64 pix=0;
-<a name="l00520"></a>00520       <span class="keywordflow">for</span> (int64 m=0; m&lt;npartpix_; ++m)
-<a name="l00521"></a>00521         <span class="keywordflow">if</span> (!approx&lt;double&gt;(partmap[m],<a class="code" href="healpix__map_8h.html#ae2a4c592445abef24754fd3760207af8" title="Healpix value representing &quot;undefined&quot;.">Healpix_undef</a>))
-<a name="l00522"></a>00522           { ++pix; result+=partmap[m]*partmap[m]; }
-<a name="l00523"></a>00523       <span class="keywordflow">return</span> sqrt(result/pix);
-<a name="l00524"></a>00524       }<span class="comment"></span>
-<a name="l00525"></a>00525 <span class="comment">    /*! Returns the maximum absolute value in the map, ignoring undefined</span>
-<a name="l00526"></a>00526 <span class="comment">        pixels. */</span>
-<a name="l00527"></a><a class="code" href="classPartpix__Map2.html#a1de3983c6314069925a71fb6adf1a270">00527</a>     T <a class="code" href="classPartpix__Map2.html#a1de3983c6314069925a71fb6adf1a270">absmax</a>()<span class="keyword"> const</span>
-<a name="l00528"></a>00528 <span class="keyword">      </span>{
-<a name="l00529"></a>00529       <span class="keyword">using namespace </span>std;
-<a name="l00530"></a>00530 
-<a name="l00531"></a>00531       T result=0;
-<a name="l00532"></a>00532       <span class="keywordflow">for</span> (int64 m=0; m&lt;npartpix_; ++m)
-<a name="l00533"></a>00533         <span class="keywordflow">if</span> (!approx&lt;double&gt;(partmap[m],<a class="code" href="healpix__map_8h.html#ae2a4c592445abef24754fd3760207af8" title="Healpix value representing &quot;undefined&quot;.">Healpix_undef</a>))
-<a name="l00534"></a>00534           { result = max(result,<a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/group__complexgroup.html#gaaa6cd761fcbea2c18b97f59d84adb9a6">abs</a>(partmap[m])); }
-<a name="l00535"></a>00535       <span class="keywordflow">return</span> result;
-<a name="l00536"></a>00536     }
-<a name="l00537"></a>00537 <span class="comment"></span>
-<a name="l00538"></a>00538 <span class="comment">      /*! Returns the numbers of all pixels whose centers lie within \a radius</span>
-<a name="l00539"></a>00539 <span class="comment">          of \a dir in \a listpix.</span>
-<a name="l00540"></a>00540 <span class="comment">          \param ptg the angular coordinates of the disc center</span>
-<a name="l00541"></a>00541 <span class="comment">          \param radius the radius (in radians) of the disc</span>
-<a name="l00542"></a>00542 <span class="comment">          \param listpix a vector containing the numbers of all pixels within</span>
-<a name="l00543"></a>00543 <span class="comment">                 the disc</span>
-<a name="l00544"></a>00544 <span class="comment">          \note This method is more efficient in the RING scheme. */</span>
-<a name="l00545"></a>00545  
-<a name="l00546"></a><a class="code" href="classPartpix__Map2.html#a6e2fe5916ae689072bce5e841d69fea6">00546</a>     <span class="keywordtype">void</span> <a class="code" href="classPartpix__Map2.html#a6e2fe5916ae689072bce5e841d69fea6">query_disc</a> (<span class="keyword">const</span> <a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/classpointing.html">pointing</a> &amp;ptg, <span class="keywordtype">double</span> radius,
-<a name="l00547"></a>00547         vector&lt;int64&gt;&amp; listpix)<span class="keyword"> const</span>
-<a name="l00548"></a>00548 <span class="keyword">        </span>{
-<a name="l00549"></a>00549         listpix.clear();
-<a name="l00550"></a>00550 
-<a name="l00551"></a>00551         <span class="keywordtype">double</span> dth1 = fact2_;
-<a name="l00552"></a>00552         <span class="keywordtype">double</span> dth2 = fact1_;
-<a name="l00553"></a>00553         <span class="keywordtype">double</span> cosang = cos(radius);
-<a name="l00554"></a>00554 
-<a name="l00555"></a>00555         <span class="keywordtype">double</span> z0 = cos(ptg.<a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/classpointing.html#a3950dec3d6fd4f23538104920ed63ec4">theta</a>);
-<a name="l00556"></a>00556         <span class="keywordtype">double</span> xa = 1./sqrt((1-z0)*(1+z0));
-<a name="l00557"></a>00557 
-<a name="l00558"></a>00558         <span class="keywordtype">double</span> rlat1  = ptg.<a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/classpointing.html#a3950dec3d6fd4f23538104920ed63ec4">theta</a> - radius;
-<a name="l00559"></a>00559         <span class="keywordtype">double</span> zmax = cos(rlat1);
-<a name="l00560"></a>00560         int64 irmin = Healpix_Base2::ring_above (zmax)+1;
-<a name="l00561"></a>00561 
-<a name="l00562"></a>00562         <span class="keywordflow">if</span> (rlat1&lt;=0) <span class="comment">// north pole in the disc</span>
-<a name="l00563"></a>00563           <span class="keywordflow">for</span> (int64 m=1; m&lt;irmin; ++m) <span class="comment">// rings completely in the disc</span>
-<a name="l00564"></a>00564             in_ring (m, 0, <a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/group__mathconstgroup.html#ga43016d873124d39034edb8cd164794db">pi</a>, listpix);
-<a name="l00565"></a>00565 
-<a name="l00566"></a>00566         <span class="keywordtype">double</span> rlat2  = ptg.<a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/classpointing.html#a3950dec3d6fd4f23538104920ed63ec4">theta</a> + radius;
-<a name="l00567"></a>00567         <span class="keywordtype">double</span> zmin = cos(rlat2);
-<a name="l00568"></a>00568         int64 irmax = Healpix_Base2::ring_above (zmin);
-<a name="l00569"></a>00569 
-<a name="l00570"></a>00570       <span class="comment">// ------------- loop on ring number ---------------------</span>
-<a name="l00571"></a>00571         <span class="keywordflow">for</span> (int64 iz=irmin; iz&lt;=irmax; ++iz) <span class="comment">// rings partially in the disc</span>
-<a name="l00572"></a>00572           {
-<a name="l00573"></a>00573           <span class="keywordtype">double</span> z;
-<a name="l00574"></a>00574           <span class="keywordflow">if</span> (iz&lt;<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>) <span class="comment">// north polar cap</span>
-<a name="l00575"></a>00575             z = 1.0 - iz*iz*dth1;
-<a name="l00576"></a>00576           <span class="keywordflow">else</span> <span class="keywordflow">if</span> (iz &lt;= (3*<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>)) <span class="comment">// tropical band + equat.</span>
-<a name="l00577"></a>00577             z = (2*<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>-iz) * dth2;
-<a name="l00578"></a>00578           <span class="keywordflow">else</span>
-<a name="l00579"></a>00579             z = -1.0 + (4*<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>-iz)*(4*<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>-iz)*dth1;
-<a name="l00580"></a>00580 
-<a name="l00581"></a>00581       <span class="comment">// --------- phi range in the disc for each z ---------</span>
-<a name="l00582"></a>00582           <span class="keywordtype">double</span> x = (cosang-z*z0)*xa;
-<a name="l00583"></a>00583           <span class="keywordtype">double</span> ysq = 1-z*z-x*x;
-<a name="l00584"></a>00584           <a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/group__errorgroup.html#gaad84f2bf5d93ccf2837650b21b07a38d">planck_assert</a>(ysq&gt;=0, <span class="stringliteral">&quot;error in query_disc()&quot;</span>);
-<a name="l00585"></a>00585           <span class="keywordtype">double</span> dphi=atan2(sqrt(ysq),x);
-<a name="l00586"></a>00586           in_ring (iz, ptg.<a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/classpointing.html#a4e84a63eed0deb877d1b5b1bf9c5954d">phi</a>, dphi, listpix);
-<a name="l00587"></a>00587           }
-<a name="l00588"></a>00588 
-<a name="l00589"></a>00589         <span class="keywordflow">if</span> (rlat2&gt;=<a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/group__mathconstgroup.html#ga43016d873124d39034edb8cd164794db">pi</a>) <span class="comment">// south pole in the disc</span>
-<a name="l00590"></a>00590           <span class="keywordflow">for</span> (int64 m=irmax+1; m&lt;(4*<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>); ++m)  <span class="comment">// rings completely in the disc</span>
-<a name="l00591"></a>00591             in_ring (m, 0, <a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/group__mathconstgroup.html#ga43016d873124d39034edb8cd164794db">pi</a>, listpix);
-<a name="l00592"></a>00592 
-<a name="l00593"></a>00593         <span class="keywordflow">if</span> (<a class="code" href="classHealpix__Base2.html#ab32e12895fe5203e0964297dd2e4f6ca">scheme_</a>==<a class="code" href="healpix__base_8h.html#a6b968c7b00a536bb8df400c874c122e9a5f0b5e8a99b9441721ea34f14ccc60fe">NEST</a>)
-<a name="l00594"></a>00594           <span class="keywordflow">for</span> (<a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/datatypes_8h.html#a4f13f1d6de679cc32ad61090e13a8eb1">tsize</a> m=0; m&lt;listpix.size(); ++m)
-<a name="l00595"></a>00595             listpix[m] = <a class="code" href="classHealpix__Base2.html#a1f9ac22ed7f4f2202634da8c49e60e4f">ring2nest</a>(listpix[m]);
-<a name="l00596"></a>00596     }
-<a name="l00597"></a>00597         
-<a name="l00598"></a>00598 
-<a name="l00599"></a>00599   <span class="keywordtype">void</span> in_ring(int64 iz, <span class="keywordtype">double</span> phi0, <span class="keywordtype">double</span> dphi,
-<a name="l00600"></a>00600     vector&lt;int64&gt; &amp;listir)<span class="keyword"> const</span>
-<a name="l00601"></a>00601 <span class="keyword">    </span>{
-<a name="l00602"></a>00602     int64 nr, ir, ipix1;
-<a name="l00603"></a>00603     <span class="keywordtype">double</span> shift=0.5;
-<a name="l00604"></a>00604 
-<a name="l00605"></a>00605     <span class="keywordflow">if</span> (iz&lt;<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>) <span class="comment">// north pole</span>
-<a name="l00606"></a>00606       {
-<a name="l00607"></a>00607       ir = iz;
-<a name="l00608"></a>00608       nr = ir*4;
-<a name="l00609"></a>00609       ipix1 = 2*ir*(ir-1);        <span class="comment">//    lowest pixel number in the ring</span>
-<a name="l00610"></a>00610       }
-<a name="l00611"></a>00611     <span class="keywordflow">else</span> <span class="keywordflow">if</span> (iz&gt;(3*<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>)) <span class="comment">// south pole</span>
-<a name="l00612"></a>00612       {
-<a name="l00613"></a>00613       ir = 4*<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a> - iz;
-<a name="l00614"></a>00614       nr = ir*4;
-<a name="l00615"></a>00615       ipix1 = npix_ - 2*ir*(ir+1); <span class="comment">// lowest pixel number in the ring</span>
-<a name="l00616"></a>00616       }
-<a name="l00617"></a>00617     <span class="keywordflow">else</span> <span class="comment">// equatorial region</span>
-<a name="l00618"></a>00618       {
-<a name="l00619"></a>00619       ir = iz - <a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a> + 1;           <span class="comment">//    within {1, 2*nside + 1}</span>
-<a name="l00620"></a>00620       nr = nside_*4;
-<a name="l00621"></a>00621       <span class="keywordflow">if</span> ((ir&amp;1)==0) shift = 0;
-<a name="l00622"></a>00622       ipix1 = ncap_ + (ir-1)*nr; <span class="comment">// lowest pixel number in the ring</span>
-<a name="l00623"></a>00623       }
-<a name="l00624"></a>00624 
-<a name="l00625"></a>00625     int64 ipix2 = ipix1 + nr - 1;       <span class="comment">//    highest pixel number in the ring</span>
+<a name="l00516"></a>00516       <span class="keywordtype">double</span> avg=0;
+<a name="l00517"></a>00517       int64 pix=0;
+<a name="l00518"></a>00518       <span class="keywordflow">for</span> (int64 m=0; m&lt;npartpix_; ++m)
+<a name="l00519"></a>00519         <span class="keywordflow">if</span> (!approx&lt;double&gt;(partmap[m],<a class="code" href="healpix__map_8h.html#ae2a4c592445abef24754fd3760207af8" title="Healpix value representing &quot;undefined&quot;.">Healpix_undef</a>))
+<a name="l00520"></a>00520           { ++pix; avg+=partmap[m]; }
+<a name="l00521"></a>00521       <span class="keywordflow">return</span> avg/pix;
+<a name="l00522"></a>00522       }
+<a name="l00523"></a>00523 <span class="comment"></span>
+<a name="l00524"></a>00524 <span class="comment">    /*! Adds \a val to all defined map pixels. */</span>
+<a name="l00525"></a><a class="code" href="classPartpix__Map2.html#aaca6080207b0441e4a454dd586c54633">00525</a>     <span class="keywordtype">void</span> <a class="code" href="classPartpix__Map2.html#aaca6080207b0441e4a454dd586c54633">Add</a> (T val)
+<a name="l00526"></a>00526       {
+<a name="l00527"></a>00527       <span class="keywordflow">for</span> (int64 m=0; m&lt;npartpix_; ++m)
+<a name="l00528"></a>00528         <span class="keywordflow">if</span> (!approx&lt;double&gt;(partmap[m],<a class="code" href="healpix__map_8h.html#ae2a4c592445abef24754fd3760207af8" title="Healpix value representing &quot;undefined&quot;.">Healpix_undef</a>))
+<a name="l00529"></a>00529           { partmap[m]+=val; }
+<a name="l00530"></a>00530       }
+<a name="l00531"></a>00531 <span class="comment"></span>
+<a name="l00532"></a>00532 <span class="comment">    /*! Multiplies all defined map pixels by \a val. */</span>
+<a name="l00533"></a><a class="code" href="classPartpix__Map2.html#ad59d3dd627cc477ec7d079d88e44fadc">00533</a>     <span class="keywordtype">void</span> <a class="code" href="classPartpix__Map2.html#ad59d3dd627cc477ec7d079d88e44fadc">Scale</a> (T val)
+<a name="l00534"></a>00534       {
+<a name="l00535"></a>00535       <span class="keywordflow">for</span> (int64 m=0; m&lt;npartpix_; ++m)
+<a name="l00536"></a>00536         <span class="keywordflow">if</span> (!approx&lt;double&gt;(partmap[m],<a class="code" href="healpix__map_8h.html#ae2a4c592445abef24754fd3760207af8" title="Healpix value representing &quot;undefined&quot;.">Healpix_undef</a>))
+<a name="l00537"></a>00537           { partmap[m]*=val; }
+<a name="l00538"></a>00538       }
+<a name="l00539"></a>00539 <span class="comment"></span>
+<a name="l00540"></a>00540 <span class="comment">    /*! Returns the root mean square of the map, not counting undefined</span>
+<a name="l00541"></a>00541 <span class="comment">        pixels. */</span>
+<a name="l00542"></a><a class="code" href="classPartpix__Map2.html#a8b2d8d55d9fa7bbb9cdf23b272c74b31">00542</a>     <span class="keywordtype">double</span> <a class="code" href="classPartpix__Map2.html#a8b2d8d55d9fa7bbb9cdf23b272c74b31">rms</a>()<span class="keyword"> const</span>
+<a name="l00543"></a>00543 <span class="keyword">      </span>{
+<a name="l00544"></a>00544       <span class="keyword">using namespace </span>std;
+<a name="l00545"></a>00545 
+<a name="l00546"></a>00546       <span class="keywordtype">double</span> result=0;
+<a name="l00547"></a>00547       int64 pix=0;
+<a name="l00548"></a>00548       <span class="keywordflow">for</span> (int64 m=0; m&lt;npartpix_; ++m)
+<a name="l00549"></a>00549         <span class="keywordflow">if</span> (!approx&lt;double&gt;(partmap[m],<a class="code" href="healpix__map_8h.html#ae2a4c592445abef24754fd3760207af8" title="Healpix value representing &quot;undefined&quot;.">Healpix_undef</a>))
+<a name="l00550"></a>00550           { ++pix; result+=partmap[m]*partmap[m]; }
+<a name="l00551"></a>00551       <span class="keywordflow">return</span> sqrt(result/pix);
+<a name="l00552"></a>00552       }<span class="comment"></span>
+<a name="l00553"></a>00553 <span class="comment">    /*! Returns the maximum absolute value in the map, ignoring undefined</span>
+<a name="l00554"></a>00554 <span class="comment">        pixels. */</span>
+<a name="l00555"></a><a class="code" href="classPartpix__Map2.html#a1de3983c6314069925a71fb6adf1a270">00555</a>     T <a class="code" href="classPartpix__Map2.html#a1de3983c6314069925a71fb6adf1a270">absmax</a>()<span class="keyword"> const</span>
+<a name="l00556"></a>00556 <span class="keyword">      </span>{
+<a name="l00557"></a>00557       <span class="keyword">using namespace </span>std;
+<a name="l00558"></a>00558 
+<a name="l00559"></a>00559       T result=0;
+<a name="l00560"></a>00560       <span class="keywordflow">for</span> (int64 m=0; m&lt;npartpix_; ++m)
+<a name="l00561"></a>00561         <span class="keywordflow">if</span> (!approx&lt;double&gt;(partmap[m],<a class="code" href="healpix__map_8h.html#ae2a4c592445abef24754fd3760207af8" title="Healpix value representing &quot;undefined&quot;.">Healpix_undef</a>))
+<a name="l00562"></a>00562           { result = max(result,<a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/group__complexgroup.html#gaaa6cd761fcbea2c18b97f59d84adb9a6">abs</a>(partmap[m])); }
+<a name="l00563"></a>00563       <span class="keywordflow">return</span> result;
+<a name="l00564"></a>00564     }
+<a name="l00565"></a>00565 <span class="comment"></span>
+<a name="l00566"></a>00566 <span class="comment">      /*! Returns the numbers of all pixels whose centers lie within \a radius</span>
+<a name="l00567"></a>00567 <span class="comment">          of \a dir in \a listpix.</span>
+<a name="l00568"></a>00568 <span class="comment">          \param ptg the angular coordinates of the disc center</span>
+<a name="l00569"></a>00569 <span class="comment">          \param radius the radius (in radians) of the disc</span>
+<a name="l00570"></a>00570 <span class="comment">          \param listpix a vector containing the numbers of all pixels within</span>
+<a name="l00571"></a>00571 <span class="comment">                 the disc</span>
+<a name="l00572"></a>00572 <span class="comment">          \note This method is more efficient in the RING scheme. */</span>
+<a name="l00573"></a>00573  
+<a name="l00574"></a><a class="code" href="classPartpix__Map2.html#a6e2fe5916ae689072bce5e841d69fea6">00574</a>     <span class="keywordtype">void</span> <a class="code" href="classPartpix__Map2.html#a6e2fe5916ae689072bce5e841d69fea6">query_disc</a> (<span class="keyword">const</span> <a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/classpointing.html">pointing</a> &amp;ptg, <span class="keywordtype">double</span> radius,
+<a name="l00575"></a>00575         vector&lt;int64&gt;&amp; listpix)<span class="keyword"> const</span>
+<a name="l00576"></a>00576 <span class="keyword">        </span>{
+<a name="l00577"></a>00577         listpix.clear();
+<a name="l00578"></a>00578 
+<a name="l00579"></a>00579         <span class="keywordtype">double</span> dth1 = fact2_;
+<a name="l00580"></a>00580         <span class="keywordtype">double</span> dth2 = fact1_;
+<a name="l00581"></a>00581         <span class="keywordtype">double</span> cosang = cos(radius);
+<a name="l00582"></a>00582 
+<a name="l00583"></a>00583         <span class="keywordtype">double</span> z0 = cos(ptg.<a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/classpointing.html#a3950dec3d6fd4f23538104920ed63ec4">theta</a>);
+<a name="l00584"></a>00584         <span class="keywordtype">double</span> xa = 1./sqrt((1-z0)*(1+z0));
+<a name="l00585"></a>00585 
+<a name="l00586"></a>00586         <span class="keywordtype">double</span> rlat1  = ptg.<a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/classpointing.html#a3950dec3d6fd4f23538104920ed63ec4">theta</a> - radius;
+<a name="l00587"></a>00587         <span class="keywordtype">double</span> zmax = cos(rlat1);
+<a name="l00588"></a>00588         int64 irmin = Healpix_Base2::ring_above (zmax)+1;
+<a name="l00589"></a>00589 
+<a name="l00590"></a>00590         <span class="keywordflow">if</span> (rlat1&lt;=0) <span class="comment">// north pole in the disc</span>
+<a name="l00591"></a>00591           <span class="keywordflow">for</span> (int64 m=1; m&lt;irmin; ++m) <span class="comment">// rings completely in the disc</span>
+<a name="l00592"></a>00592             in_ring (m, 0, <a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/group__mathconstgroup.html#ga43016d873124d39034edb8cd164794db">pi</a>, listpix);
+<a name="l00593"></a>00593 
+<a name="l00594"></a>00594         <span class="keywordtype">double</span> rlat2  = ptg.<a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/classpointing.html#a3950dec3d6fd4f23538104920ed63ec4">theta</a> + radius;
+<a name="l00595"></a>00595         <span class="keywordtype">double</span> zmin = cos(rlat2);
+<a name="l00596"></a>00596         int64 irmax = Healpix_Base2::ring_above (zmin);
+<a name="l00597"></a>00597 
+<a name="l00598"></a>00598       <span class="comment">// ------------- loop on ring number ---------------------</span>
+<a name="l00599"></a>00599         <span class="keywordflow">for</span> (int64 iz=irmin; iz&lt;=irmax; ++iz) <span class="comment">// rings partially in the disc</span>
+<a name="l00600"></a>00600           {
+<a name="l00601"></a>00601           <span class="keywordtype">double</span> z;
+<a name="l00602"></a>00602           <span class="keywordflow">if</span> (iz&lt;<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>) <span class="comment">// north polar cap</span>
+<a name="l00603"></a>00603             z = 1.0 - iz*iz*dth1;
+<a name="l00604"></a>00604           <span class="keywordflow">else</span> <span class="keywordflow">if</span> (iz &lt;= (3*<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>)) <span class="comment">// tropical band + equat.</span>
+<a name="l00605"></a>00605             z = (2*<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>-iz) * dth2;
+<a name="l00606"></a>00606           <span class="keywordflow">else</span>
+<a name="l00607"></a>00607             z = -1.0 + (4*<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>-iz)*(4*<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>-iz)*dth1;
+<a name="l00608"></a>00608 
+<a name="l00609"></a>00609       <span class="comment">// --------- phi range in the disc for each z ---------</span>
+<a name="l00610"></a>00610           <span class="keywordtype">double</span> x = (cosang-z*z0)*xa;
+<a name="l00611"></a>00611           <span class="keywordtype">double</span> ysq = 1-z*z-x*x;
+<a name="l00612"></a>00612           <a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/group__errorgroup.html#gaad84f2bf5d93ccf2837650b21b07a38d">planck_assert</a>(ysq&gt;=0, <span class="stringliteral">&quot;error in query_disc()&quot;</span>);
+<a name="l00613"></a>00613           <span class="keywordtype">double</span> dphi=atan2(sqrt(ysq),x);
+<a name="l00614"></a>00614           in_ring (iz, ptg.<a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/classpointing.html#a4e84a63eed0deb877d1b5b1bf9c5954d">phi</a>, dphi, listpix);
+<a name="l00615"></a>00615           }
+<a name="l00616"></a>00616 
+<a name="l00617"></a>00617         <span class="keywordflow">if</span> (rlat2&gt;=<a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/group__mathconstgroup.html#ga43016d873124d39034edb8cd164794db">pi</a>) <span class="comment">// south pole in the disc</span>
+<a name="l00618"></a>00618           <span class="keywordflow">for</span> (int64 m=irmax+1; m&lt;(4*<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>); ++m)  <span class="comment">// rings completely in the disc</span>
+<a name="l00619"></a>00619             in_ring (m, 0, <a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/group__mathconstgroup.html#ga43016d873124d39034edb8cd164794db">pi</a>, listpix);
+<a name="l00620"></a>00620 
+<a name="l00621"></a>00621         <span class="keywordflow">if</span> (<a class="code" href="classHealpix__Base2.html#ab32e12895fe5203e0964297dd2e4f6ca">scheme_</a>==<a class="code" href="healpix__base_8h.html#a6b968c7b00a536bb8df400c874c122e9a5f0b5e8a99b9441721ea34f14ccc60fe">NEST</a>)
+<a name="l00622"></a>00622           <span class="keywordflow">for</span> (<a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/datatypes_8h.html#a4f13f1d6de679cc32ad61090e13a8eb1">tsize</a> m=0; m&lt;listpix.size(); ++m)
+<a name="l00623"></a>00623             listpix[m] = <a class="code" href="classHealpix__Base2.html#a1f9ac22ed7f4f2202634da8c49e60e4f">ring2nest</a>(listpix[m]);
+<a name="l00624"></a>00624     }
+<a name="l00625"></a>00625         
 <a name="l00626"></a>00626 
-<a name="l00627"></a>00627      <span class="comment">// ----------- constructs the pixel list --------------</span>
-<a name="l00628"></a>00628     <span class="keywordflow">if</span> (dphi &gt; (<a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/group__mathconstgroup.html#ga43016d873124d39034edb8cd164794db">pi</a>-1e-7))
-<a name="l00629"></a>00629       <span class="keywordflow">for</span> (int64 i=ipix1; i&lt;=ipix2; ++i) listir.push_back(i);
-<a name="l00630"></a>00630     <span class="keywordflow">else</span>
-<a name="l00631"></a>00631       {
-<a name="l00632"></a>00632       int64 ip_lo = ifloor&lt;int64&gt;(nr*inv_twopi*(phi0-dphi) - shift)+1;
-<a name="l00633"></a>00633       int64 ip_hi = ifloor&lt;int64&gt;(nr*inv_twopi*(phi0+dphi) - shift);
-<a name="l00634"></a>00634       int64 pixnum = ip_lo+ipix1;
-<a name="l00635"></a>00635       <span class="keywordflow">if</span> (pixnum&lt;ipix1) pixnum += nr;
-<a name="l00636"></a>00636       <span class="keywordflow">for</span> (int64 i=ip_lo; i&lt;=ip_hi; ++i, ++pixnum)
-<a name="l00637"></a>00637         {
-<a name="l00638"></a>00638         <span class="keywordflow">if</span> (pixnum&gt;ipix2) pixnum -= nr;
-<a name="l00639"></a>00639         listir.push_back(pixnum);
-<a name="l00640"></a>00640         }
-<a name="l00641"></a>00641       }
-<a name="l00642"></a>00642     }
-<a name="l00643"></a>00643       
-<a name="l00644"></a>00644     <span class="comment">// sort the first array, but rearrange the second array in the same manner</span>
-<a name="l00645"></a>00645     <span class="comment">// heapsort from numerical recipes</span>
-<a name="l00646"></a>00646     <span class="keywordtype">void</span> sift_down( vector&lt;int64&gt;&amp; pixel_mapping, <a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/classarr.html">arr&lt;T&gt;</a>&amp; map, <span class="keyword">const</span> <span class="keywordtype">int</span> l, <span class="keyword">const</span> <span class="keywordtype">int</span> r ){
-<a name="l00647"></a>00647         int64 a = pixel_mapping[l];
-<a name="l00648"></a>00648         T a2 = map[l];
-<a name="l00649"></a>00649         <span class="keywordtype">int</span> jold = l;
-<a name="l00650"></a>00650         <span class="keywordtype">int</span> j = 2*l+1;
-<a name="l00651"></a>00651         <span class="keywordflow">while</span>( j &lt;= r ){
-<a name="l00652"></a>00652             <span class="keywordflow">if</span>( j &lt; r &amp;&amp; pixel_mapping[j] &lt; pixel_mapping[j+1] )
-<a name="l00653"></a>00653                 ++j;
-<a name="l00654"></a>00654             <span class="keywordflow">if</span>( a &gt;= pixel_mapping[j] )
-<a name="l00655"></a>00655                 <span class="keywordflow">break</span>;
-<a name="l00656"></a>00656             pixel_mapping[jold] = pixel_mapping[j];
-<a name="l00657"></a>00657             map[jold] = map[j];
-<a name="l00658"></a>00658             jold = j;
-<a name="l00659"></a>00659             j = 2*j+1;
-<a name="l00660"></a>00660         }
-<a name="l00661"></a>00661         pixel_mapping[jold] = a;
-<a name="l00662"></a>00662         map[jold] = a2;
-<a name="l00663"></a>00663     }
-<a name="l00664"></a>00664     <span class="keywordtype">void</span> sort_partmap( vector&lt;int64&gt;&amp; pixel_mapping, <a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/classarr.html">arr&lt;T&gt;</a>&amp; map ){
-<a name="l00665"></a>00665         <span class="keywordtype">int</span> i;
-<a name="l00666"></a>00666         <span class="keywordtype">int</span> n = pixel_mapping.size();
-<a name="l00667"></a>00667         <span class="keywordflow">for</span>( i=n/2-1; i&gt;=0; --i )
-<a name="l00668"></a>00668             sift_down( pixel_mapping, map, i, n-1 );
-<a name="l00669"></a>00669         <span class="keywordflow">for</span>( i=n-1; i&gt;0; --i ){
-<a name="l00670"></a>00670             int64 tempi = pixel_mapping[0];
-<a name="l00671"></a>00671             pixel_mapping[0] = pixel_mapping[i];
-<a name="l00672"></a>00672             pixel_mapping[i] = tempi;
-<a name="l00673"></a>00673             T temp = map[0];
-<a name="l00674"></a>00674             map[0] = map[i];
-<a name="l00675"></a>00675             map[i] = temp;
-<a name="l00676"></a>00676             sift_down( pixel_mapping, map, 0, i-1 );
-<a name="l00677"></a>00677         }
-<a name="l00678"></a>00678 
-<a name="l00679"></a>00679         <span class="comment">// check the sort</span>
-<a name="l00680"></a>00680         <span class="keywordflow">for</span>( i=0; i&lt;n-1; ++i){
-<a name="l00681"></a>00681             <span class="keywordflow">if</span>( pixel_mapping[i+1] &lt;= pixel_mapping[i] ){
-<a name="l00682"></a>00682                 fprintf( stderr, <span class="stringliteral">&quot;pixel %d = %ld, %d+1 = %ld !\n&quot;</span>, i, pixel_mapping[i], i, pixel_mapping[i+1] );
-<a name="l00683"></a>00683                 <span class="keywordflow">throw</span>;
-<a name="l00684"></a>00684             }
-<a name="l00685"></a>00685         }
-<a name="l00686"></a>00686 
-<a name="l00687"></a>00687     }
-<a name="l00688"></a>00688     <span class="comment">/*</span>
-<a name="l00689"></a>00689 <span class="comment">        for( int64 gap=n/2; 0&lt;gap; gap/=2 )</span>
-<a name="l00690"></a>00690 <span class="comment">            for( int64 i=gap; i&lt;n; i++ )</span>
-<a name="l00691"></a>00691 <span class="comment">                for( int64 j=i-gap; 0&lt;=j; j-=gap )</span>
-<a name="l00692"></a>00692 <span class="comment">                    if( pixel_mapping[j+gap] &lt; pixel_mapping[j] ){</span>
-<a name="l00693"></a>00693 <span class="comment">                        int64 tempi = pixel_mapping[j];</span>
-<a name="l00694"></a>00694 <span class="comment">                        pixel_mapping[j] = pixel_mapping[j+gap];</span>
-<a name="l00695"></a>00695 <span class="comment">                        pixel_mapping[j+gap] = tempi;</span>
-<a name="l00696"></a>00696 <span class="comment">                        T temp = map[j];</span>
-<a name="l00697"></a>00697 <span class="comment">                        map[j] = map[j+gap];</span>
-<a name="l00698"></a>00698 <span class="comment">                        map[j+gap] = temp;</span>
-<a name="l00699"></a>00699 <span class="comment">                    }</span>
-<a name="l00700"></a>00700 <span class="comment">    }</span>
-<a name="l00701"></a>00701 <span class="comment">    */</span>
-<a name="l00702"></a>00702   };
-<a name="l00703"></a>00703 
-<a name="l00704"></a>00704 <span class="preprocessor">#endif</span>
+<a name="l00627"></a>00627   <span class="keywordtype">void</span> in_ring(int64 iz, <span class="keywordtype">double</span> phi0, <span class="keywordtype">double</span> dphi,
+<a name="l00628"></a>00628     vector&lt;int64&gt; &amp;listir)<span class="keyword"> const</span>
+<a name="l00629"></a>00629 <span class="keyword">    </span>{
+<a name="l00630"></a>00630     int64 nr, ir, ipix1;
+<a name="l00631"></a>00631     <span class="keywordtype">double</span> shift=0.5;
+<a name="l00632"></a>00632 
+<a name="l00633"></a>00633     <span class="keywordflow">if</span> (iz&lt;<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>) <span class="comment">// north pole</span>
+<a name="l00634"></a>00634       {
+<a name="l00635"></a>00635       ir = iz;
+<a name="l00636"></a>00636       nr = ir*4;
+<a name="l00637"></a>00637       ipix1 = 2*ir*(ir-1);        <span class="comment">//    lowest pixel number in the ring</span>
+<a name="l00638"></a>00638       }
+<a name="l00639"></a>00639     <span class="keywordflow">else</span> <span class="keywordflow">if</span> (iz&gt;(3*<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a>)) <span class="comment">// south pole</span>
+<a name="l00640"></a>00640       {
+<a name="l00641"></a>00641       ir = 4*<a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a> - iz;
+<a name="l00642"></a>00642       nr = ir*4;
+<a name="l00643"></a>00643       ipix1 = npix_ - 2*ir*(ir+1); <span class="comment">// lowest pixel number in the ring</span>
+<a name="l00644"></a>00644       }
+<a name="l00645"></a>00645     <span class="keywordflow">else</span> <span class="comment">// equatorial region</span>
+<a name="l00646"></a>00646       {
+<a name="l00647"></a>00647       ir = iz - <a class="code" href="classHealpix__Base2.html#a63c402aacdf93a012c7146ea9a2b96d6">nside_</a> + 1;           <span class="comment">//    within {1, 2*nside + 1}</span>
+<a name="l00648"></a>00648       nr = nside_*4;
+<a name="l00649"></a>00649       <span class="keywordflow">if</span> ((ir&amp;1)==0) shift = 0;
+<a name="l00650"></a>00650       ipix1 = ncap_ + (ir-1)*nr; <span class="comment">// lowest pixel number in the ring</span>
+<a name="l00651"></a>00651       }
+<a name="l00652"></a>00652 
+<a name="l00653"></a>00653     int64 ipix2 = ipix1 + nr - 1;       <span class="comment">//    highest pixel number in the ring</span>
+<a name="l00654"></a>00654 
+<a name="l00655"></a>00655      <span class="comment">// ----------- constructs the pixel list --------------</span>
+<a name="l00656"></a>00656     <span class="keywordflow">if</span> (dphi &gt; (<a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/group__mathconstgroup.html#ga43016d873124d39034edb8cd164794db">pi</a>-1e-7))
+<a name="l00657"></a>00657       <span class="keywordflow">for</span> (int64 i=ipix1; i&lt;=ipix2; ++i) listir.push_back(i);
+<a name="l00658"></a>00658     <span class="keywordflow">else</span>
+<a name="l00659"></a>00659       {
+<a name="l00660"></a>00660       int64 ip_lo = ifloor&lt;int64&gt;(nr*inv_twopi*(phi0-dphi) - shift)+1;
+<a name="l00661"></a>00661       int64 ip_hi = ifloor&lt;int64&gt;(nr*inv_twopi*(phi0+dphi) - shift);
+<a name="l00662"></a>00662       int64 pixnum = ip_lo+ipix1;
+<a name="l00663"></a>00663       <span class="keywordflow">if</span> (pixnum&lt;ipix1) pixnum += nr;
+<a name="l00664"></a>00664       <span class="keywordflow">for</span> (int64 i=ip_lo; i&lt;=ip_hi; ++i, ++pixnum)
+<a name="l00665"></a>00665         {
+<a name="l00666"></a>00666         <span class="keywordflow">if</span> (pixnum&gt;ipix2) pixnum -= nr;
+<a name="l00667"></a>00667         listir.push_back(pixnum);
+<a name="l00668"></a>00668         }
+<a name="l00669"></a>00669       }
+<a name="l00670"></a>00670     }
+<a name="l00671"></a>00671       
+<a name="l00672"></a>00672     <span class="comment">// sort the first array, but rearrange the second array in the same manner</span>
+<a name="l00673"></a>00673     <span class="comment">// heapsort from numerical recipes</span>
+<a name="l00674"></a>00674     <span class="keywordtype">void</span> sift_down( vector&lt;int64&gt;&amp; pixel_mapping, <a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/classarr.html">arr&lt;T&gt;</a>&amp; map, <span class="keyword">const</span> <span class="keywordtype">int</span> l, <span class="keyword">const</span> <span class="keywordtype">int</span> r ){
+<a name="l00675"></a>00675         int64 a = pixel_mapping[l];
+<a name="l00676"></a>00676         T a2 = map[l];
+<a name="l00677"></a>00677         <span class="keywordtype">int</span> jold = l;
+<a name="l00678"></a>00678         <span class="keywordtype">int</span> j = 2*l+1;
+<a name="l00679"></a>00679         <span class="keywordflow">while</span>( j &lt;= r ){
+<a name="l00680"></a>00680             <span class="keywordflow">if</span>( j &lt; r &amp;&amp; pixel_mapping[j] &lt; pixel_mapping[j+1] )
+<a name="l00681"></a>00681                 ++j;
+<a name="l00682"></a>00682             <span class="keywordflow">if</span>( a &gt;= pixel_mapping[j] )
+<a name="l00683"></a>00683                 <span class="keywordflow">break</span>;
+<a name="l00684"></a>00684             pixel_mapping[jold] = pixel_mapping[j];
+<a name="l00685"></a>00685             map[jold] = map[j];
+<a name="l00686"></a>00686             jold = j;
+<a name="l00687"></a>00687             j = 2*j+1;
+<a name="l00688"></a>00688         }
+<a name="l00689"></a>00689         pixel_mapping[jold] = a;
+<a name="l00690"></a>00690         map[jold] = a2;
+<a name="l00691"></a>00691     }
+<a name="l00692"></a>00692     <span class="keywordtype">void</span> sort_partmap( vector&lt;int64&gt;&amp; pixel_mapping, <a class="codeRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/classarr.html">arr&lt;T&gt;</a>&amp; map ){
+<a name="l00693"></a>00693         <span class="keywordtype">int</span> i;
+<a name="l00694"></a>00694         <span class="keywordtype">int</span> n = pixel_mapping.size();
+<a name="l00695"></a>00695         <span class="keywordflow">for</span>( i=n/2-1; i&gt;=0; --i )
+<a name="l00696"></a>00696             sift_down( pixel_mapping, map, i, n-1 );
+<a name="l00697"></a>00697         <span class="keywordflow">for</span>( i=n-1; i&gt;0; --i ){
+<a name="l00698"></a>00698             int64 tempi = pixel_mapping[0];
+<a name="l00699"></a>00699             pixel_mapping[0] = pixel_mapping[i];
+<a name="l00700"></a>00700             pixel_mapping[i] = tempi;
+<a name="l00701"></a>00701             T temp = map[0];
+<a name="l00702"></a>00702             map[0] = map[i];
+<a name="l00703"></a>00703             map[i] = temp;
+<a name="l00704"></a>00704             sift_down( pixel_mapping, map, 0, i-1 );
+<a name="l00705"></a>00705         }
+<a name="l00706"></a>00706 
+<a name="l00707"></a>00707         <span class="comment">// check the sort</span>
+<a name="l00708"></a>00708         <span class="keywordflow">for</span>( i=0; i&lt;n-1; ++i){
+<a name="l00709"></a>00709             <span class="keywordflow">if</span>( pixel_mapping[i+1] &lt;= pixel_mapping[i] ){
+<a name="l00710"></a>00710                 fprintf( stderr, <span class="stringliteral">&quot;pixel %d = %ld, %d+1 = %ld !\n&quot;</span>, i, pixel_mapping[i], i, pixel_mapping[i+1] );
+<a name="l00711"></a>00711                 <span class="keywordflow">throw</span>;
+<a name="l00712"></a>00712             }
+<a name="l00713"></a>00713         }
+<a name="l00714"></a>00714 
+<a name="l00715"></a>00715     }
+<a name="l00716"></a>00716     <span class="comment">/*</span>
+<a name="l00717"></a>00717 <span class="comment">        for( int64 gap=n/2; 0&lt;gap; gap/=2 )</span>
+<a name="l00718"></a>00718 <span class="comment">            for( int64 i=gap; i&lt;n; i++ )</span>
+<a name="l00719"></a>00719 <span class="comment">                for( int64 j=i-gap; 0&lt;=j; j-=gap )</span>
+<a name="l00720"></a>00720 <span class="comment">                    if( pixel_mapping[j+gap] &lt; pixel_mapping[j] ){</span>
+<a name="l00721"></a>00721 <span class="comment">                        int64 tempi = pixel_mapping[j];</span>
+<a name="l00722"></a>00722 <span class="comment">                        pixel_mapping[j] = pixel_mapping[j+gap];</span>
+<a name="l00723"></a>00723 <span class="comment">                        pixel_mapping[j+gap] = tempi;</span>
+<a name="l00724"></a>00724 <span class="comment">                        T temp = map[j];</span>
+<a name="l00725"></a>00725 <span class="comment">                        map[j] = map[j+gap];</span>
+<a name="l00726"></a>00726 <span class="comment">                        map[j+gap] = temp;</span>
+<a name="l00727"></a>00727 <span class="comment">                    }</span>
+<a name="l00728"></a>00728 <span class="comment">    }</span>
+<a name="l00729"></a>00729 <span class="comment">    */</span>
+<a name="l00730"></a>00730   };
+<a name="l00731"></a>00731 
+<a name="l00732"></a>00732 <span class="preprocessor">#endif</span>
 </pre></div></div>
 </div>
 <hr><address style="align: right;"><small>
-Generated on Tue Feb 26 2013 16:21:41 for Healpix C++
+Generated on Wed Feb 27 2013 13:44:31 for Healpix C++
 </a> </small></address>
 </body>
 </html>

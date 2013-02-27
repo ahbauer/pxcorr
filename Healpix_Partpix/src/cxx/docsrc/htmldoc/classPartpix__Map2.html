@@ -82,9 +82,9 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPartpix__Map2.html#ace24782f7a9524104877d1b157b877e5">Partpix_Map2</a> (int highResOrder, const <a class="el" href="classHealpix__Map.html">Healpix_Map</a>&lt; int &gt; &amp;resolutionMask)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int64&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPartpix__Map2.html#a60886abde6a8c46243fc228c87c51607">Npartpix</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPartpix__Map2.html#a41ee385fca6b62628b955214b603cbc1">fill</a> (const T &amp;val)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPartpix__Map2.html#aeb6329b3b1580e42cec640e8c580f328">Import_nograde</a> (const <a class="el" href="classPartpix__Map2.html">Partpix_Map2</a>&lt; T &gt; &amp;orig, const <a class="el" href="classHealpix__Map.html">Healpix_Map</a>&lt; T &gt; &amp;resolutionMask)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPartpix__Map2.html#a61e79e28684b2a309c93849646a9ca30">Import_nograde</a> (const <a class="el" href="classPartpix__Map2.html">Partpix_Map2</a>&lt; T &gt; &amp;orig, const <a class="el" href="classHealpix__Map.html">Healpix_Map</a>&lt; double &gt; &amp;resolutionMask)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPartpix__Map2.html#a7e7063938c60110d050a28f6996f1fe4">Import_upgrade</a> (const <a class="el" href="classPartpix__Map2.html">Partpix_Map2</a>&lt; T &gt; &amp;orig, const <a class="el" href="classHealpix__Map.html">Healpix_Map</a>&lt; T &gt; &amp;resolutionMask)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPartpix__Map2.html#a2e59cf303514e558236076407e6f0196">Import_degrade</a> (const <a class="el" href="classPartpix__Map2.html">Partpix_Map2</a>&lt; T &gt; &amp;orig, const <a class="el" href="classHealpix__Map.html">Healpix_Map</a>&lt; T &gt; &amp;resolutionMask, bool pessimistic=false, double cutoff=<a class="el" href="healpix__map_8h.html#ae2a4c592445abef24754fd3760207af8">Healpix_undef</a>)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPartpix__Map2.html#a8b9ac2d8d7863e3a0bca949d53340dc1">Import_degrade</a> (const <a class="el" href="classPartpix__Map2.html">Partpix_Map2</a>&lt; T &gt; &amp;orig, const <a class="el" href="classHealpix__Map.html">Healpix_Map</a>&lt; double &gt; &amp;resolutionMask, bool pessimistic=false, double cutoff=<a class="el" href="healpix__map_8h.html#ae2a4c592445abef24754fd3760207af8">Healpix_undef</a>)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">const T &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPartpix__Map2.html#ab623a4d5ae124e522183717243a970f7">operator[]</a> (int64 pix) const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">T &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPartpix__Map2.html#a854afde0634892e6e7d23edcd466ef16">operator[]</a> (int64 pix)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">T&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPartpix__Map2.html#ac8a61f005157b9b8169a539bc987a4ba">interpolation</a> (const <a class="elRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/classfix__arr.html">fix_arr</a>&lt; int, 4 &gt; &amp;pix, const <a class="elRef" doxygen="cxxsupport.tag:../cxxsupport/" href="../cxxsupport/classfix__arr.html">fix_arr</a>&lt; double, 4 &gt; &amp;wgt) const </td></tr>
@@ -239,7 +239,7 @@ template&lt;typename T&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="aeb6329b3b1580e42cec640e8c580f328"></a><!-- doxytag: member="Partpix_Map2::Import_nograde" ref="aeb6329b3b1580e42cec640e8c580f328" args="(const Partpix_Map2&lt; T &gt; &amp;orig, const Healpix_Map&lt; T &gt; &amp;resolutionMask)" -->
+<a class="anchor" id="a61e79e28684b2a309c93849646a9ca30"></a><!-- doxytag: member="Partpix_Map2::Import_nograde" ref="a61e79e28684b2a309c93849646a9ca30" args="(const Partpix_Map2&lt; T &gt; &amp;orig, const Healpix_Map&lt; double &gt; &amp;resolutionMask)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -254,7 +254,7 @@ template&lt;typename T&gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="classHealpix__Map.html">Healpix_Map</a>&lt; T &gt; &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classHealpix__Map.html">Healpix_Map</a>&lt; double &gt; &amp;&#160;</td>
           <td class="paramname"><em>resolutionMask</em>&#160;</td>
         </tr>
         <tr>
@@ -299,18 +299,18 @@ template&lt;typename T&gt; </div>
 <div class="memdoc">
 <p>Imports the map <em>orig</em> into the current map, adjusting the ordering scheme and the map resolution. <em>orig</em> must have higher resolution than the current map. </p>
 
-<p>Definition at line <a class="el" href="partpix__map2_8h_source.html#l00289">289</a> of file <a class="el" href="partpix__map2_8h_source.html">partpix_map2.h</a>.</p>
+<p>Definition at line <a class="el" href="partpix__map2_8h_source.html#l00316">316</a> of file <a class="el" href="partpix__map2_8h_source.html">partpix_map2.h</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a2e59cf303514e558236076407e6f0196"></a><!-- doxytag: member="Partpix_Map2::Import_degrade" ref="a2e59cf303514e558236076407e6f0196" args="(const Partpix_Map2&lt; T &gt; &amp;orig, const Healpix_Map&lt; T &gt; &amp;resolutionMask, bool pessimistic=false, double cutoff=Healpix_undef)" -->
+<a class="anchor" id="a8b9ac2d8d7863e3a0bca949d53340dc1"></a><!-- doxytag: member="Partpix_Map2::Import_degrade" ref="a8b9ac2d8d7863e3a0bca949d53340dc1" args="(const Partpix_Map2&lt; T &gt; &amp;orig, const Healpix_Map&lt; double &gt; &amp;resolutionMask, bool pessimistic=false, double cutoff=Healpix_undef)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;typename T &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">template void <a class="el" href="classPartpix__Map2.html">Partpix_Map2</a>&lt; T &gt;::Import_degrade </td>
+          <td class="memname">void <a class="el" href="classPartpix__Map2.html">Partpix_Map2</a>&lt; T &gt;::Import_degrade </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classPartpix__Map2.html">Partpix_Map2</a>&lt; T &gt; &amp;&#160;</td>
           <td class="paramname"><em>orig</em>, </td>
@@ -318,7 +318,7 @@ template&lt;typename T &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="classHealpix__Map.html">Healpix_Map</a>&lt; T &gt; &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classHealpix__Map.html">Healpix_Map</a>&lt; double &gt; &amp;&#160;</td>
           <td class="paramname"><em>resolutionMask</em>, </td>
         </tr>
         <tr>
@@ -344,7 +344,7 @@ template&lt;typename T &gt; </div>
 <p>Imports the partmap <em>orig</em> into the current map, adjusting the ordering scheme and the map resolution. <em>orig</em> must have higher resolution than the current map. <em>pessimistic</em> determines whether or not pixels are set to <em>Healpix_undef</em> when not all of the corresponding high-resolution pixels are defined.</p>
 <p>This method is instantiated for <em>float</em> and <em>double</em> only. </p>
 
-<p>Definition at line <a class="el" href="partpix__map2_8cc_source.html#l00037">37</a> of file <a class="el" href="partpix__map2_8cc_source.html">partpix_map2.cc</a>.</p>
+<p>Definition at line <a class="el" href="partpix__map2_8cc_source.html#l00094">94</a> of file <a class="el" href="partpix__map2_8cc_source.html">partpix_map2.cc</a>.</p>
 
 </div>
 </div>
@@ -368,7 +368,7 @@ template&lt;typename T&gt; </div>
 <p>This method is instantiated for <em>float</em> and <em>double</em> only.</p>
 <p>Returns a constant reference to the pixel with the number <em>pix</em>. </p>
 
-<p>Definition at line <a class="el" href="partpix__map2_8h_source.html#l00398">398</a> of file <a class="el" href="partpix__map2_8h_source.html">partpix_map2.h</a>.</p>
+<p>Definition at line <a class="el" href="partpix__map2_8h_source.html#l00426">426</a> of file <a class="el" href="partpix__map2_8h_source.html">partpix_map2.h</a>.</p>
 
 </div>
 </div>
@@ -390,7 +390,7 @@ template&lt;typename T&gt; </div>
 <div class="memdoc">
 <p>Returns a reference to the pixel with the number <em>pix</em>. </p>
 
-<p>Definition at line <a class="el" href="partpix__map2_8h_source.html#l00400">400</a> of file <a class="el" href="partpix__map2_8h_source.html">partpix_map2.h</a>.</p>
+<p>Definition at line <a class="el" href="partpix__map2_8h_source.html#l00428">428</a> of file <a class="el" href="partpix__map2_8h_source.html">partpix_map2.h</a>.</p>
 
 </div>
 </div>
@@ -423,7 +423,7 @@ template&lt;typename T&gt; </div>
 <p>Swaps the map ordering from RING to NEST and vice versa. This is done in-place (i.e. with negligible space overhead).</p>
 <p>performs the actual interpolation using <em>pix</em> and <em>wgt</em>. </p>
 
-<p>Definition at line <a class="el" href="partpix__map2_8h_source.html#l00454">454</a> of file <a class="el" href="partpix__map2_8h_source.html">partpix_map2.h</a>.</p>
+<p>Definition at line <a class="el" href="partpix__map2_8h_source.html#l00482">482</a> of file <a class="el" href="partpix__map2_8h_source.html">partpix_map2.h</a>.</p>
 
 </div>
 </div>
@@ -445,7 +445,7 @@ template&lt;typename T&gt; </div>
 <p>Returns the interpolated map value at <em>ptg</em> </p>
 <p>Returns a constant reference to the map data. </p>
 
-<p>Definition at line <a class="el" href="partpix__map2_8h_source.html#l00470">470</a> of file <a class="el" href="partpix__map2_8h_source.html">partpix_map2.h</a>.</p>
+<p>Definition at line <a class="el" href="partpix__map2_8h_source.html#l00498">498</a> of file <a class="el" href="partpix__map2_8h_source.html">partpix_map2.h</a>.</p>
 
 </div>
 </div>
@@ -478,7 +478,7 @@ template&lt;typename T &gt; </div>
 <p>Returns the minimum and maximum value of the map in <em>Min</em> and <em>Max</em>.</p>
 <p>This method is instantiated for <em>float</em> and <em>double</em> only. </p>
 
-<p>Definition at line <a class="el" href="partpix__map2_8cc_source.html#l00099">99</a> of file <a class="el" href="partpix__map2_8cc_source.html">partpix_map2.cc</a>.</p>
+<p>Definition at line <a class="el" href="partpix__map2_8cc_source.html#l00160">160</a> of file <a class="el" href="partpix__map2_8cc_source.html">partpix_map2.cc</a>.</p>
 
 </div>
 </div>
@@ -500,7 +500,7 @@ template&lt;typename T&gt; </div>
 <p>Swaps the contents of two <a class="el" href="classPartpix__Map.html">Partpix_Map</a> objects.</p>
 <p>Returns the average of all defined map pixels. </p>
 
-<p>Definition at line <a class="el" href="partpix__map2_8h_source.html#l00486">486</a> of file <a class="el" href="partpix__map2_8h_source.html">partpix_map2.h</a>.</p>
+<p>Definition at line <a class="el" href="partpix__map2_8h_source.html#l00514">514</a> of file <a class="el" href="partpix__map2_8h_source.html">partpix_map2.h</a>.</p>
 
 </div>
 </div>
@@ -522,7 +522,7 @@ template&lt;typename T&gt; </div>
 <div class="memdoc">
 <p>Adds <em>val</em> to all defined map pixels. </p>
 
-<p>Definition at line <a class="el" href="partpix__map2_8h_source.html#l00497">497</a> of file <a class="el" href="partpix__map2_8h_source.html">partpix_map2.h</a>.</p>
+<p>Definition at line <a class="el" href="partpix__map2_8h_source.html#l00525">525</a> of file <a class="el" href="partpix__map2_8h_source.html">partpix_map2.h</a>.</p>
 
 </div>
 </div>
@@ -544,7 +544,7 @@ template&lt;typename T&gt; </div>
 <div class="memdoc">
 <p>Multiplies all defined map pixels by <em>val</em>. </p>
 
-<p>Definition at line <a class="el" href="partpix__map2_8h_source.html#l00505">505</a> of file <a class="el" href="partpix__map2_8h_source.html">partpix_map2.h</a>.</p>
+<p>Definition at line <a class="el" href="partpix__map2_8h_source.html#l00533">533</a> of file <a class="el" href="partpix__map2_8h_source.html">partpix_map2.h</a>.</p>
 
 </div>
 </div>
@@ -565,7 +565,7 @@ template&lt;typename T&gt; </div>
 <div class="memdoc">
 <p>Returns the root mean square of the map, not counting undefined pixels. </p>
 
-<p>Definition at line <a class="el" href="partpix__map2_8h_source.html#l00514">514</a> of file <a class="el" href="partpix__map2_8h_source.html">partpix_map2.h</a>.</p>
+<p>Definition at line <a class="el" href="partpix__map2_8h_source.html#l00542">542</a> of file <a class="el" href="partpix__map2_8h_source.html">partpix_map2.h</a>.</p>
 
 </div>
 </div>
@@ -586,7 +586,7 @@ template&lt;typename T&gt; </div>
 <div class="memdoc">
 <p>Returns the maximum absolute value in the map, ignoring undefined pixels. </p>
 
-<p>Definition at line <a class="el" href="partpix__map2_8h_source.html#l00527">527</a> of file <a class="el" href="partpix__map2_8h_source.html">partpix_map2.h</a>.</p>
+<p>Definition at line <a class="el" href="partpix__map2_8h_source.html#l00555">555</a> of file <a class="el" href="partpix__map2_8h_source.html">partpix_map2.h</a>.</p>
 
 </div>
 </div>
@@ -633,7 +633,7 @@ template&lt;typename T&gt; </div>
 </dl>
 <dl class="note"><dt><b>Note:</b></dt><dd>This method is more efficient in the RING scheme. </dd></dl>
 
-<p>Definition at line <a class="el" href="partpix__map2_8h_source.html#l00546">546</a> of file <a class="el" href="partpix__map2_8h_source.html">partpix_map2.h</a>.</p>
+<p>Definition at line <a class="el" href="partpix__map2_8h_source.html#l00574">574</a> of file <a class="el" href="partpix__map2_8h_source.html">partpix_map2.h</a>.</p>
 
 </div>
 </div>
@@ -641,12 +641,11 @@ template&lt;typename T&gt; </div>
 <li><a class="el" href="partpix__map2_8h_source.html">partpix_map2.h</a></li>
 <li><a class="el" href="healpix__base_8cc_source.html">healpix_base.cc</a></li>
 <li><a class="el" href="healpix__map_8cc_source.html">healpix_map.cc</a></li>
-<li><a class="el" href="partpix__map_8cc_source.html">partpix_map.cc</a></li>
 <li><a class="el" href="partpix__map2_8cc_source.html">partpix_map2.cc</a></li>
 </ul>
 </div>
 <hr><address style="align: right;"><small>
-Generated on Tue Feb 26 2013 16:21:41 for Healpix C++
+Generated on Wed Feb 27 2013 13:44:31 for Healpix C++
 </a> </small></address>
 </body>
 </html>
