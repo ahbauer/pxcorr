@@ -34,6 +34,12 @@ using namespace H5;
 
 int main (int argc, char **argv){
     
+    if( argc != 3 ){
+        cerr << "Usage: correlate map1 map2" << endl;
+        cerr << "       where the maps are hdf5 files produced by make_maps, that each have a map and a mask." << endl;
+        return 1;
+    }
+    
     cout << setiosflags(ios::fixed);
     
     int min_footprint_order = 1;

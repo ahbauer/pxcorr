@@ -571,6 +571,13 @@ int make_maps( string catalog_filename, string mask_filename, vector<float> ang_
 
 int main (int argc, char **argv){
 
+    if( argc < 5 ){
+        cerr << "Usage: make_maps metadata catalog mask counts mags" << endl;
+        cerr << "       for making maps for both counts or mags, or you can just specify one." << endl;
+        cerr << "Example input is given in the pxcorr/example_input directory." << endl;
+        return 1;
+    }
+
     string metadatafilename(argv[1]);
     string catalog_filename(argv[2]);
     string mask_filename(argv[3]);
