@@ -536,7 +536,6 @@ int main (int argc, char **argv){
 
     // for distance
     // # pragma omp parallel for schedule(dynamic, 1)
-    ofstream corr_file("correlation");
     for( int rbin=0; rbin<(int)r_lows.size(); ++rbin ){
 
     float r_low = r_lows[rbin];
@@ -619,10 +618,10 @@ int main (int argc, char **argv){
         double mult3 = lowzMap[i]*highzMap[listpix_annulus[j]];
         double multw = 1.0;
 
-    #if USE_WEIGHTS
+#if USE_WEIGHTS
         mult3 *= lowzWeightMap[i]*highzWeightMap[listpix_annulus[j]];
         multw *= lowzWeightMap[i]*highzWeightMap[listpix_annulus[j]];
-    #endif
+#endif
         for( unsigned int k=0; k<jkpixels.size()+1; ++k ){
             if( ((int) k == jkpix_index_j) || ((int) k == jkpix_index_i) )
                 continue;
@@ -689,10 +688,26 @@ int main (int argc, char **argv){
       jk_variance[r] = 0.;
     }
 
-    corr_file << distances[rbin] << " " << correlations[rbin] << " " << jk_means[r] << " " << sqrt(jk_variance[r]) << endl;
     cerr << distances[rbin] << " " << correlations[rbin] << " " << jk_means[r] << " " << sqrt(jk_variance[r]) << endl;
 
     } // for annulus radius
+
+    stringstream corr_line;
+    stringstream jk_line;
+    stringstream err_line;
+    corr_line << "[" << correlations[0];
+    jk_line << "[" << jk_means[0];
+    err_line << "[" << sqrt(jk_variance[0]);
+    for( unsigned int i=1; i<correlations.size(); ++i ){
+        corr_line << ", " << correlations[i];
+        jk_line << ", " << jk_means[i];
+        err_line << ", " << sqrt(jk_variance[i]);
+    }
+    corr_line << "]";
+    jk_line << "]";
+    err_line << "]";
+    ofstream corr_file("correlation");
+    corr_file << "[" << corr_line.str() << ", " << jk_line.str() << ", " << err_line.str() << "]" << endl;
     corr_file.close();
 
     // calculate the covariance matrix
@@ -715,10 +730,18 @@ int main (int argc, char **argv){
     }
 
     ofstream cov_file("covariance");
-    for( unsigned int k=0; k<r_lows.size(); ++k )
-      for( unsigned int l=0; l<r_lows.size(); ++l ){
-          cov_file << k << " " << l << " " << c[k][l] << endl;
-      }
+    cov_file << "[";
+    for( unsigned int k=0; k<r_lows.size(); ++k ){
+        if( k == 0 )
+            cov_file << "[" << c[k][0];
+        else
+            cov_file << ", [" << c[k][0];
+        for( unsigned int l=1; l<r_lows.size(); ++l ){
+            cov_file << ", " << c[k][l];
+        }
+        cov_file << "]";
+    }
+    cov_file << "]" << endl;
     cov_file.close();
 
     

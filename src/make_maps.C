@@ -120,7 +120,7 @@ int make_maps( string catalog_filename, string mask_filename, vector<float> ang_
     int mask_order;
     vector<int> mask_pixels;
     Healpix_Base2 mask_base;
-    if( mask_filename == "none" || mask_filename == "NONE" || mask_filename == "null" || mask_filename == "NULL" ){
+    if( mask_filename == "None" || mask_filename == "none" || mask_filename == "NONE" || mask_filename == "null" || mask_filename == "NULL" ){
         cerr << "Making a dummy mask file from the data itself.  This is not the best idea." << endl;
         mask_order = order-1;
         mask_base = Healpix_Base2(mask_order, RING);
@@ -306,7 +306,7 @@ int make_maps( string catalog_filename, string mask_filename, vector<float> ang_
     {
     if( use_counts ){
         // write out the maps (hdf5)
-        string outfilename = "dc_maps.h5";
+        string outfilename = "dc_map.h5";
         H5File *file = new H5File( outfilename, H5F_ACC_TRUNC ); // clobber!
         Group* group = new Group( file->createGroup( "/data" ));
         PredType datatype( PredType::NATIVE_DOUBLE );
@@ -439,7 +439,7 @@ int make_maps( string catalog_filename, string mask_filename, vector<float> ang_
     // mags:
     if( use_mags ){
         // write out the maps (hdf5)
-        string outfilename = "dm_maps.h5";
+        string outfilename = "dm_map.h5";
         H5File *file = new H5File( outfilename, H5F_ACC_TRUNC ); // clobber!
         Group* group = new Group( file->createGroup( "/data" ));
         PredType datatype( PredType::NATIVE_DOUBLE );
