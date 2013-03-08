@@ -253,6 +253,11 @@ int make_maps( string catalog_filename, string mask_filename, vector<float> ang_
         dmMap.fill(0.);
     }
     for( unsigned int p=0; p<pointings.size(); ++p ){
+        // check if objects are outside the footprint map
+        // might happen if objects are outside the mask.
+        int fppix = footprintMap.ang2pix(pointings[p]);
+        if( footprintMap[fppix] < 0.5 )
+            continue;
         int64 pixnum = dcMap.ang2pix( pointings[p] );
         dcMap[pixnum] += 1.0;
         if( use_mags ){
