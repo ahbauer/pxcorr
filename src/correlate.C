@@ -95,6 +95,7 @@ int main (int argc, char **argv){
     DataSet dataset2 = group.openDataSet(dataset2_name);
     hsize_t ds2size = dataset2.getStorageSize();
     int npix2 = ds2size/2/sizeof(double);
+    cerr << "mask 1 has " << npix2-1 << " pixels" << endl;
     double *data2 = (double*) malloc( ds2size );
     dataset2.read(data2, PredType::NATIVE_DOUBLE);
     int mask1_order = data2[0];
@@ -106,11 +107,11 @@ int main (int argc, char **argv){
     cerr << "mask 1 info " << mask1_order << " " << mask1_ordering << endl;
     vector<int64> mask1_pixels;
     for( int i=1; i<npix2; ++i ){
-        for( int j=0; j<2; ++j ){
+      //for( int j=0; j<2; ++j ){
             if( data2[2*i+1] > 0.5 ){
                 mask1_pixels.push_back(data2[2*i]);
             }
-        }
+	    //}
     }
     free(data2);
     Healpix_Base2 mask1_base( mask1_order, RING );
@@ -217,7 +218,7 @@ int main (int argc, char **argv){
     }
     dataset1 = group.openDataSet(dataset1_name);
     ds1size = dataset1.getStorageSize();
-    int npix3 = ds1size/2/sizeof(double);
+    int npix3 = ds1size/2/sizeof(double) ;
     double *data3 = (double*) malloc( ds1size );
     dataset1.read(data3, PredType::NATIVE_DOUBLE);
     int map2_order = data3[0];
@@ -230,8 +231,9 @@ int main (int argc, char **argv){
         return 1;
     }
     dataset2 = group.openDataSet(dataset2_name);
-    ds2size = dataset2.getStorageSize();
+    ds2size = dataset2.getStorageSize() - 1;
     int npix4 = ds2size/2/sizeof(double);
+    cerr << "mask 2 has " << npix4 << " pixels" << endl;
     double *data4 = (double*) malloc( ds2size );
     dataset2.read(data4, PredType::NATIVE_DOUBLE);
     int mask2_order = data4[0];
@@ -243,11 +245,11 @@ int main (int argc, char **argv){
     cerr << "mask 2 info " << mask2_order << " " << mask2_ordering << endl;
     vector<int64> mask2_pixels;
     for( int i=1; i<npix4; ++i ){
-        for( int j=0; j<2; ++j ){
-            if( data2[2*i+1] > 0.5 ){
+      //for( int j=0; j<2; ++j ){
+            if( data4[2*i+1] > 0.5 ){
                 mask2_pixels.push_back(data4[2*i]);
             }
-        }
+	    //}
     }
     free(data4);
     Healpix_Base2 mask2_base( mask2_order, RING );
@@ -320,6 +322,16 @@ int main (int argc, char **argv){
       }
       lowzMask[mask1_pixels[i]] = 1;
     }
+
+    /*
+    system( "rm lowzMask.fits" );
+    fitshandle myfits;
+    myfits.create("lowzMask.fits");
+    Healpix_Map<int> lowzHMask = lowzMask.to_Healpix();
+    write_Healpix_map_to_fits(myfits, lowzHMask, PLANCK_INT32);
+    myfits.close();
+    */
+
     mask1_pixels.clear();
     // make full-resolution versions of the masks so we don't keep having to check for mask indices
     Partpix_Map2<int> lowzMatchedMask = Partpix_Map2<int>(order, footprintMap);
@@ -335,6 +347,7 @@ int main (int argc, char **argv){
     lowzMask.clear();
 
     cerr << "Finished making low z Partpix matched mask" << endl;
+    cerr << "Imported from resolution " << mask1_order << " to " << order << endl;
 
     Partpix_Map2<int> highzMask(mask2_order, footprintMap);
     highzMask.fill(0);
@@ -356,10 +369,27 @@ int main (int argc, char **argv){
     else{
         highzMatchedMask.Import_degrade( highzMask, footprintMap );
     }
+
+
+    system( "rm highzMask.fits" );
+    fitshandle myfits;
+    myfits.create("highzMask.fits");
+    Healpix_Map<int> highzHMask(highzMask.Order(), RING);
+    highzHMask.fill(0);
+    for( int i1=0; i1<highzMask.Npartpix(); ++i1 ){
+      int i = highzMask.highResPix(i1);
+      if( highzMask[i] == 1 ){
+	highzHMask[i] = 1;
+      }
+    }
+    write_Healpix_map_to_fits(myfits, highzHMask, PLANCK_INT32);
+    myfits.close();
+
+
     highzMask.clear();
 
     cerr << "Finished making high z Partpix matched mask" << endl;
-
+    cerr << "Imported from resolution " << mask2_order << " to " << order << endl;
 
     // make the correlation maps (partpix)
     Partpix_Map2<double> lowzMap(order, footprintMap);
@@ -377,14 +407,14 @@ int main (int argc, char **argv){
 #endif
 
     for( int i=1; i<npix1; ++i ){
-        for( int j=0; j<2; ++j ){
+      //for( int j=0; j<2; ++j ){
             lowzMap[data1[2*i]] = data1[2*i+1];
-        }
+	    //}
     }
     for( int i=1; i<npix3; ++i ){
-        for( int j=0; j<2; ++j ){
+      //for( int j=0; j<2; ++j ){
             highzMap[data3[2*i]] = data3[2*i+1];
-        }
+	    //}
     }
     cerr << "Read in the data maps" << endl;
 
@@ -513,7 +543,7 @@ int main (int argc, char **argv){
     float area_mask = 41252.962*n_mask/lowzMatchedMask.Npix();
     float area_jk = 41252.962*jkpixels.size()/jackknifeMap.Npix();
     float area_fraction = area_mask/area_jk;
-    cerr << "Combined mask (" << 3282.8*area_mask << " sq deg) over jackknife (" << 3282.8*area_jk << " sq deg) area = " << area_fraction << endl;
+    cerr << "Combined mask (" << /*3282.8**/area_mask << " sq deg) over jackknife (" << /*3282.8**/area_jk << " sq deg) area = " << area_fraction << endl;
 
 
 
