@@ -19,11 +19,14 @@ toadd = [\
 (2,2,'results22'),
 (2,3,'results23'),
 (3,3,'results33')]
+
+nbins = 4
+nangles = 18
+
+# no longer need:
 metafiles = ['metadata_faint2.txt', 'metadata_faint6.txt', 'metadata_faint10.txt', 'metadata_faint14.txt']
 z_mean = [0.24, 0.45, 0.70, 1.0]
 z_width = [0.1, 0.15, 0.2, 0.22]
-nbins = 4
-nangles = 18
 
 
 def define_meta(f):
