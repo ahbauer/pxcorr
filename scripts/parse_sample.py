@@ -253,7 +253,7 @@ def parse_data( filename, mag_cuts, f ):
         if tot > 0:
             noise_array[z] = 1.0/tot
 
-    noise = f.createArray('/noise', 'noise1', noise_array)
+    noise = f.createArray('/noise', 'noise1', np.diag(noise_array))
     noise.setAttr('ftype0', json.dumps('counts'))
     noise.setAttr('pop0', json.dumps(pop))
     noise.setAttr('ftype1', json.dumps('counts'))
