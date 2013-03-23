@@ -236,6 +236,7 @@ def parse_data( filename, mag_cuts, f ):
     # photoz_data[1:] = z_spec
     # phzcatalog = f.createArray('/photoz/catalog', pop, photoz_data)
     photoz_table = f.createTable("/photoz/catalog", pop, photoz_entry)
+    photoz_table.setAttr('pop', json.dumps(pop))
     row = photoz_table.row
     for i in range(len(z_phot)):
         # First, assign the values to the Particle record
@@ -251,17 +252,18 @@ def parse_data( filename, mag_cuts, f ):
         tot = data[z].sum()
         if tot > 0:
             noise_array[z] = 1.0/tot
+
     noise = f.createArray('/noise', 'noise1', noise_array)
-    noise.setAttr('ftype0', 'counts')
-    noise.setAttr('pop0', pop)
-    noise.setAttr('ftype1', 'counts')
-    noise.setAttr('pop1', pop)
+    noise.setAttr('ftype0', json.dumps('counts'))
+    noise.setAttr('pop0', json.dumps(pop))
+    noise.setAttr('ftype1', json.dumps('counts'))
+    noise.setAttr('pop1', json.dumps(pop))
 
     # slopes: an array of one slope per redshift bin
     f.createGroup('/', 'slopes')
     slopes = f.createArray('/slopes', 'slope1', slope_array)
-    slopes.setAttr('ftype', 'counts')
-    slopes.setAttr('pop', pop)
+    slopes.setAttr('ftype', json.dumps('counts'))
+    slopes.setAttr('pop', json.dumps(pop))
     # f.close()
     
     return outcat_filenames
