@@ -7,12 +7,18 @@ import math
 import numpy
 import tables
 import json
+from scipy.stats import gaussian_kde
 
 class photoz_entry(tables.IsDescription):
     z_s = tables.Float32Col(dflt=0.0, pos=0) 
     z_p = tables.Float32Col(dflt=0.0, pos=1)
 
-    
+class slopes_entry(tables.IsDescription):
+    z = tables.Float32Col(dflt=0.0, pos=0) 
+    counts = tables.Float32Col(dflt=0.0, pos=1)
+    mag = tables.Float32Col(dflt=0.0, pos=1)
+    size = tables.Float32Col(dflt=0.0, pos=1)
+
 def parse_data( filename, mag_cuts, f ):
 
     # read the needed metadata
@@ -37,21 +43,16 @@ def parse_data( filename, mag_cuts, f ):
     z_phot = []
     z_spec = []
 
+    # what kind of binning do we want for the slopes?
+    mag_nzs = 100
+    mag_maxz = 2.0
+
     # make a matrix with sides z_phot and mag.
-    # the slope of the number counts will be determined from the counts vs mag, 
-    # but we also would like to keep vs z for diagnostics.
+    # the noise will be determined from the counts vs z 
     nbins_z = len(z_means)
     min_z = 0.0
     max_z = z_means[nbins_z-1] + z_widths[nbins_z-1]
-    nbins_m = 100 # must be even
-    binwidth_m = 0.1
-    min_m = 20.05
-    max_m = min_m + nbins_m*binwidth_m
-    for mag_cut in mag_cuts:
-        if( mag_cut < min_m+binwidth_m or mag_cut > max_m-binwidth_m ):
-            print "Error, mag cut of %f is not within the expected range of %f to %f (with buffer %f)" %(mag_cut, min_m, max_m, binwidth_m)
-            return;
-    data = numpy.zeros((nbins_z,nbins_m))
+    data = numpy.zeros(nbins_z)
 
     # open the output files
     # these at some point will turn into FIFOs...?
@@ -63,9 +64,15 @@ def parse_data( filename, mag_cuts, f ):
         f1=open(outfilename, 'w')
         filehandles.append(f1)
 
+    mags = []
+    if( mag_maxz < max_z ):
+        mag_maxz = max_z
+    for z in range(mag_nzs):
+        mags.append([])
+    
     # read the input catalog!
     # this SHOULD be an sql query to the DB...
-    # but, for now it is just an input file.
+    # but, for now it is just an input file.    catalog = open(filename, "r")
     catalog = open(filename, "r")
     for line in catalog:
         splitted_line = line.split()
@@ -82,10 +89,16 @@ def parse_data( filename, mag_cuts, f ):
         
         mag = float(splitted_line[4])
         
-        if( photz < min_z or photz > max_z or mag < min_m or mag > max_m ):
+        # keep the info for the slopes even if outside the bin ranges
+        zbin_for_mag = int(math.floor(photz/(mag_maxz/mag_nzs)))
+        if( zbin_for_mag > mag_nzs ):
+            continue
+        mags[zbin_for_mag].append(mag)
+        
+        # only keep objs within the z binning range
+        if( photz < min_z or photz > max_z ):
             continue
         
-        bin_m = math.floor((mag-min_m)/binwidth_m)
         bin_z = -1
         for zbin in range(nbins_z):
             if( photz >= z_means[zbin]-z_widths[zbin] and photz < z_means[zbin]+z_widths[zbin] ):
@@ -93,134 +106,55 @@ def parse_data( filename, mag_cuts, f ):
                 break
         if bin_z < 0:
             continue
-        data[bin_z][bin_m] += 1
+        data[bin_z] += 1
     
+        # if brighter than the mag cut, we want to correlate these!
         if( mag < mag_cuts[bin_z] ):
             # print to output "stream"
             outstring = "%f %f %f\n" %(ra, dec, mag)
             filehandles[zbin].write(outstring)
+
     
     # print >> sys.stderr, "read in catalog.  %d spectroscopic zs." %(len(z_spec))
     for zbin in range(nbins_z):
         filehandles[zbin].close()
 
     # loop over z bins to calculate one slope per each
-    slope_array = numpy.zeros(nbins_z)
-    slope_error_array = numpy.zeros(nbins_z)
-    for zbin in range(nbins_z):
-        
-        data_array0 = data[zbin].copy()
-        if( data_array0.sum() == 0 ):
-            print >> sys.stderr, "skipping redshift bin %d (%f)" %(zbin, z_means[zbin])
+    slope_array = numpy.zeros(mag_nzs)
+    for zbin in range(mag_nzs):
+
+        # don't bother trying if there are very few objs
+        if( len(mags[zbin]) < 100 ):
+            slope_array[zbin] = 0.
             continue
 
-        # cheating, to avoid stupid log10(0) errors.
-        for i in range(len(data_array0)):
-            if data_array0[i] == 0:
-                data_array0[i] = 1            
-        data_array = numpy.log10(data_array0)
+        magz = (zbin+0.5)*mag_maxz/mag_nzs
+        if magz >= max_z:
+            zbin2 = nbins_z-1
+        else:
+            zbin2 = -1
+            for z in range(nbins_z):
+                if( magz >= z_means[z]-z_widths[z] and magz < z_means[z]+z_widths[z] ):
+                    zbin2 = z
+                    break
+            if zbin2 < 0:
+                zbin2 = 0
+        mag_cut = mag_cuts[zbin2]
 
-        # what is the bin (fractional) index over which we want the slope?
-        bin_mag_cut_float = (mag_cuts[zbin]-min_m)/binwidth_m
-        bin_mag_cut = math.floor(bin_mag_cut_float + 0.0001)
-        # print >> sys.stderr, "bin of the mag cut = %f -> %d" %(bin_mag_cut_float, bin_mag_cut)
-
-        # check to see that our bins are big enough to yield decent statistics
-        while data_array[bin_mag_cut] < 2.5:
-            # print >> sys.stderr, "the statistics in our desired bin are too small (N = %d)... rebinning." %data_array0[bin_mag_cut]
-            binwidth_m *= 2.0;
-            nbins_m = math.ceil(nbins_m/2);
-            max_m = min_m + nbins_m*binwidth_m
-            data_array0a = numpy.zeros(nbins_m)
-            for i in range(len(data_array0a)):
-                data_array0a[i] = data_array0[2*i] + data_array0[2*i+1]
-            data_array0 = data_array0a
-            data_array = numpy.log10(data_array0)
-            bin_mag_cut_float = (mag_cuts[zbin]-min_m)/binwidth_m
-            bin_mag_cut = math.floor(bin_mag_cut_float + 0.0001)
-            # print >> sys.stderr, "bin of the mag cut = %f -> %d" %(bin_mag_cut_float, bin_mag_cut)
-    
-        # what is the slope between that bin and the one above?
-        slope_oneup = (data_array[bin_mag_cut+1] - data_array[bin_mag_cut])/binwidth_m
-        slope_onedown = (data_array[bin_mag_cut] - data_array[bin_mag_cut-1])/binwidth_m
-        slope_twodown = (data_array[bin_mag_cut] - data_array[bin_mag_cut-2])/(2*binwidth_m)
-
-        print >> sys.stderr, "slopes %f %f %f, n=%d" %(slope_oneup, slope_onedown, slope_twodown, 10.0**data_array[bin_mag_cut])
-
-        # fit the data with a polynomial to try to get a less noisy slope
-        # include one point after the cut
-        # only include points with log(N)>=2
-        # this parameterization seems poor.  maybe we can improve this.
-        y_array = []
-        x_array = []
-        for i in range(len(data_array)):
-            if( data_array[i] < 2.0 ):
-                continue
-            if( i > bin_mag_cut+1.5 ):
-                continue
-            # to decrease the effects of the parameterizations, don't fit too many points on the brighter side.
-            if( i < bin_mag_cut - 1.0/binwidth_m ):
-                continue
-            x_array.append(i)
-            y_array.append(data_array[i])
-        fit_terms = numpy.polyfit(x_array, y_array, 3)
-        fit_slope = (fit_terms[0]*3.0*bin_mag_cut_float*bin_mag_cut_float + fit_terms[1]*2.0*bin_mag_cut_float + fit_terms[2])/binwidth_m
-    
-        # smooth the curve?
-        data_array_smooth = numpy.ones(len(data_array))
-        data_array_smooth_lin = numpy.ones(len(data_array))
-        data_array1 = data_array0.copy()
-        old_slope_oneup_smooth = 99999.0;
-        slope_oneup_smooth = 0.;
-        slope_onedown_smooth = 0.;
-        slope_twodown_smooth = 0.;
-    
-        # first, cut out any last bin that only holds a small number of objects.
-        for i in reversed(range(len(data_array1))):
-            if( data_array1[i] < 0.67*data_array1[i-1] ):
-                data_array1[i] = 1;
-                # print >> sys.stderr, "cutting out bin %d, mag %f" %(i, i*binwidth_m + min_m)
-    
-        while( abs(old_slope_oneup_smooth-slope_oneup_smooth) > 0.1*abs(old_slope_oneup_smooth) ):
-            old_slope_oneup_smooth = slope_oneup_smooth
-            for i in range( 1,len(data_array_smooth)-1,1 ):
-                if( data_array1[i-1] > 1.5 and data_array1[i] > 1.5 and data_array1[i+1] > 1.5 ):
-                    data_array_smooth_lin[i] = (0.5*data_array1[i] + 0.25*data_array1[i-1] + 0.25*data_array1[i+1])
-
-            # print "DATA_SMOOTH:"
-            # print data_array_smooth_lin
-
-            data_array_smooth = numpy.log10(data_array_smooth_lin)
-            slope_oneup_smooth = (data_array_smooth[bin_mag_cut+1] - data_array_smooth[bin_mag_cut])/binwidth_m
-            slope_onedown_smooth = (data_array_smooth[bin_mag_cut] - data_array_smooth[bin_mag_cut-1])/binwidth_m
-            slope_twodown_smooth = (data_array_smooth[bin_mag_cut] - data_array_smooth[bin_mag_cut-2])/(2*binwidth_m)
-            print >> sys.stderr, "slopes smooth %f %f %f" %(slope_oneup_smooth, slope_onedown_smooth, slope_twodown_smooth)
-            data_array1 = data_array_smooth_lin.copy()
-            data_array_smooth_lin = numpy.ones(len(data_array1))
-    
-        # rebin this a bit wider and redo the slopes
-        # this is no better than smoothing?
-        # bin_mag_cut_float = (mag_cut-min_m)/(2*binwidth_m)
-        # bin_mag_cut = math.floor(bin_mag_cut_float + 0.0001)
-        # #print >> sys.stderr, "bin of the mag cut2 = %f -> %d" %(bin_mag_cut_float, bin_mag_cut)
-        # data_array2 = numpy.zeros(len(data_array0)/2)
-        # for i in range(len(data_array2)):
-        #     data_array2[i] = numpy.log10(data_array1[2*i] + data_array1[2*i+1])
-        # slope2_oneup = (data_array2[bin_mag_cut+1] - data_array2[bin_mag_cut])/(2*binwidth_m)
-        # slope2_onedown = (data_array2[bin_mag_cut] - data_array2[bin_mag_cut-1])/(2*binwidth_m)
-        # slope2_twodown = (data_array2[bin_mag_cut] - data_array2[bin_mag_cut-2])/(4*binwidth_m)
-    
-        #print >> sys.stderr, "slopes2 %f %f %f" %(slope2_oneup, slope2_onedown, slope2_twodown)
-
-        print >> sys.stderr, "fit slope %f" %fit_slope
-        # for i in range(len(data_array)):
-        #     print "%d %f %f" %(i, data_array[i], fit_terms[0]*i*i*i + fit_terms[1]*i*i + fit_terms[2]*i + fit_terms[3])
-
+        # kde!
+        # NOTE: i'm setting alpha=0 for bins with no data!
+        kde = gaussian_kde(mags[zbin])
+        y_kde1 = kde.evaluate(mag_cut)
+        y_kde2 = kde.evaluate(mag_cut+0.01)
+        if( y_kde1 == 0 or y_kde2 == 0 ):
+            slope_kde = 0.4
+        else:
+            slope_kde = (numpy.log10(y_kde2)-numpy.log10(y_kde1))/0.01
+        # print >> sys.stderr, "kde slope %f" %slope_kde
 
         # for the actual result, let's use the fit slope, and use the other two to estimate an error.
-        slope_array[zbin] = 2.5*fit_slope - 1
-        slope_error_array[zbin] = 2.5*math.sqrt(( (fit_slope-slope_oneup)*(fit_slope-slope_oneup) + (fit_slope-slope_oneup_smooth)*(fit_slope-slope_oneup_smooth) )/2.0)
-        print >> sys.stderr, "z bin %d best alpha = %f +/- %f" %(zbin, slope_array[zbin], slope_error_array[zbin])
+        slope_array[zbin] = 2.5*slope_kde - 1
+        print >> sys.stderr, "z bin %d at %f s = %f alpha = %f" %(zbin, (zbin+0.5)*mag_maxz/mag_nzs, slope_kde, slope_array[zbin])
     
     
     
@@ -231,10 +165,6 @@ def parse_data( filename, mag_cuts, f ):
     # photoz: a table
     f.createGroup('/', 'photoz')
     f.createGroup('/photoz', 'catalog')
-    # photoz_data = numpy.zeros((2,len(z_phot)))
-    # photoz_data[0:] = z_phot
-    # photoz_data[1:] = z_spec
-    # phzcatalog = f.createArray('/photoz/catalog', pop, photoz_data)
     photoz_table = f.createTable("/photoz/catalog", pop, photoz_entry)
     photoz_table.setAttr('pop', json.dumps(pop))
     row = photoz_table.row
@@ -249,25 +179,32 @@ def parse_data( filename, mag_cuts, f ):
     f.createGroup('/', 'noise')
     noise_array = numpy.zeros(nbins_z)
     for z in range(nbins_z):
-        tot = data[z].sum()
-        if tot > 0:
-            noise_array[z] = 1.0/tot
+        if data[z] > 0:
+            noise_array[z] = 1.0/data[z]
 
-    noise = f.createArray('/noise', 'noise1', np.diag(noise_array))
+    noise = f.createArray('/noise', 'noise1', numpy.diag(noise_array))
     noise.setAttr('ftype0', json.dumps('counts'))
     noise.setAttr('pop0', json.dumps(pop))
     noise.setAttr('ftype1', json.dumps('counts'))
     noise.setAttr('pop1', json.dumps(pop))
 
-    # slopes: an array of one slope per redshift bin
+    # slopes: a table, for lots of redshift values.
     f.createGroup('/', 'slopes')
-    slopes = f.createArray('/slopes', 'slope1', slope_array)
-    slopes.setAttr('ftype', json.dumps('counts'))
-    slopes.setAttr('pop', json.dumps(pop))
-    # f.close()
+    slopes_table = f.createTable('/slopes', 'slope1', slopes_entry)
+    slopes_table.setAttr('ftype', json.dumps('counts'))
+    slopes_table.setAttr('pop', json.dumps(pop))
+    row = slopes_table.row
+    for i in range(mag_nzs):
+        row['z'] = (i+0.5)*mag_maxz/mag_nzs
+        row['counts'] = slope_array[i]
+        row['mag'] = 0. # TODO!
+        row['size'] = 0. # TODO?
+        row.append()
+    slopes_table.flush()
     
     return outcat_filenames
     
+
 
 def main():
 
@@ -286,7 +223,7 @@ def main():
     metadata_filename = sys.argv[3]
 
     parse_data( filename, mag_cut, metadata_filename )
-    
+
 
 if __name__ == '__main__':
     main()
