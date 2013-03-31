@@ -10,16 +10,17 @@ import json
 from scipy.stats import gaussian_kde
 
 class photoz_entry(tables.IsDescription):
-    z_s = tables.Float32Col(dflt=0.0, pos=0) 
-    z_p = tables.Float32Col(dflt=0.0, pos=1)
+    z_s = tables.Float64Col(dflt=0.0, pos=0) 
+    z_p = tables.Float64Col(dflt=0.0, pos=1)
 
 class slopes_entry(tables.IsDescription):
-    z = tables.Float32Col(dflt=0.0, pos=0) 
-    counts = tables.Float32Col(dflt=0.0, pos=1)
-    mag = tables.Float32Col(dflt=0.0, pos=1)
-    size = tables.Float32Col(dflt=0.0, pos=1)
+    z = tables.Float64Col(dflt=0.0, pos=0) 
+    counts = tables.Float64Col(dflt=0.0, pos=1)
+    mag = tables.Float64Col(dflt=0.0, pos=1)
+    size = tables.Float64Col(dflt=0.0, pos=1)
 
-def parse_data( filename, mag_cuts, f ):
+
+def parse_data( filename, mag_cuts, f, sparse=True ):
 
     # read the needed metadata
     meta = f.getNode('/meta', 'meta')
@@ -162,6 +163,11 @@ def parse_data( filename, mag_cuts, f ):
     # N(z) and slopes in an hdf5 file.
     # f = tables.openFile('sample_info.hdf5', 'w')
 
+    if sparse==True:
+        inds = np.random.randint(0, len(z_phot), 20000)
+        z_phot = z_phot[inds]
+        z_spec = z_spec[inds]
+
     # photoz: a table
     f.createGroup('/', 'photoz')
     f.createGroup('/photoz', 'catalog')
@@ -207,10 +213,6 @@ def parse_data( filename, mag_cuts, f ):
 
 
 def main():
-
-    # Right now this is a mess, because i've tried a number of ways of doing this and none seems very good...
-    # But let's leave this as it is for now, and improve it in the future.
-    # I think that the best approach might be to fit an appropriate functional form to the curve.  (better than a 3rd order polynomial?)
 
     if len(sys.argv) != 4:
         print "Usage: parse_sample.py catalog_filename mag_cut metadata_filename"

@@ -8,16 +8,8 @@ import numpy as np
 import tables
 
 # write an hdf5 file with metadata, for input to other code.
-pop = 'faint'
 
-z_mean = [0.24, 0.45, 0.70, 1.0]
-z_width = [0.1, 0.15, 0.2, 0.22]
-
-ang_mean = [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0]
-ang_width = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
-
-
-def make_metadata(f):
+def make_metadata(f, z_mean, z_width, ang_mean, ang_width, pop):
     # f = tables.openFile('metadata.hdf5', 'w')
     
     f.createGroup('/', 'meta')
