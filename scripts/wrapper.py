@@ -18,8 +18,8 @@ sys.path.append("../src/")
 
 #make_maps.hello_world
 
-catalog_filename = "/Users/bauer/correlations/pic_test/catalogs/radeczpzsr_wmu_small"
-mag_cuts = [ 21.2, 23.2, 24.1, 24.1 ]
+catalog_filename = "/Users/bauer/correlations/pic_test/catalogs/radeczpzsr_wmu"
+mag_cuts = [ 20.3, 22.4, 23.8, 24.2 ]
 use_counts = False
 use_mags = False
 pop = 'faint'
@@ -46,6 +46,7 @@ ang_widths_carray = []
 for filename in subcat_filenames:
     pass
     # makemaps.make_maps( filename, 'None', ang_means_carray, ang_widths_carray, len(ang_info[0]), use_counts, use_mags );
+    # makemaps.make_maps( filename, 'None', ang_info[0], ang_info[1], use_counts, use_mags );
 
     # correlate
     
