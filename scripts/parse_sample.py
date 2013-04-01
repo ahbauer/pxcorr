@@ -90,21 +90,27 @@ def parse_data( filename, mag_cuts, f, sparse=True ):
         
         mag = float(splitted_line[4])
         
-        # keep the info for the slopes even if outside the bin ranges
-        zbin_for_mag = int(math.floor(photz/(mag_maxz/mag_nzs)))
-        if( zbin_for_mag > mag_nzs ):
-            continue
-        mags[zbin_for_mag].append(mag)
-        
-        # only keep objs within the z binning range
-        if( photz < min_z or photz > max_z ):
-            continue
-        
+        # what correlation redshift bin are we in?
         bin_z = -1
         for zbin in range(nbins_z):
             if( photz >= z_means[zbin]-z_widths[zbin] and photz < z_means[zbin]+z_widths[zbin] ):
                 bin_z = zbin
                 break
+
+        # keep the info for the slopes even if outside the bin ranges
+        # but get rid of objects well below the mag limit since those will 
+        # probably be bad.
+        zbin_for_mag = int(math.floor(photz/(mag_maxz/mag_nzs)))
+        if( zbin_for_mag > mag_nzs-1 ):
+            continue
+        interp_mag_cut = numpy.interp(photz, z_means, mag_cuts)
+        if mag < interp_mag_cut+1:
+            mags[zbin_for_mag].append(mag)
+        
+        # only keep objs within the z binning range
+        if( photz < min_z or photz > max_z ):
+            continue
+        
         if bin_z < 0:
             continue
         data[bin_z] += 1
@@ -113,7 +119,7 @@ def parse_data( filename, mag_cuts, f, sparse=True ):
         if( mag < mag_cuts[bin_z] ):
             # print to output "stream"
             outstring = "%f %f %f\n" %(ra, dec, mag)
-            filehandles[zbin].write(outstring)
+            filehandles[bin_z].write(outstring)
 
     
     # print >> sys.stderr, "read in catalog.  %d spectroscopic zs." %(len(z_spec))
@@ -162,11 +168,13 @@ def parse_data( filename, mag_cuts, f, sparse=True ):
     # now, write outputs...
     # N(z) and slopes in an hdf5 file.
     # f = tables.openFile('sample_info.hdf5', 'w')
-
-    if sparse==True:
-        inds = np.random.randint(0, len(z_phot), 20000)
-        z_phot = z_phot[inds]
-        z_spec = z_spec[inds]
+    n_sparse = 20000
+    if sparse==True and len(z_phot)>n_sparse:
+        inds = numpy.random.randint(0, len(z_phot), n_sparse)
+        z_phot2 = numpy.array(z_phot)
+        z_phot2 = z_phot2[inds]
+        z_spec2 = numpy.array(z_spec)
+        z_spec2 = z_spec2[inds]
 
     # photoz: a table
     f.createGroup('/', 'photoz')
