@@ -40,6 +40,11 @@ def parse_data( filename, mag_cuts, f, sparse=True ):
     #print "z_means length %d:" %len(z_means)
     #print z_means
     
+    z_edges = []
+    z_edges.append(z_means[0]-z_widths[0])
+    for i in range(len(z_means)):
+        z_edges.append(z_means[i]+z_widths[i])
+    
     # arrays for output later
     z_phot = []
     z_spec = []
@@ -78,8 +83,8 @@ def parse_data( filename, mag_cuts, f, sparse=True ):
     for line in catalog:
         splitted_line = line.split()
         
-        ra = float(splitted_line[0])
-        dec = float(splitted_line[1])
+        # ra = float(splitted_line[0])
+        # dec = float(splitted_line[1])
 
         # for the N(z) hdf5 file to be given to the modelling code
         specz = float(splitted_line[3])
@@ -91,11 +96,18 @@ def parse_data( filename, mag_cuts, f, sparse=True ):
         mag = float(splitted_line[4])
         
         # what correlation redshift bin are we in?
-        bin_z = -1
-        for zbin in range(nbins_z):
-            if( photz >= z_means[zbin]-z_widths[zbin] and photz < z_means[zbin]+z_widths[zbin] ):
-                bin_z = zbin
-                break
+        inds = numpy.digitize([photz], z_edges)
+        bin_z = inds[0]-1
+        if( zbin2 < 0 ):
+            zbin2 = 0
+        if zbin2 > len(z_means)-1:
+            zbin2 = len(z_means)-1
+            
+        # bin_z = -1
+        # for zbin in range(nbins_z):
+        #     if( photz >= z_means[zbin]-z_widths[zbin] and photz < z_means[zbin]+z_widths[zbin] ):
+        #         bin_z = zbin
+        #         break
 
         # keep the info for the slopes even if outside the bin ranges
         # but get rid of objects well below the mag limit since those will 
@@ -118,7 +130,7 @@ def parse_data( filename, mag_cuts, f, sparse=True ):
         # if brighter than the mag cut, we want to correlate these!
         if( mag < mag_cuts[bin_z] ):
             # print to output "stream"
-            outstring = "%f %f %f\n" %(ra, dec, mag)
+            outstring = "%s %s %f\n" %(splitted_line[0], splitted_line[1], mag)
             filehandles[bin_z].write(outstring)
 
     
@@ -139,13 +151,20 @@ def parse_data( filename, mag_cuts, f, sparse=True ):
         if magz >= max_z:
             zbin2 = nbins_z-1
         else:
-            zbin2 = -1
-            for z in range(nbins_z):
-                if( magz >= z_means[z]-z_widths[z] and magz < z_means[z]+z_widths[z] ):
-                    zbin2 = z
-                    break
-            if zbin2 < 0:
+            inds = numpy.digitize([magz], z_edges)
+            zbin2 = inds[0]-1
+            if( zbin2 < 0 ):
                 zbin2 = 0
+            if zbin2 > len(z_means)-1:
+                zbin2 = len(z_means)-1
+                
+            # zbin2 = -1
+            # for z in range(nbins_z):
+            #     if( magz >= z_means[z]-z_widths[z] and magz < z_means[z]+z_widths[z] ):
+            #         zbin2 = z
+            #         break
+            # if zbin2 < 0:
+            #     zbin2 = 0
         mag_cut = mag_cuts[zbin2]
 
         # kde!
