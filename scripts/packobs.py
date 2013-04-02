@@ -7,7 +7,9 @@ import pdb
 import numpy as np
 import tables
 
-des_dir = '/Users/bauer/correlations/pic_test/catalogs'
+des_dir = '/Users/bauer/correlations/pic_test/des_mice'
+prefix = 'results'
+bins = [0,1,2,3]
 toadd = [\
 (0,0,'results00'),
 (0,1,'results01'),
@@ -56,12 +58,20 @@ def define_meta(f):
 def add_corr(f):
     corr = np.ones((nangles, nbins, nbins))
 
+    # for i in bins:
+    #     for j in bins:
+    #         file_path = os.path.join(des_dir, prefix+str(i)+str(j), "correlation")
+    #         datafile = open(file_path)
+    #         data = json.load(datafile)
+    #         datafile.close()
+    #         #print data[0]
+    #         corr[:,i,j] = data[0]
+
     for i,j, file_name in toadd:
         file_path = os.path.join(des_dir, file_name, "correlation")
         datafile = open(file_path)
         data = json.load(datafile)
         datafile.close()
-
         #print data[0]
         corr[:,i,j] = data[0]
 
@@ -73,15 +83,30 @@ def add_corr(f):
     corrobj.setAttr('ftype1', json.dumps('counts'))
 
 def add_cov(f):
-    cov = np.ones((nangles, nangles, nbins, nbins))
+    cov = np.ones((nangles, nangles, nbins, nbins, nbins, nbins))
 
+    # TBD: read in the jackknife results and make the big covariance matrix.
+    # need to change the correlate output...
+
+    # for i in bins:
+    #     for j in bins:
+    #         file_path = os.path.join(des_dir, prefix+str(i)+str(j), "covariance")
+    #         datafile = open(file_path)
+    #         data = json.load(datafile)
+    #         datafile.close()
+    #         cov[:,:,i,j] = data
+            
+            
     for i,j, file_name in toadd:
         file_path = os.path.join(des_dir, file_name, "covariance")
         datafile = open(file_path)
         data = json.load(datafile)
         datafile.close()
 
-        cov[:,:,i,j] = data
+        cov[:,:,i,j,i,j] = data
+        cov[:,:,j,i,i,j] = data
+        cov[:,:,i,j,j,i] = data
+        cov[:,:,j,i,j,i] = data
 
     f.createGroup('/', 'cov')
     corrobj = f.createArray('/cov', 'cov1', cov)
@@ -95,8 +120,9 @@ def add_cov(f):
     corrobj.setAttr('ftype3', json.dumps('counts'))
 
 def main():
-    f = tables.openFile('mycorr.hdf5', 'w')
-    define_meta(f)
+    hdffile = os.path.join(des_dir, "pxcorr_out.hdf5")
+    f = tables.openFile(hdffile, 'r+')
+    #define_meta(f)
     add_corr(f)
     add_cov(f)
     f.close()
