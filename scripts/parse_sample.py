@@ -173,9 +173,11 @@ def parse_data( filename, mag_cuts, f, sparse=True ):
         inds = numpy.random.randint(0, len(z_phot), n_sparse)
         z_phot2 = numpy.array(z_phot)
         z_phot2 = z_phot2[inds]
+        z_phot = z_phot2
         z_spec2 = numpy.array(z_spec)
         z_spec2 = z_spec2[inds]
-
+        z_spec = z_spec2
+        
     # photoz: a table
     f.createGroup('/', 'photoz')
     f.createGroup('/photoz', 'catalog')
