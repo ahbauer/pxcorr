@@ -98,16 +98,7 @@ def parse_data( filename, mag_cuts, f, sparse=True ):
         # what correlation redshift bin are we in?
         inds = numpy.digitize([photz], z_edges)
         bin_z = inds[0]-1
-        if( zbin2 < 0 ):
-            zbin2 = 0
-        if zbin2 > len(z_means)-1:
-            zbin2 = len(z_means)-1
-            
-        # bin_z = -1
-        # for zbin in range(nbins_z):
-        #     if( photz >= z_means[zbin]-z_widths[zbin] and photz < z_means[zbin]+z_widths[zbin] ):
-        #         bin_z = zbin
-        #         break
+        bin_z = np.clip(bin_z, 0., len(z_means)-1)
 
         # keep the info for the slopes even if outside the bin ranges
         # but get rid of objects well below the mag limit since those will 
@@ -153,18 +144,8 @@ def parse_data( filename, mag_cuts, f, sparse=True ):
         else:
             inds = numpy.digitize([magz], z_edges)
             zbin2 = inds[0]-1
-            if( zbin2 < 0 ):
-                zbin2 = 0
-            if zbin2 > len(z_means)-1:
-                zbin2 = len(z_means)-1
+            zbin2 = np.clip(zbin2, 0., len(z_means)-1)
                 
-            # zbin2 = -1
-            # for z in range(nbins_z):
-            #     if( magz >= z_means[z]-z_widths[z] and magz < z_means[z]+z_widths[z] ):
-            #         zbin2 = z
-            #         break
-            # if zbin2 < 0:
-            #     zbin2 = 0
         mag_cut = mag_cuts[zbin2]
 
         # kde!
@@ -188,7 +169,7 @@ def parse_data( filename, mag_cuts, f, sparse=True ):
     # N(z) and slopes in an hdf5 file.
     # f = tables.openFile('sample_info.hdf5', 'w')
     n_sparse = 20000
-    if sparse==True and len(z_phot)>n_sparse:
+    if sparse and len(z_phot)>n_sparse:
         inds = numpy.random.randint(0, len(z_phot), n_sparse)
         z_phot2 = numpy.array(z_phot)
         z_phot2 = z_phot2[inds]
