@@ -98,7 +98,7 @@ def parse_data( filename, mag_cuts, f, sparse=True ):
         # what correlation redshift bin are we in?
         inds = numpy.digitize([photz], z_edges)
         bin_z = inds[0]-1
-        bin_z = numpy.clip(bin_z, 0., len(z_means)-1)
+        bin_z = int(numpy.clip(bin_z, 0., len(z_means)-1))
 
         # keep the info for the slopes even if outside the bin ranges
         # but get rid of objects well below the mag limit since those will 
@@ -144,7 +144,7 @@ def parse_data( filename, mag_cuts, f, sparse=True ):
         else:
             inds = numpy.digitize([magz], z_edges)
             zbin2 = inds[0]-1
-            zbin2 = numpy.clip(zbin2, 0., len(z_means)-1)
+            zbin2 = int(numpy.clip(zbin2, 0., len(z_means)-1))
                 
         mag_cut = mag_cuts[zbin2]
 
