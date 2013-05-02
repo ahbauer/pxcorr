@@ -2,67 +2,23 @@
 Description of the pxcorr inputs, outputs, and functions.
 
 Anne Bauer
-February 2013
+May 2013
 
+This package includes code to calculate information about a galaxy catalog, make Partpix maps from the catalog, and calculate correlations between the maps.
 
-In the src directory are two functions: make_maps and correlate
+The idea is to call scripts/wrapper.py.  Right now there are some configuration details in the top part of wrapper.py such as the desired angular binning and the name of the input catalog (there are 2 examples in the example_input directory).  The wrapper calls some python scripts to figure out some metadata and then calls C++ code to make the maps and then to calculate the correlations.  Then a python script packages up the results into an hdf5 file.  Also, the results are also written out (currently in JSON format) in ascii.
 
-make_maps:
+The C++ functions can be called as executables, but that is no longer the way they are meant to be called.  For testing, however, you can call them like
 
-The function "make_maps" will be wrapped in a python function, such that it can be called from the python wrapper.  The "main" part of the code is just something to take some input (catalogs and metadata which the python wrapper in the science python will get from the prolog) and feed it to the "make_maps" function in the same way as the input might seem to come from the wrapper.  Example input to "make_maps" is given in the example_inputs directory in the pxcorr repository.
+make_maps metadata.txt catalog1 None counts mags
 
-The function is called as such:
+to make a map from catalog1 with no given mask (meaning that the code will make some approximate mask itself).  actually this will make 2 maps: one for delta_counts and one for delta_mags, as indicated in the last two arguments.  they'll be called dc_map.h5 and dm_map.h5.  metadata.txt and catalog0 and catalog1 are examples given in the example_input directory, for testing.
 
-int make_maps( string catalog_filename, string mask_filename, vector<float> ang_means, vector<float> ang_widths, bool use_counts, bool use_mags );
+correlate map1.h5 map2.h5
 
-This will probably have to be changed a bit when wrapping it in a python function.  
+will correlate the two given maps.  The output will be in JSON format in ascii files, one file for the correlation and another for the covariance.  I plan to change this in the future to output the jackknife results explicitly rather than the pre-computed covariance matrix, since as it is now it is impossible to collect a lot of different cross-correlations and compile a complete covariance.
 
-The catalog in catalog_filename is just an ascii file with entries:
-ra dec magnitude redshift spectroscopic_redshift
-The field for spectroscopic redshift will be some dummy value for most of the data (e.g. 999 or -999).  The code considers anything 0<=spec_z<10 to be a valid spectroscopic redshift.
+There is a makefile in the source directory that compiles make_maps and correlate into executables and also into shared libraries that are then wrapped with python scripts so that they can be called as modules from wrapper.py.  This process is done using swig.  You will probably have to change some paths in the top of the Makefile, e.g. to your python directory.
 
-The mask_filename is an ascii file with a partpix format, where the first line is a header describing the resolution and ordering of the pixels, and the subsequent lines are pixel IDs and optional pixel values (if no pixel values are given, they are assumed to be 1.0).  For example, this is the first few lines of a mask file:
-RING 14
-1372684931
-1372684933
-1372684934
-1372684935
-If mask_filename is given as none, None, NONE, null, or NULL then the code will generate a mask that is all 1.0 over the area where there are objects in the catalog.  This is not a very good idea, as the area will not be exactly right;  underdense pixels might be masked out, and areas around the field edges will probably be included more than desired.  Still, a test of the MegaZ SDSS catalog with an automatic mask vs. a proper mask yielded autocorrelations that were within 1 sigma of each other.
+The hdf5 output file (pxcorr_out.h5) that is the product of wrapper.py can be given directly as input to Martin Eriksen's modeling & likelihood code.
 
-ang_means and ang_widths are vectors holding the angular binning information that will come from the input configuration (prolog).  make_maps needs the ang_widths information because the pixelization resolution of the maps needs to be roughly the same size as the smallest angular bin width.  Currently make_maps outputs the ang_means and ang_widths information in the metadata of the map files, where they are read in by the correlation code.  TBD: make it a separate input in the correlation code!!
-
-use_counts and use_mags are booleans that tell the code what types of maps to make: delta counts and/or delta mags.
-
-The output of make_maps is an hdf5 file for each desired map (counts and/or mags), and also an hdf5 file holding N(z) information.  The map files are called "dc_map.h5" and/or "dm_map.h5", and are of the structure
-/data/map
-/data/mask
-/meta/meta
-
-/data and /meta are groups;  /data/map /data/mask and /meta/meta are datasets.  The map and mask datasets each hold a 2D array of doubles such as:
-RING 14
-1372684931 0.4342
-1372684933 0.6121
-1372684934 0.5383
-1372684935 0.9632
-Note that RING is a member of an enumeration in the Healpix code, so it can be represented by an integer.  Therefore it is 0 in the tables.  (NEST = 1)
-The metadata /meta/meta contains attributes that hold the metadata information, in this case "u_mean" (angular bin centers), "u_width" (angular bin widths), "fourier" (false), and "ftype" (counts or mags).  I realize that this information should be held by the wrapper and not in the data files, but I'll leave it in until we have implemented another way for the correlate code to receive the information.
-
-The N(z) hdf5 file output "nofz.h5" has a group /photoz and a dataset /photoz/zpzs that is a 2D array of doubles with fields 
-photo_z spec_z 
-for those objects that have valid spectroscopic redshifts in the input catalog.
-
-
-
-correlate:
-
-The input to "correlate" is two hdf5 map files, as generated by make_maps.  The code correlates these against each other, and outputs the correlation and the covariance matrix.
-
-The angular binning with which the correlation is calculated is currently read from the metadata in the hdf5 files.  We need to change this to be a separate input;  will we wrap this in a python function in the same way that we are planning to do for make_maps?  In that case, we can read two vectors or arrays into the function as input.
-
-The output of "correlate" is two JSON text files, "correlation" and "covariance".  
-"correlation" is an array of 3 arrays.  The first is the correlation value, the second is the mean of the value of the correlation for the jackknife regions, and the third is the jackknife error.  Here is an example:
-[[0.111313, 0.0690087, 0.0498627, 0.0320384], [0.112008, 0.0694289, 0.0501389, 0.0318927], [0.0020471, 0.00151826, 0.00126874, 0.00103336]]
-The second array should be similar to the first, and is a check to see if there are weird things going on in the data.  We can get rid of this array if we think we're never going to look at this check.
-"covariance" is an array of arrays, giving the covariance matrix.  Here is an example:
-[[4.19063e-06, 2.66327e-06, 2.14783e-06, 1.63355e-06], [2.66327e-06, 2.30512e-06, 1.67981e-06, 1.26944e-06], [2.14783e-06, 1.67981e-06, 1.60971e-06, 1.18031e-06], [1.63355e-06, 1.26944e-06, 1.18031e-06, 1.06784e-06]]
-The matrix is 4x4 because there are 4 angular bins in the correlation function.
