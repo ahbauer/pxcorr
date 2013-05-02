@@ -7,23 +7,23 @@ import pdb
 import numpy as np
 import tables
 
-des_dir = '/Users/bauer/correlations/pic_test/des_mice'
+des_dir = '/Users/bauer/surveys/DES/SV2013/130402_BPZ_DES-SV_fields/combined/smallscales/bright'
 prefix = 'results'
-bins = [0,1,2,3]
+bins = [0,1,2]
 toadd = [\
 (0,0,'results00'),
 (0,1,'results01'),
 (0,2,'results02'),
-(0,3,'results03'),
+#(0,3,'results03'),
 (1,1,'results11'),
 (1,2,'results12'),
-(1,3,'results13'),
-(2,2,'results22'),
-(2,3,'results23'),
-(3,3,'results33')]
+#(1,3,'results13'),
+(2,2,'results22')]
+#(2,3,'results23'),
+#(3,3,'results33')]
 
-nbins = 4
-nangles = 18
+nbins = 3
+nangles = 15
 
 # no longer need:
 metafiles = ['metadata_faint2.txt', 'metadata_faint6.txt', 'metadata_faint10.txt', 'metadata_faint14.txt']
@@ -78,9 +78,9 @@ def add_corr(f):
     f.createGroup('/', 'corr')
     corrobj = f.createArray('/corr', 'corr1', corr)
     corrobj.setAttr('pop0', json.dumps('faint'))
-    corrobj.setAttr('ftype0', json.dumps('counts'))
+    corrobj.setAttr('ftype0', json.dumps(['counts']))
     corrobj.setAttr('pop1', json.dumps('faint'))
-    corrobj.setAttr('ftype1', json.dumps('counts'))
+    corrobj.setAttr('ftype1', json.dumps(['counts']))
 
 def add_cov(f):
     cov = np.ones((nangles, nangles, nbins, nbins, nbins, nbins))
@@ -111,13 +111,13 @@ def add_cov(f):
     f.createGroup('/', 'cov')
     corrobj = f.createArray('/cov', 'cov1', cov)
     corrobj.setAttr('pop0', json.dumps('faint'))
-    corrobj.setAttr('ftype0', json.dumps('counts'))
+    corrobj.setAttr('ftype0', json.dumps(['counts']))
     corrobj.setAttr('pop1', json.dumps('faint'))
-    corrobj.setAttr('ftype1', json.dumps('counts'))
+    corrobj.setAttr('ftype1', json.dumps(['counts']))
     corrobj.setAttr('pop2', json.dumps('faint'))
-    corrobj.setAttr('ftype2', json.dumps('counts'))
+    corrobj.setAttr('ftype2', json.dumps(['counts']))
     corrobj.setAttr('pop3', json.dumps('faint'))
-    corrobj.setAttr('ftype3', json.dumps('counts'))
+    corrobj.setAttr('ftype3', json.dumps(['counts']))
 
 def main():
     hdffile = os.path.join(des_dir, "pxcorr_out.hdf5")
