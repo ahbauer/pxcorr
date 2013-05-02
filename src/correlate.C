@@ -30,23 +30,27 @@ using namespace H5;
 
 
 #define USE_WEIGHTS 0
+bool OUTPUT_FITS = true;
 
-
-int main (int argc, char **argv){
-    
-    if( argc != 3 ){
-        cerr << "Usage: correlate map1 map2" << endl;
-        cerr << "       where the maps are hdf5 files produced by make_maps, that each have a map and a mask." << endl;
-        return 1;
-    }
+void correlate( char* mapn1, char* mapn2, char* sfx ){
     
     cout << setiosflags(ios::fixed);
     
-    int min_footprint_order = 1;
+    int min_footprint_order = 4;
     
-    string mapname1( argv[1] );
-    string mapname2( argv[2] );
+    string mapname1( mapn1 );
+    string mapname2( mapn2 );
+    string suffix( sfx );
 
+    if( access( mapname1.c_str(), F_OK ) == -1 ){
+        cerr << "File " << mapname1 << " is not readable!" << endl;
+        return;
+    }
+    if( access( mapname2.c_str(), F_OK ) == -1 ){
+        cerr << "File " << mapname2 << " is not readable!" << endl;
+        return;
+    }
+    
     vector<float> r_lows;
     vector<float> r_mids;
     vector<float> r_highs;
@@ -59,18 +63,18 @@ int main (int argc, char **argv){
     H5G_obj_t firstType = file1.getObjTypeByIdx(0);
     if( firstType != H5G_GROUP ){
         cerr << "The map is not standard format;  the first element is not a group." << endl;
-        return 1;
+        return;
     }
     string group_name = file1.getObjnameByIdx(0);
     if( group_name != "data" ){
         cerr << "Group name is " << group_name << ", not data" << endl;
-        return 1;
+        return;
     }
     Group group = file1.openGroup("data");
     string dataset1_name = group.getObjnameByIdx(0);
     if( dataset1_name != "map" ){
         cerr << "Dataset 1 name is " << dataset1_name << ", not map" << endl;
-        return 1;
+        return;
     }
     DataSet dataset1 = group.openDataSet(dataset1_name);
     hsize_t ds1size = dataset1.getStorageSize();
@@ -90,7 +94,7 @@ int main (int argc, char **argv){
     string dataset2_name = group.getObjnameByIdx(1);
     if( dataset2_name != "mask" ){
         cerr << "Dataset 2 name is " << dataset2_name << ", not mask" << endl;
-        return 1;
+        return;
     }
     DataSet dataset2 = group.openDataSet(dataset2_name);
     hsize_t ds2size = dataset2.getStorageSize();
@@ -102,16 +106,14 @@ int main (int argc, char **argv){
     int mask1_ordering = data2[1];
     if( mask1_ordering != RING ){
         cerr << "Problem, mask1 ordering is not RING but " << mask1_ordering << endl;
-        return 1;
+        return;
     }
     cerr << "mask 1 info " << mask1_order << " " << mask1_ordering << endl;
     vector<int64> mask1_pixels;
     for( int i=1; i<npix2; ++i ){
-      //for( int j=0; j<2; ++j ){
             if( data2[2*i+1] > 0.5 ){
                 mask1_pixels.push_back(data2[2*i]);
             }
-	    //}
     }
     free(data2);
     Healpix_Base2 mask1_base( mask1_order, RING );
@@ -129,7 +131,7 @@ int main (int argc, char **argv){
     string line(u_mean);
     if( line[0] != '[' ){
         cerr << "Problem parsing metadata line for u_mean" << endl << line << endl;
-        return 1;
+        return;
     }
     size_t index1 = 1;
     while(1){
@@ -154,7 +156,7 @@ int main (int argc, char **argv){
     line = string(u_width);
     if( line[0] != '[' ){
         cerr << "Problem parsing metadata line for u_width" << endl << line << endl;
-        return 1;
+        return;
     }
     index1 = 1;
     while(1){
@@ -173,7 +175,7 @@ int main (int argc, char **argv){
         cerr << "Problem parsing metadata: u_mean and u_width are different sizes:" << endl;
         cerr << u_mean << endl;
         cerr << u_width << endl;
-        return 1;
+        return;
     }
 
     if( r_mids[0] - r_wids[0]/2.0 < 0.0 )
@@ -203,18 +205,18 @@ int main (int argc, char **argv){
     firstType = file2.getObjTypeByIdx(0);
     if( firstType != H5G_GROUP ){
         cerr << "The map is not standard format;  the first element is not a group." << endl;
-        return 1;
+        return;
     }
     group_name = file2.getObjnameByIdx(0);
     if( group_name != "data" ){
         cerr << "Group name is " << group_name << ", not data" << endl;
-        return 1;
+        return;
     }
     group = file2.openGroup("data");
     dataset1_name = group.getObjnameByIdx(0);
     if( dataset1_name != "map" ){
         cerr << "Dataset 1 name is " << dataset1_name << ", not map" << endl;
-        return 1;
+        return;
     }
     dataset1 = group.openDataSet(dataset1_name);
     ds1size = dataset1.getStorageSize();
@@ -228,7 +230,7 @@ int main (int argc, char **argv){
     dataset2_name = group.getObjnameByIdx(1);
     if( dataset2_name != "mask" ){
         cerr << "Dataset 2 name is " << dataset2_name << ", not mask" << endl;
-        return 1;
+        return;
     }
     dataset2 = group.openDataSet(dataset2_name);
     ds2size = dataset2.getStorageSize() - 1;
@@ -240,23 +242,21 @@ int main (int argc, char **argv){
     int mask2_ordering = data4[1];
     if( mask1_ordering != RING ){
         cerr << "Problem, mask2 ordering is not RING but " << mask2_ordering << endl;
-        return 1;
+        return;
     }
     cerr << "mask 2 info " << mask2_order << " " << mask2_ordering << endl;
     vector<int64> mask2_pixels;
     for( int i=1; i<npix4; ++i ){
-      //for( int j=0; j<2; ++j ){
             if( data4[2*i+1] > 0.5 ){
                 mask2_pixels.push_back(data4[2*i]);
             }
-	    //}
     }
     free(data4);
     Healpix_Base2 mask2_base( mask2_order, RING );
 
     if( map1_order != map2_order ){
         cerr << "Map orders must be the same: are " << map1_order << " and " << map2_order << endl;
-        return 1;
+        return;
     }
     int order = map1_order;
 
@@ -305,12 +305,14 @@ int main (int argc, char **argv){
         footprintMap[ footprintMap.ang2pix(mask2_base.pix2ang(mask2_pixels[i])) ] = 1;
     }
     cerr << "Using footprint order " << footprintMap.Order() << " with " << footprint_area << " sq degrees." << endl;
-    
-    // system( "rm fp.fits" );
-    // fitshandle myfits;
-    // myfits.create("fp.fits");
-    // write_Healpix_map_to_fits(myfits, footprintMap, PLANCK_FLOAT64);
-    // myfits.close();
+
+    if( OUTPUT_FITS ){
+        system( "rm fp.fits" );
+        fitshandle myfits;
+        myfits.create("fp.fits");
+        write_Healpix_map_to_fits(myfits, footprintMap, PLANCK_FLOAT64);
+        myfits.close();
+    }
 
     // fill in the mask Partpix maps
     Partpix_Map2<int> lowzMask(mask1_order, footprintMap);
@@ -322,15 +324,6 @@ int main (int argc, char **argv){
       }
       lowzMask[mask1_pixels[i]] = 1;
     }
-
-    /*
-    system( "rm lowzMask.fits" );
-    fitshandle myfits;
-    myfits.create("lowzMask.fits");
-    Healpix_Map<int> lowzHMask = lowzMask.to_Healpix();
-    write_Healpix_map_to_fits(myfits, lowzHMask, PLANCK_INT32);
-    myfits.close();
-    */
 
     mask1_pixels.clear();
     // make full-resolution versions of the masks so we don't keep having to check for mask indices
@@ -344,7 +337,6 @@ int main (int argc, char **argv){
     else{
         lowzMatchedMask.Import_degrade( lowzMask, footprintMap );
     }
-    lowzMask.clear();
 
     cerr << "Finished making low z Partpix matched mask" << endl;
     cerr << "Imported from resolution " << mask1_order << " to " << order << endl;
@@ -370,22 +362,39 @@ int main (int argc, char **argv){
         highzMatchedMask.Import_degrade( highzMask, footprintMap );
     }
 
+    if( OUTPUT_FITS ){
 
-    system( "rm highzMask.fits" );
-    fitshandle myfits;
-    myfits.create("highzMask.fits");
-    Healpix_Map<int> highzHMask(highzMask.Order(), RING);
-    highzHMask.fill(0);
-    for( int i1=0; i1<highzMask.Npartpix(); ++i1 ){
-      int i = highzMask.highResPix(i1);
-      if( highzMask[i] == 1 ){
-	highzHMask[i] = 1;
-      }
+        system( "rm lowzMask.fits" );
+        fitshandle myfits;
+        myfits.create("lowzMask.fits");
+        Healpix_Map<int> lowzHMask0 = lowzMatchedMask.to_Healpix( 0 );
+        write_Healpix_map_to_fits(myfits, lowzHMask0, PLANCK_INT32);
+        myfits.close();
+
+        system( "rm lowzMask0.fits" );
+        myfits = fitshandle();
+        myfits.create("lowzMask0.fits");
+        Healpix_Map<int> lowzHMask = lowzMask.to_Healpix( 0 );
+        write_Healpix_map_to_fits(myfits, lowzHMask, PLANCK_INT32);
+        myfits.close();
+        
+        system( "rm highzMask.fits" );
+        myfits = fitshandle();
+        myfits.create("highzMask.fits");
+        // Healpix_Map<int> highzHMask(highzMask.Order(), RING);
+        // highzHMask.fill(0);
+        // for( int i1=0; i1<highzMask.Npartpix(); ++i1 ){
+        //   int i = highzMask.highResPix(i1);
+        //   if( highzMask[i] == 1 ){
+        //       highzHMask[i] = 1;
+        //   }
+        // }
+        Healpix_Map<int> highzHMask = highzMatchedMask.to_Healpix( 0 );
+        write_Healpix_map_to_fits(myfits, highzHMask, PLANCK_INT32);
+        myfits.close();
     }
-    write_Healpix_map_to_fits(myfits, highzHMask, PLANCK_INT32);
-    myfits.close();
 
-
+    lowzMask.clear();
     highzMask.clear();
 
     cerr << "Finished making high z Partpix matched mask" << endl;
@@ -418,19 +427,20 @@ int main (int argc, char **argv){
     }
     cerr << "Read in the data maps" << endl;
 
-    // Healpix_Map<double> lowzHMap = lowzMap.to_Healpix( 0. );
-    // system( "rm lowzMap.fits" );
-    // fitshandle myfits;
-    // myfits.create("lowzMap.fits");
-    // write_Healpix_map_to_fits(myfits, lowzHMap, PLANCK_FLOAT64);
-    // myfits.close();
-    // Healpix_Map<double> highzHMap = highzMap.to_Healpix( 0. );
-    // system( "rm highzMap.fits" );
-    // myfits = fitshandle();
-    // myfits.create("highzMap.fits");
-    // write_Healpix_map_to_fits(myfits, highzHMap, PLANCK_FLOAT64);
-    // myfits.close();
-    
+    if( OUTPUT_FITS ){
+        Healpix_Map<double> lowzHMap = lowzMap.to_Healpix( 0. );
+        system( "rm lowzMap.fits" );
+        fitshandle myfits;
+        myfits.create("lowzMap.fits");
+        write_Healpix_map_to_fits(myfits, lowzHMap, PLANCK_FLOAT64);
+        myfits.close();
+        Healpix_Map<double> highzHMap = highzMap.to_Healpix( 0. );
+        system( "rm highzMap.fits" );
+        myfits = fitshandle();
+        myfits.create("highzMap.fits");
+        write_Healpix_map_to_fits(myfits, highzHMap, PLANCK_FLOAT64);
+        myfits.close();
+    }
 
     // figure out the jackknife regions using the mask pixels
     // we want >=50 regions, bigger than the max radial bin.
@@ -508,12 +518,14 @@ int main (int argc, char **argv){
               }
           }
           if( jkpixels.size() >= 50 ){
-              system( "rm jackknife.fits" );
-              fitshandle myfits = fitshandle();
-              myfits.create("jackknife.fits");
-              Healpix_Map<int> jkmap = jackknifeMap1.to_Healpix( 0 );
-              write_Healpix_map_to_fits(myfits, jkmap, PLANCK_FLOAT64);
-              myfits.close();
+              if( OUTPUT_FITS ){
+                  system( "rm jackknife.fits" );
+                  fitshandle myfits = fitshandle();
+                  myfits.create("jackknife.fits");
+                  Healpix_Map<int> jkmap = jackknifeMap1.to_Healpix( 0 );
+                  write_Healpix_map_to_fits(myfits, jkmap, PLANCK_FLOAT64);
+                  myfits.close();
+              }
               break;
           }
           else{
@@ -528,7 +540,7 @@ int main (int argc, char **argv){
     }
     if( pixel_size < r_highs[r_highs.size()-1] ){
       cerr << "Can not find a jackknife resolution with >50 regions and pixel size <" << 180/3.1415926*r_highs[r_highs.size()-1] << " degrees" << endl;
-      return 1;
+      return;
     }
     Healpix_Base jackknifeMap( jk_order, RING );
     cerr << "Constructed a jackknife map with order " << jk_order << ", "  << jkpixels.size() << " good pixels" << endl;
@@ -537,13 +549,13 @@ int main (int argc, char **argv){
     int64 n_mask=0;
     for( int64 i1=0; i1<lowzMatchedMask.Npartpix(); ++i1 ){
       int64 i = lowzMatchedMask.highResPix(i1);
-      if( lowzMatchedMask[i] == 1 && highzMatchedMask[i] == 1 )
+      if( lowzMatchedMask[i] && highzMatchedMask[i] )
           ++n_mask;
     }
     float area_mask = 41252.962*n_mask/lowzMatchedMask.Npix();
     float area_jk = 41252.962*jkpixels.size()/jackknifeMap.Npix();
     float area_fraction = area_mask/area_jk;
-    cerr << "Combined mask (" << /*3282.8**/area_mask << " sq deg) over jackknife (" << /*3282.8**/area_jk << " sq deg) area = " << area_fraction << endl;
+    cerr << "Combined mask (" << area_mask << " sq deg) over jackknife (" << area_jk << " sq deg) area = " << area_fraction << " from " << n_mask << " mask pixels" << endl;
 
 
 
@@ -578,8 +590,8 @@ int main (int argc, char **argv){
     //vector<double> nj( jkpixels.size()+1, 0. );
     vector<double> nij( jkpixels.size()+1, 0. );
 
-    double sumdist = 0.0;
-    double ndist = 0.0;
+    //double sumdist = 0.0;
+    //double ndist = 0.0;
 
     // for pixel in high_res map
     for( int64 i1=0; i1<lowzMap.Npartpix(); ++i1 ){
@@ -628,8 +640,8 @@ int main (int argc, char **argv){
             }
         }
 
-      double sinith = sin(1.5707963-pointing_i.theta);
-      double cosith = cos(1.5707963-pointing_i.theta);
+      //double sinith = sin(1.5707963-pointing_i.theta);
+      //double cosith = cos(1.5707963-pointing_i.theta);
 
       for( unsigned int j=0; j<listpix_annulus.size(); ++j ){
 
@@ -659,23 +671,23 @@ int main (int argc, char **argv){
             nij[k] += multw;
         }
 
-        double sinjth = sin(1.5707963-pointing_j.theta);
-        double cosjth = cos(1.5707963-pointing_j.theta);
-        double sindphi = sin(pointing_i.phi-pointing_j.phi);
-        double cosdphi = cos(pointing_i.phi-pointing_j.phi);
-        double disty = sqrt( pow(cosith*sindphi, 2.0) + pow( cosjth*sinith - sinjth*cosith*cosdphi, 2.0 ) );
-        double distx = sinjth*sinith + cosjth*cosith*cosdphi;
-        double dist = atan2(disty,distx);
-        if( isnan(dist) )
-            cout << "thetas " << pointing_i.theta  << " " << pointing_j.theta << " phis " << pointing_i.phi << " " << pointing_j.phi << " dist " << dist << endl;
-        sumdist += dist*multw;
-        ndist += multw;
+        // double sinjth = sin(1.5707963-pointing_j.theta);
+        // double cosjth = cos(1.5707963-pointing_j.theta);
+        // double sindphi = sin(pointing_i.phi-pointing_j.phi);
+        // double cosdphi = cos(pointing_i.phi-pointing_j.phi);
+        // double disty = sqrt( pow(cosith*sindphi, 2.0) + pow( cosjth*sinith - sinjth*cosith*cosdphi, 2.0 ) );
+        // double distx = sinjth*sinith + cosjth*cosith*cosdphi;
+        // double dist = atan2(disty,distx);
+        // if( isnan(dist) )
+        //     cout << "thetas " << pointing_i.theta  << " " << pointing_j.theta << " phis " << pointing_i.phi << " " << pointing_j.phi << " dist " << dist << endl;
+        // sumdist += dist*multw;
+        // ndist += multw;
 
       } // for j pixels in high-z map
 
     } // for i pixels in low-z map
 
-    double dist_mean = sumdist/ndist;
+    //double dist_mean = sumdist/ndist;
 
     if( nij[jkpixels.size()] > 0 ){
         correlations[rbin] = sumij[jkpixels.size()]/nij[jkpixels.size()];
@@ -683,7 +695,7 @@ int main (int argc, char **argv){
     else{
         correlations[rbin] = 0.0;
     }
-    distances[rbin] = dist_mean*180./3.1415926;
+    distances[rbin] = r_mids[rbin]*180./3.1415926;  //dist_mean*180./3.1415926;
 
     // now do the jackknife
     for( unsigned int k=0; k<jkpixels.size(); ++k ){
@@ -736,7 +748,8 @@ int main (int argc, char **argv){
     corr_line << "]";
     jk_line << "]";
     err_line << "]";
-    ofstream corr_file("correlation");
+    string corr_filename = "corr" + suffix;
+    ofstream corr_file(corr_filename.c_str());
     corr_file << "[" << corr_line.str() << ", " << jk_line.str() << ", " << err_line.str() << "]" << endl;
     corr_file.close();
 
@@ -747,7 +760,7 @@ int main (int argc, char **argv){
       for( unsigned int j=0; j<r_lows.size(); ++j ){
     if( pss[i].size() != pss[j].size() ){
       cerr << "Problem, jackknife lists " << i << ", " << j << " are not the same size: " << pss[i].size() << ", " << pss[j].size() << endl;
-      return 1;
+      return;
     }
     for( unsigned int k=0; k<pss[i].size(); ++k ){
       c[i][j] += (pss[i][k]-jk_means[i])*(pss[j][k]-jk_means[j]);
@@ -759,7 +772,8 @@ int main (int argc, char **argv){
       }
     }
 
-    ofstream cov_file("covariance");
+    string cov_filename = "cov" + suffix;
+    ofstream cov_file(cov_filename.c_str());
     cov_file << "[";
     for( unsigned int k=0; k<r_lows.size(); ++k ){
         if( k == 0 )
@@ -774,6 +788,22 @@ int main (int argc, char **argv){
     cov_file << "]" << endl;
     cov_file.close();
 
+    
+    return;
+    
+}
+
+
+int main (int argc, char **argv){
+    
+    if( argc != 3 ){
+        cerr << "Usage: correlate map1 map2" << endl;
+        cerr << "       where the maps are hdf5 files produced by make_maps, that each have a map and a mask." << endl;
+        return 1;
+    }
+    
+    char sfx[1] = "";
+    correlate( argv[1], argv[2], sfx );
     
     return 0;
     
