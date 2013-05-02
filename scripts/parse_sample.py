@@ -26,19 +26,14 @@ def parse_data( filename, mag_cuts, f, sparse=True ):
     meta = f.getNode('/meta', 'meta')
     injson = getattr(getattr(meta, 'attrs'), 'pop')
     pop = (json.loads(injson))[0]
-    #print "pop: %s" %pop
     injson = getattr(getattr(meta, 'attrs'), 'ang_mean')
     ang_means = json.loads(injson)
-    #print "ang_means length %d:" %len(ang_means)
-    #print ang_means
     metapopname = '/meta/' + pop
     metapop = f.getNode(metapopname, 'meta')
     injson = getattr(getattr(metapop, 'attrs'), 'z_mean')
     z_means = json.loads(injson)
     injson = getattr(getattr(metapop, 'attrs'), 'z_width')
     z_widths = json.loads(injson)
-    #print "z_means length %d:" %len(z_means)
-    #print z_means
     
     z_edges = []
     z_edges.append(z_means[0]-z_widths[0])
@@ -62,12 +57,19 @@ def parse_data( filename, mag_cuts, f, sparse=True ):
 
     # open the output files
     # these at some point will turn into FIFOs...?
+    # samples = []
+    # for zbin in range(nbins_z):
+    #     samples.append(dict())
+    #     samples[zbin]['ra'] = []
+    #     samples[zbin]['dec'] = []
+    #     samples[zbin]['mag'] = []
+
     filehandles = []
     outcat_filenames = []
     for zbin in range(nbins_z):
         outfilename = 'sample_catalog' + str(zbin)
         outcat_filenames.append(outfilename)
-        f1=open(outfilename, 'w')
+        f1=open(outfilename, 'wb')
         filehandles.append(f1)
 
     mags = []
@@ -80,19 +82,13 @@ def parse_data( filename, mag_cuts, f, sparse=True ):
     # this SHOULD be an sql query to the DB...
     # but, for now it is just an input file.    catalog = open(filename, "r")
     catalog = open(filename, "r")
+    nsample = numpy.zeros(nbins_z)
     for line in catalog:
         splitted_line = line.split()
-        
-        # ra = float(splitted_line[0])
-        # dec = float(splitted_line[1])
 
         # for the N(z) hdf5 file to be given to the modelling code
         specz = float(splitted_line[3])
         photz = float(splitted_line[2])
-        if( specz > 0.0 and specz < 10.0 ):
-            z_spec.append(specz)
-            z_phot.append(photz)
-        
         mag = float(splitted_line[4])
         
         # what correlation redshift bin are we in?
@@ -121,14 +117,65 @@ def parse_data( filename, mag_cuts, f, sparse=True ):
         # if brighter than the mag cut, we want to correlate these!
         if( mag < mag_cuts[bin_z] ):
             # print to output "stream"
-            outstring = "%s %s %f\n" %(splitted_line[0], splitted_line[1], mag)
-            filehandles[bin_z].write(outstring)
+            # outstring = "%s %s %f\n" %(splitted_line[0], splitted_line[1], mag)
+            # filehandles[bin_z].write(outstring)
+            if( specz > 0.0 and specz < 10.0 ):
+                z_spec.append(specz)
+                z_phot.append(photz)
+            
+            outarray = numpy.array([float(splitted_line[0]), float(splitted_line[1]), mag])
+            outarray.tofile(filehandles[bin_z])
+            nsample[bin_z] += 1
+
+            # samples[bin_z]['ra'].append(float(splitted_line[0]))
+            # samples[bin_z]['dec'].append(float(splitted_line[1]))
+            # samples[bin_z]['mag'].append(mag)
 
     
-    # print >> sys.stderr, "read in catalog.  %d spectroscopic zs." %(len(z_spec))
+    print >> sys.stderr, "read in catalog.  %d spectroscopic zs." %(len(z_spec))
     for zbin in range(nbins_z):
+        print >> sys.stderr, "bin %d: %d objs" %(zbin, nsample[zbin])
         filehandles[zbin].close()
 
+    
+    # save N(z) info
+    n_sparse = 20000
+    if sparse and len(z_phot)>n_sparse:
+        inds = numpy.random.randint(0, len(z_phot), n_sparse)
+        z_phot2 = numpy.array(z_phot)
+        z_phot2 = z_phot2[inds]
+        z_phot = z_phot2
+        z_spec2 = numpy.array(z_spec)
+        z_spec2 = z_spec2[inds]
+        z_spec = z_spec2
+        
+    # photoz: a table
+    f.createGroup('/', 'photoz')
+    f.createGroup('/photoz', 'catalog')
+    photoz_table = f.createTable("/photoz/catalog", pop, photoz_entry)
+    photoz_table.setAttr('pop', json.dumps(pop))
+    row = photoz_table.row
+    for i in range(len(z_phot)):
+        # First, assign the values to the Particle record
+        row['z_p']  = z_phot[i]
+        row['z_s'] = z_spec[i]
+        row.append()
+    photoz_table.flush()
+
+    # save noise info: an array of one value per redshift bin.
+    f.createGroup('/', 'noise')
+    noise_array = numpy.zeros(nbins_z)
+    for z in range(nbins_z):
+        if data[z] > 0:
+            noise_array[z] = 1.0/data[z]
+
+    noise = f.createArray('/noise', 'noise1', numpy.diag(noise_array))
+    noise.setAttr('ftype0', json.dumps('counts'))
+    noise.setAttr('pop0', json.dumps(pop))
+    noise.setAttr('ftype1', json.dumps('counts'))
+    noise.setAttr('pop1', json.dumps(pop))
+    
+    
     # loop over z bins to calculate one slope per each
     slope_array = numpy.zeros(mag_nzs)
     for zbin in range(mag_nzs):
@@ -162,49 +209,8 @@ def parse_data( filename, mag_cuts, f, sparse=True ):
         # for the actual result, let's use the fit slope, and use the other two to estimate an error.
         slope_array[zbin] = 2.5*slope_kde - 1
         print >> sys.stderr, "z bin %d at %f s = %f alpha = %f" %(zbin, (zbin+0.5)*mag_maxz/mag_nzs, slope_kde, slope_array[zbin])
-    
-    
-    
-    # now, write outputs...
-    # N(z) and slopes in an hdf5 file.
-    # f = tables.openFile('sample_info.hdf5', 'w')
-    n_sparse = 20000
-    if sparse and len(z_phot)>n_sparse:
-        inds = numpy.random.randint(0, len(z_phot), n_sparse)
-        z_phot2 = numpy.array(z_phot)
-        z_phot2 = z_phot2[inds]
-        z_phot = z_phot2
-        z_spec2 = numpy.array(z_spec)
-        z_spec2 = z_spec2[inds]
-        z_spec = z_spec2
-        
-    # photoz: a table
-    f.createGroup('/', 'photoz')
-    f.createGroup('/photoz', 'catalog')
-    photoz_table = f.createTable("/photoz/catalog", pop, photoz_entry)
-    photoz_table.setAttr('pop', json.dumps(pop))
-    row = photoz_table.row
-    for i in range(len(z_phot)):
-        # First, assign the values to the Particle record
-        row['z_p']  = z_phot[i]
-        row['z_s'] = z_spec[i]
-        row.append()
-    photoz_table.flush()
 
-    # noise: an array of one value per redshift bin.
-    f.createGroup('/', 'noise')
-    noise_array = numpy.zeros(nbins_z)
-    for z in range(nbins_z):
-        if data[z] > 0:
-            noise_array[z] = 1.0/data[z]
-
-    noise = f.createArray('/noise', 'noise1', numpy.diag(noise_array))
-    noise.setAttr('ftype0', json.dumps('counts'))
-    noise.setAttr('pop0', json.dumps(pop))
-    noise.setAttr('ftype1', json.dumps('counts'))
-    noise.setAttr('pop1', json.dumps(pop))
-
-    # slopes: a table, for lots of redshift values.
+    # save slopes: a table, for lots of redshift values.
     f.createGroup('/', 'slopes')
     slopes_table = f.createTable('/slopes', 'slope1', slopes_entry)
     slopes_table.setAttr('ftype', json.dumps('counts'))
@@ -217,9 +223,9 @@ def parse_data( filename, mag_cuts, f, sparse=True ):
         row['size'] = 0. # TODO?
         row.append()
     slopes_table.flush()
+
     
     return outcat_filenames
-    
 
 
 def main():
