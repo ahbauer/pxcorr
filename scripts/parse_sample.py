@@ -36,9 +36,9 @@ def parse_data( filename, mag_cuts, f, sparse=True ):
     z_widths = json.loads(injson)
     
     z_edges = []
-    z_edges.append(z_means[0]-z_widths[0])
+    z_edges.append(z_means[0]-z_widths[0]/2.0)
     for i in range(len(z_means)):
-        z_edges.append(z_means[i]+z_widths[i])
+        z_edges.append(z_means[i]+z_widths[i]/2.0)
     
     # arrays for output later
     z_phot = []
@@ -52,7 +52,7 @@ def parse_data( filename, mag_cuts, f, sparse=True ):
     # the noise will be determined from the counts vs z 
     nbins_z = len(z_means)
     min_z = 0.0
-    max_z = z_means[nbins_z-1] + z_widths[nbins_z-1]
+    max_z = z_means[nbins_z-1] + z_widths[nbins_z-1]/2.0
     data = numpy.zeros(nbins_z)
 
     # open the output files
@@ -83,18 +83,33 @@ def parse_data( filename, mag_cuts, f, sparse=True ):
     # but, for now it is just an input file.    catalog = open(filename, "r")
     catalog = open(filename, "r")
     nsample = numpy.zeros(nbins_z)
+    use_mags = True
     for line in catalog:
         splitted_line = line.split()
 
         # for the N(z) hdf5 file to be given to the modelling code
-        specz = float(splitted_line[3])
-        photz = float(splitted_line[2])
-        mag = float(splitted_line[4])
+        if( len(splitted_line) > 4 ):
+            photz = float(splitted_line[2])
+            specz = float(splitted_line[3])
+            mag = float(splitted_line[4])
+        
+        elif( len(splitted_line) == 4 ):
+            photz = float(splitted_line[2])
+            specz = float(splitted_line[3])
+            mag = 0.
+            use_mags = False
+            
+        elif( len(splitted_line) == 3 ):
+            photz = float(splitted_line[2])
+            specz = photz
+            mag = 0.
+            use_mags = False
         
         # what correlation redshift bin are we in?
+        if( photz < z_edges[0] or photz > z_edges[-1] ):
+            continue
         inds = numpy.digitize([photz], z_edges)
         bin_z = inds[0]-1
-        bin_z = int(numpy.clip(bin_z, 0., len(z_means)-1))
 
         # keep the info for the slopes even if outside the bin ranges
         # but get rid of objects well below the mag limit since those will 
@@ -178,37 +193,43 @@ def parse_data( filename, mag_cuts, f, sparse=True ):
     
     # loop over z bins to calculate one slope per each
     slope_array = numpy.zeros(mag_nzs)
-    for zbin in range(mag_nzs):
-
-        # don't bother trying if there are very few objs
-        if( len(mags[zbin]) < 100 ):
+    if not use_mags:
+        print >> sys.stderr, "setting all alphas to zero!"
+        for zbin in range(mag_nzs):
             slope_array[zbin] = 0.
-            continue
+        
+    else:
+        for zbin in range(mag_nzs):
 
-        magz = (zbin+0.5)*mag_maxz/mag_nzs
-        if magz >= max_z:
-            zbin2 = nbins_z-1
-        else:
-            inds = numpy.digitize([magz], z_edges)
-            zbin2 = inds[0]-1
-            zbin2 = int(numpy.clip(zbin2, 0., len(z_means)-1))
+            # don't bother trying if there are very few objs
+            if( len(mags[zbin]) < 100 ):
+                slope_array[zbin] = 0.
+                continue
+
+            magz = (zbin+0.5)*mag_maxz/mag_nzs
+            if magz >= max_z:
+                zbin2 = nbins_z-1
+            else:
+                inds = numpy.digitize([magz], z_edges)
+                zbin2 = inds[0]-1
+                zbin2 = int(numpy.clip(zbin2, 0., len(z_means)-1))
                 
-        mag_cut = mag_cuts[zbin2]
+            mag_cut = mag_cuts[zbin2]
 
-        # kde!
-        # NOTE: i'm setting alpha=0 for bins with no data!
-        kde = gaussian_kde(mags[zbin])
-        y_kde1 = kde.evaluate(mag_cut)
-        y_kde2 = kde.evaluate(mag_cut+0.01)
-        if( y_kde1 == 0 or y_kde2 == 0 ):
-            slope_kde = 0.4
-        else:
-            slope_kde = (numpy.log10(y_kde2)-numpy.log10(y_kde1))/0.01
-        # print >> sys.stderr, "kde slope %f" %slope_kde
+            # kde!
+            # NOTE: i'm setting alpha=0 for bins with no data!
+            kde = gaussian_kde(mags[zbin])
+            y_kde1 = kde.evaluate(mag_cut)
+            y_kde2 = kde.evaluate(mag_cut+0.01)
+            if( y_kde1 == 0 or y_kde2 == 0 ):
+                slope_kde = 0.4
+            else:
+                slope_kde = (numpy.log10(y_kde2)-numpy.log10(y_kde1))/0.01
+            # print >> sys.stderr, "kde slope %f" %slope_kde
 
-        # for the actual result, let's use the fit slope, and use the other two to estimate an error.
-        slope_array[zbin] = 2.5*slope_kde - 1
-        print >> sys.stderr, "z bin %d at %f s = %f alpha = %f" %(zbin, (zbin+0.5)*mag_maxz/mag_nzs, slope_kde, slope_array[zbin])
+            # for the actual result, let's use the fit slope, and use the other two to estimate an error.
+            slope_array[zbin] = 2.5*slope_kde - 1
+            print >> sys.stderr, "z bin %d at %f s = %f alpha = %f" %(zbin, (zbin+0.5)*mag_maxz/mag_nzs, slope_kde, slope_array[zbin])
 
     # save slopes: a table, for lots of redshift values.
     f.createGroup('/', 'slopes')
