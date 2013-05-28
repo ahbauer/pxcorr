@@ -30,10 +30,10 @@ using namespace H5;
 
 
 #define USE_WEIGHTS 0
-bool OUTPUT_FITS = true;
 
 void correlate( char* mapn1, char* mapn2, char* sfx ){
     
+    bool OUTPUT_FITS = true;
     cout << setiosflags(ios::fixed);
     
     int min_footprint_order = 4;
@@ -576,12 +576,76 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
         jkindex_array[jkpixels[k]] = k;
 
 
+    // make a copy of the original maps so that we can use degraded versions in the correlations
+    Partpix_Map2<double> lowzMap_orig;
+    Partpix_Map2<double> highzMap_orig;
+    Partpix_Map2<int> lowzMatchedMask_orig;
+    Partpix_Map2<int> highzMatchedMask_orig;
+    lowzMap_orig = Partpix_Map2<double>(order, footprintMap);
+    highzMap_orig = Partpix_Map2<double>(order, footprintMap);
+    lowzMatchedMask_orig = Partpix_Map2<int>(order, footprintMap);
+    highzMatchedMask_orig = Partpix_Map2<int>(order, footprintMap);
+    lowzMap_orig.Import_nograde(lowzMap, footprintMap);
+    highzMap_orig.Import_nograde(highzMap, footprintMap);
+    lowzMatchedMask_orig.Import_nograde(lowzMatchedMask, footprintMap);
+    highzMatchedMask_orig.Import_nograde(highzMatchedMask, footprintMap);
+    
     // for distance
     // # pragma omp parallel for schedule(dynamic, 1)
     for( int rbin=0; rbin<(int)r_lows.size(); ++rbin ){
 
     float r_low = r_lows[rbin];
     float r_high = r_highs[rbin];
+
+    // make sure that the data resolution is necessary.
+    // this is assuming that the bins are never decreasing in width with increasing radius!!
+    cerr << "Changing the map orders from " << lowzMap_orig.Order() << " to ";
+    order = 1;
+    while(1){
+      float pixel_size = sqrt(41253./(12.0*pow(pow(2.0, order), 2.0)));
+      if( 1.25*pixel_size < 57.3*(r_high-r_low) )  // this 0.85 is a bit arbitrary
+          break;
+      ++order;
+    }
+    cerr << "order " << order << "... ";
+    {
+        if( order < lowzMap.Order() && order > jackknifeMap.Order() ){
+            lowzMap = Partpix_Map2<double>(order, footprintMap);
+            highzMap = Partpix_Map2<double>(order, footprintMap);
+            lowzMatchedMask = Partpix_Map2<int>(order, footprintMap);
+            highzMatchedMask = Partpix_Map2<int>(order, footprintMap);
+            lowzMap.Import_degrade(lowzMap_orig, footprintMap);
+            highzMap.Import_degrade(highzMap_orig, footprintMap);
+            lowzMatchedMask.Import_degrade(lowzMatchedMask_orig, footprintMap);
+            highzMatchedMask.Import_degrade(highzMatchedMask_orig, footprintMap);
+        }
+        else if( order < lowzMap.Order() && order < jackknifeMap.Order()+1 && lowzMap.Order() > jackknifeMap.Order()+1 ){
+            lowzMap = Partpix_Map2<double>(jackknifeMap.Order()+1, footprintMap);
+            highzMap = Partpix_Map2<double>(jackknifeMap.Order()+1, footprintMap);
+            lowzMatchedMask = Partpix_Map2<int>(jackknifeMap.Order()+1, footprintMap);
+            highzMatchedMask = Partpix_Map2<int>(jackknifeMap.Order()+1, footprintMap);
+            lowzMap.Import_degrade(lowzMap_orig, footprintMap);
+            highzMap.Import_degrade(highzMap_orig, footprintMap);
+            lowzMatchedMask.Import_degrade(lowzMatchedMask_orig, footprintMap);
+            highzMatchedMask.Import_degrade(highzMatchedMask_orig, footprintMap);
+        }
+        else if( order == lowzMap.Order() ){
+            lowzMap = Partpix_Map2<double>(order, footprintMap);
+            highzMap = Partpix_Map2<double>(order, footprintMap);
+            lowzMatchedMask = Partpix_Map2<int>(order, footprintMap);
+            highzMatchedMask = Partpix_Map2<int>(order, footprintMap);
+            lowzMap.Import_nograde(lowzMap_orig, footprintMap);
+            highzMap.Import_nograde(highzMap_orig, footprintMap);
+            lowzMatchedMask.Import_nograde(lowzMatchedMask_orig, footprintMap);
+            highzMatchedMask.Import_nograde(highzMatchedMask_orig, footprintMap);
+        }
+        else{
+            cerr << "This combination of orders is not supported!  lowzMap.Order() = " << lowzMap.Order() << ", order = " << order << ", jackknifeMap.Order() = " << jackknifeMap.Order() << endl;
+            throw;
+        }
+    }
+    order = lowzMap.Order();
+    cerr << "done!" << endl;
 
     //vector<double> ni( jkpixels.size()+1, 0. );
     //vector<double> sumi( jkpixels.size()+1, 0. );
@@ -656,6 +720,9 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
 
         int jkpix_index_j= jkindex_array[jackknifeMap.ang2pix( pointing_j )];
 
+        if( i == listpix_annulus[j] ){
+            continue;
+        }
 
         double mult3 = lowzMap[i]*highzMap[listpix_annulus[j]];
         double multw = 1.0;
