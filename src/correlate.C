@@ -78,9 +78,9 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
     }
     DataSet dataset1 = group.openDataSet(dataset1_name);
     hsize_t ds1size = dataset1.getStorageSize();
-    int npix1 = ds1size/2/sizeof(double);
-    double *data1 = (double*) malloc( ds1size );
-    dataset1.read(data1, PredType::NATIVE_DOUBLE);
+    int npix1 = ds1size/2/sizeof(float);
+    float *data1 = (float*) malloc( ds1size );
+    dataset1.read(data1, PredType::NATIVE_FLOAT);
     int map1_order = data1[0];
     int map1_ordering = data1[1];
     cerr << "map 1 info " << map1_order << " " << map1_ordering << endl;
@@ -98,10 +98,10 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
     }
     DataSet dataset2 = group.openDataSet(dataset2_name);
     hsize_t ds2size = dataset2.getStorageSize();
-    int npix2 = ds2size/2/sizeof(double);
+    int64 npix2 = ds2size/2/sizeof(int64);
     cerr << "mask 1 has " << npix2-1 << " pixels" << endl;
-    double *data2 = (double*) malloc( ds2size );
-    dataset2.read(data2, PredType::NATIVE_DOUBLE);
+    int64 *data2 = (int64*) malloc( ds2size );
+    dataset2.read(data2, PredType::NATIVE_INT64);
     int mask1_order = data2[0];
     int mask1_ordering = data2[1];
     if( mask1_ordering != RING ){
@@ -220,9 +220,9 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
     }
     dataset1 = group.openDataSet(dataset1_name);
     ds1size = dataset1.getStorageSize();
-    int npix3 = ds1size/2/sizeof(double) ;
-    double *data3 = (double*) malloc( ds1size );
-    dataset1.read(data3, PredType::NATIVE_DOUBLE);
+    int npix3 = ds1size/2/sizeof(float) ;
+    float *data3 = (float*) malloc( ds1size );
+    dataset1.read(data3, PredType::NATIVE_FLOAT);
     int map2_order = data3[0];
     int map2_ordering = data3[1];
     cerr << "map 2 info " << map2_order << " " << map2_ordering << endl;
@@ -234,10 +234,10 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
     }
     dataset2 = group.openDataSet(dataset2_name);
     ds2size = dataset2.getStorageSize() - 1;
-    int npix4 = ds2size/2/sizeof(double);
+    int64 npix4 = ds2size/2/sizeof(int64);
     cerr << "mask 2 has " << npix4 << " pixels" << endl;
-    double *data4 = (double*) malloc( ds2size );
-    dataset2.read(data4, PredType::NATIVE_DOUBLE);
+    int64 *data4 = (int64*) malloc( ds2size );
+    dataset2.read(data4, PredType::NATIVE_INT64);
     int mask2_order = data4[0];
     int mask2_ordering = data4[1];
     if( mask1_ordering != RING ){
@@ -403,16 +403,16 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
     cerr << "Imported from resolution " << mask2_order << " to " << order << endl;
 
     // make the correlation maps (partpix)
-    Partpix_Map2<double> *lowzMap = new Partpix_Map2<double>(order, *footprintMap);
+    Partpix_Map2<float> *lowzMap = new Partpix_Map2<float>(order, *footprintMap);
     lowzMap->fill(0.0);
-    Partpix_Map2<double> *highzMap = new Partpix_Map2<double>(order, *footprintMap);
+    Partpix_Map2<float> *highzMap = new Partpix_Map2<float>(order, *footprintMap);
     highzMap->fill(0.0);
     cerr << "Created Partpix maps for data" << endl;
 
 #if USE_WEIGHTS
-    Partpix_Map2<double> *lowzWeightMap = new Partpix_Map2<double>(order, *footprintMap);
+    Partpix_Map2<float> *lowzWeightMap = new Partpix_Map2<float>(order, *footprintMap);
     lowzWeightMap->fill(1.0);  
-    Partpix_Map2<double> *highzWeightMap = new Partpix_Map2<double>(order, *footprintMap);
+    Partpix_Map2<float> *highzWeightMap = new Partpix_Map2<float>(order, *footprintMap);
     highzWeightMap->fill(1.0);
     cerr << "Created Partpix maps for weights" << endl;
 #endif
@@ -426,13 +426,13 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
     cerr << "Read in the data maps" << endl;
 
     if( OUTPUT_FITS ){
-        Healpix_Map<double> lowzHMap = lowzMap->to_Healpix( 0. );
+        Healpix_Map<float> lowzHMap = lowzMap->to_Healpix( 0. );
         system( "rm lowzMap.fits" );
         fitshandle myfits;
         myfits.create("lowzMap.fits");
         write_Healpix_map_to_fits(myfits, lowzHMap, PLANCK_FLOAT64);
         myfits.close();
-        Healpix_Map<double> highzHMap = highzMap->to_Healpix( 0. );
+        Healpix_Map<float> highzHMap = highzMap->to_Healpix( 0. );
         system( "rm highzMap.fits" );
         myfits = fitshandle();
         myfits.create("highzMap.fits");
@@ -581,8 +581,8 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
 
 
     // make a copy of the original maps so that we can use degraded versions in the correlations
-    Partpix_Map2<double> *lowzMap_orig = lowzMap;
-    Partpix_Map2<double> *highzMap_orig = highzMap;
+    Partpix_Map2<float> *lowzMap_orig = lowzMap;
+    Partpix_Map2<float> *highzMap_orig = highzMap;
     Partpix_Map2<int> *lowzMatchedMask_orig = lowzMatchedMask;
     Partpix_Map2<int> *highzMatchedMask_orig = highzMatchedMask;
     // lowzMap_orig = Partpix_Map2<double>(order, *footprintMap);
@@ -613,8 +613,8 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
         }
         cerr << "order " << order << "... ";
         if( order < lowzMap_orig->Order() && order > jackknifeMap.Order() ){
-            lowzMap = new Partpix_Map2<double>(order, *footprintMap);
-            highzMap = new Partpix_Map2<double>(order, *footprintMap);
+            lowzMap = new Partpix_Map2<float>(order, *footprintMap);
+            highzMap = new Partpix_Map2<float>(order, *footprintMap);
             lowzMatchedMask = new Partpix_Map2<int>(order, *footprintMap);
             highzMatchedMask = new Partpix_Map2<int>(order, *footprintMap);
             lowzMap->Import_degrade(*lowzMap_orig, *footprintMap);
@@ -623,8 +623,8 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
             highzMatchedMask->Import_degrade(*highzMatchedMask_orig, *footprintMap);
         }
         else if( order < lowzMap_orig->Order() && order < jackknifeMap.Order()+1 && lowzMap_orig->Order() > jackknifeMap.Order()+1 ){
-            lowzMap = new Partpix_Map2<double>(jackknifeMap.Order()+1, *footprintMap);
-            highzMap = new Partpix_Map2<double>(jackknifeMap.Order()+1, *footprintMap);
+            lowzMap = new Partpix_Map2<float>(jackknifeMap.Order()+1, *footprintMap);
+            highzMap = new Partpix_Map2<float>(jackknifeMap.Order()+1, *footprintMap);
             lowzMatchedMask = new Partpix_Map2<int>(jackknifeMap.Order()+1, *footprintMap);
             highzMatchedMask = new Partpix_Map2<int>(jackknifeMap.Order()+1, *footprintMap);
             lowzMap->Import_degrade(*lowzMap_orig, *footprintMap);

@@ -228,13 +228,13 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     // make the maps
         
     // always make the delta_counts map since we need that in order to make the delta_mag MASK
-    Partpix_Map2<double> *dcMap = new Partpix_Map2<double>(order, *footprintMap);
+    Partpix_Map2<float> *dcMap = new Partpix_Map2<float>(order, *footprintMap);
     dcMap->fill(0.);
-    Partpix_Map2<double> *dmMap;
+    Partpix_Map2<float> *dmMap;
     double mean_mag = 0.;
     int n_mags = 0;
     if( use_mags ){
-        dmMap = new Partpix_Map2<double>(order, *footprintMap);
+        dmMap = new Partpix_Map2<float>(order, *footprintMap);
         dmMap->fill(0.);
     }
     for( unsigned int p=0; p<pointings.size(); ++p ){
@@ -301,13 +301,13 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         string outfilename = "dc_map" + suffix + ".h5";
         H5::H5File *file = new H5::H5File( outfilename, H5F_ACC_TRUNC ); // clobber!
         H5::Group* group = new H5::Group( file->createGroup( "/data" ));
-        H5::PredType datatype( H5::PredType::NATIVE_DOUBLE );
+        H5::PredType datatype( H5::PredType::NATIVE_FLOAT );
         hsize_t dimsf[2];
         dimsf[1] = 2;
         int rank = 2;
 
         // the map dataset
-        double *data = new double[2*dcMap->Npartpix()+2];
+        float *data = new float[2*dcMap->Npartpix()+2];
         data[0] = dcMap->Order();
         data[1] = RING;
         unsigned int index = 2;
@@ -322,7 +322,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         H5::DataSpace *dataspace = new H5::DataSpace( rank, dimsf );
         string datasetname = "/data/map";
         H5::DataSet *dataset = new H5::DataSet( file->createDataSet( datasetname, datatype, *dataspace ) );
-        dataset->write( data, H5::PredType::NATIVE_DOUBLE );
+        dataset->write( data, H5::PredType::NATIVE_FLOAT );
         delete[] data;
         delete dataspace;
         delete dataset;
@@ -331,7 +331,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         delete dcMap;
         
         // the mask dataset
-        double *data_mask = new double[2*dcMask->Npartpix()+2];
+        int64 *data_mask = new int64[2*dcMask->Npartpix()+2];
         data_mask[0] = dcMask->Order();
         data_mask[1] = RING;
         index = 2;
@@ -346,7 +346,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         H5::DataSpace *dataspace_mask = new H5::DataSpace( rank, dimsf );
         datasetname = "/data/mask";
         H5::DataSet *dataset_mask = new H5::DataSet( file->createDataSet( datasetname, datatype, *dataspace_mask ) );
-        dataset_mask->write( data_mask, H5::PredType::NATIVE_DOUBLE );
+        dataset_mask->write( data_mask, H5::PredType::NATIVE_INT64 );
         delete dataspace_mask;
         delete dataset_mask;
         delete[] data_mask;
@@ -445,13 +445,13 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         string outfilename = "dm_map" + suffix + ".h5";
         H5::H5File *file = new H5::H5File( outfilename, H5F_ACC_TRUNC ); // clobber!
         H5::Group* group = new H5::Group( file->createGroup( "/data" ));
-        H5::PredType datatype( H5::PredType::NATIVE_DOUBLE );
+        H5::PredType datatype( H5::PredType::NATIVE_FLOAT );
         hsize_t dimsf[2];
         dimsf[1] = 2;
         int rank = 2;
 
         // the map dataset
-        double *data = new double[2*dmMap->Npartpix()+2];
+        float *data = new float[2*dmMap->Npartpix()+2];
         data[0] = dmMap->Order();
         data[1] = RING;
         unsigned int index = 2;
@@ -466,14 +466,14 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         H5::DataSpace *dataspace = new H5::DataSpace( rank, dimsf );
         string datasetname = "/data/map";
         H5::DataSet *dataset = new H5::DataSet( file->createDataSet( datasetname, datatype, *dataspace ) );
-        dataset->write( data, H5::PredType::NATIVE_DOUBLE );
+        dataset->write( data, H5::PredType::NATIVE_FLOAT );
         delete dataspace;
         delete dataset;
         delete[] data;
         delete dmMap;
         
         // the mask dataset
-        double *data_mask = new double[2*dmMask->Npartpix()+2];
+        int64 *data_mask = new int64[2*dmMask->Npartpix()+2];
         data_mask[0] = dmMask->Order();
         data_mask[1] = RING;
         index = 2;
@@ -489,7 +489,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         H5::DataSpace *dataspace_mask = new H5::DataSpace( rank, dimsf );
         datasetname = "/data/mask";
         H5::DataSet *dataset_mask = new H5::DataSet( file->createDataSet( datasetname, datatype, *dataspace_mask ) );
-        dataset_mask->write( data_mask, H5::PredType::NATIVE_DOUBLE );
+        dataset_mask->write( data_mask, H5::PredType::NATIVE_INT64 );
         delete dataspace_mask;
         delete dataset_mask;
         free( data_mask );
