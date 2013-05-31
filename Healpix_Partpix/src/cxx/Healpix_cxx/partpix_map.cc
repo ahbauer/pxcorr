@@ -148,7 +148,10 @@ template void Partpix_Map<double>::Import_degrade
   (const Partpix_Map<double> &orig, const Healpix_Map<int>& resolutionMask, bool pessimistic, double cutoff);
 template void Partpix_Map<int>::Import_degrade
   (const Partpix_Map<int> &orig, const Healpix_Map<int>& resolutionMask, bool pessimistic, double cutoff);
-
+template void Partpix_Map<float>::Import_degrade
+  (const Partpix_Map<float> &orig, const Healpix_Map<double>& resolutionMask, bool pessimistic, double cutoff);
+template void Partpix_Map<float>::Import_degrade
+  (const Partpix_Map<float> &orig, const Healpix_Map<int>& resolutionMask, bool pessimistic, double cutoff);
   
 template<typename T> void Partpix_Map<T>::minmax (T &Min, T &Max) const
   {
