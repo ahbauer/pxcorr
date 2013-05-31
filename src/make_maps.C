@@ -168,8 +168,8 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     double footprint_area = 50000.;
     Healpix_Map<int> *footprintMap = new Healpix_Map<int>(1, RING);
     while(footprint_order <= mask_order){
-    	delete footprintMap;
-    	footprintMap = new Healpix_Map<int>(footprint_order, RING);
+        delete footprintMap;
+        footprintMap = new Healpix_Map<int>(footprint_order, RING);
         footprintMap->fill(0);
         for( unsigned int i=0; i<mask_pixels.size(); ++i ){
             (*footprintMap)[ footprintMap->ang2pix(mask_base.pix2ang(mask_pixels[i])) ] = 1;
@@ -328,6 +328,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         delete dataset;
         
         cerr << "done with the map" << endl;
+        delete dcMap;
         
         // the mask dataset
         double *data_mask = new double[2*dcMask->Npartpix()+2];
@@ -434,7 +435,8 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         delete metagroup;
         delete file;
         
-        cerr << "Wrote delta counts map (" << dcMap->Npartpix() << " + " << dcMask->Npartpix() << " entries) to file" << endl;
+        cerr << "Wrote delta counts map to file" << endl;
+        delete dcMask;
     }
     }
     // mags:
@@ -468,6 +470,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         delete dataspace;
         delete dataset;
         delete[] data;
+        delete dmMap;
         
         // the mask dataset
         double *data_mask = new double[2*dmMask->Npartpix()+2];
@@ -490,6 +493,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         delete dataspace_mask;
         delete dataset_mask;
         free( data_mask );
+        delete dmMask;
 
         // the metadata
         H5::Group* metagroup = new H5::Group( file->createGroup( "/meta" ) );
@@ -569,17 +573,11 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         delete metagroup;
         delete file;
         
-        cerr << "Wrote delta mag map (" << dmMap->Npartpix() << " + " << dmMask->Npartpix() << " entries) to file" << endl;
+        cerr << "Wrote delta mag map to file" << endl;
 
     } // if use_mags
     
-    delete dcMap;
     delete footprintMap;
-    delete dcMask;
-    if( use_mags ){
-        delete dmMask;
-        delete dmMap;
-    }
 
     cerr << "Finished with make_maps!" << endl;
 
