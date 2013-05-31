@@ -603,13 +603,13 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
     order = 1;
     while(1){
       float pixel_size = sqrt(41253./(12.0*pow(pow(2.0, order), 2.0)));
-      if( 1.25*pixel_size < 57.3*(r_high-r_low) )  // this 0.85 is a bit arbitrary
+      if( 3.0*pixel_size < 57.3*(r_high-r_low) )  // this 0.85 is a bit arbitrary
           break;
       ++order;
     }
     cerr << "order " << order << "... ";
     {
-        if( order < lowzMap.Order() && order > jackknifeMap.Order() ){
+        if( order < lowzMap_orig.Order() && order > jackknifeMap.Order() ){
             lowzMap = Partpix_Map2<double>(order, footprintMap);
             highzMap = Partpix_Map2<double>(order, footprintMap);
             lowzMatchedMask = Partpix_Map2<int>(order, footprintMap);
@@ -619,7 +619,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
             lowzMatchedMask.Import_degrade(lowzMatchedMask_orig, footprintMap);
             highzMatchedMask.Import_degrade(highzMatchedMask_orig, footprintMap);
         }
-        else if( order < lowzMap.Order() && order < jackknifeMap.Order()+1 && lowzMap.Order() > jackknifeMap.Order()+1 ){
+        else if( order < lowzMap_orig.Order() && order < jackknifeMap.Order()+1 && lowzMap_orig.Order() > jackknifeMap.Order()+1 ){
             lowzMap = Partpix_Map2<double>(jackknifeMap.Order()+1, footprintMap);
             highzMap = Partpix_Map2<double>(jackknifeMap.Order()+1, footprintMap);
             lowzMatchedMask = Partpix_Map2<int>(jackknifeMap.Order()+1, footprintMap);
@@ -629,7 +629,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
             lowzMatchedMask.Import_degrade(lowzMatchedMask_orig, footprintMap);
             highzMatchedMask.Import_degrade(highzMatchedMask_orig, footprintMap);
         }
-        else if( order == lowzMap.Order() ){
+        else if( order == lowzMap_orig.Order() ){
             lowzMap = Partpix_Map2<double>(order, footprintMap);
             highzMap = Partpix_Map2<double>(order, footprintMap);
             lowzMatchedMask = Partpix_Map2<int>(order, footprintMap);

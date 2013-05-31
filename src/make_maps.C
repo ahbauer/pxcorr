@@ -60,7 +60,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     int order = 1;
     while(1){
       float pixel_size = sqrt(41253./(12.0*pow(pow(2.0, order), 2.0)));
-      if( 1.25*pixel_size < min_width )  // this 0.85 is a bit arbitrary
+      if( 3.0*pixel_size < min_width )  // this 0.85 is a bit arbitrary
           break;
       ++order;
     }
