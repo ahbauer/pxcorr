@@ -34,9 +34,10 @@ using namespace H5;
 void correlate( char* mapn1, char* mapn2, char* sfx ){
     
     bool OUTPUT_FITS = true;
-    cout << setiosflags(ios::fixed);
+    cout << setiosflags(ios::fixed) << setprecision(16);
+    cerr << setprecision(16);
     
-    int min_footprint_order = 4;
+    int min_footprint_order = 3;
     
     string mapname1( mapn1 );
     string mapname2( mapn2 );
@@ -78,12 +79,12 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
     }
     DataSet dataset1 = group.openDataSet(dataset1_name);
     hsize_t ds1size = dataset1.getStorageSize();
-    int npix1 = ds1size/2/sizeof(float);
-    float *data1 = (float*) malloc( ds1size );
-    dataset1.read(data1, PredType::NATIVE_FLOAT);
+    int npix1 = ds1size/2/sizeof(double);
+    double *data1 = (double*) malloc( ds1size );
+    dataset1.read(data1, PredType::NATIVE_DOUBLE);
     int map1_order = data1[0];
     int map1_ordering = data1[1];
-    cerr << "map 1 info " << map1_order << " " << map1_ordering << endl;
+    cerr << "map 1 info " << map1_order << " " << map1_ordering << " " << npix1-1 << " pixels" << endl;
     // for( int i=1; i<npix1; ++i ){
     //     for( int j=0; j<2; ++j ){
     //         cout << data1[2*i+j] << " ";
@@ -98,9 +99,9 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
     }
     DataSet dataset2 = group.openDataSet(dataset2_name);
     hsize_t ds2size = dataset2.getStorageSize();
-    int64 npix2 = ds2size/2/sizeof(int64);
+    long npix2 = ds2size/2/sizeof(long);
     cerr << "mask 1 has " << npix2-1 << " pixels" << endl;
-    int64 *data2 = (int64*) malloc( ds2size );
+    long *data2 = (long*) malloc( ds2size );
     dataset2.read(data2, PredType::NATIVE_INT64);
     int mask1_order = data2[0];
     int mask1_ordering = data2[1];
@@ -109,10 +110,10 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
         return;
     }
     cerr << "mask 1 info " << mask1_order << " " << mask1_ordering << endl;
-    vector<int64> mask1_pixels;
-    for( int i=1; i<npix2; ++i ){
-            if( data2[2*i+1] > 0.5 ){
-                mask1_pixels.push_back(data2[2*i]);
+    vector<long> mask1_pixels;
+    for( int i=2; i<2*npix2; i+=2 ){
+            if( data2[i+1] > 0.5 ){
+                mask1_pixels.push_back(data2[i]);
             }
     }
     free(data2);
@@ -220,12 +221,12 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
     }
     dataset1 = group.openDataSet(dataset1_name);
     ds1size = dataset1.getStorageSize();
-    int npix3 = ds1size/2/sizeof(float) ;
-    float *data3 = (float*) malloc( ds1size );
-    dataset1.read(data3, PredType::NATIVE_FLOAT);
+    int npix3 = ds1size/2/sizeof(double);
+    double *data3 = (double*) malloc( ds1size );
+    dataset1.read(data3, PredType::NATIVE_DOUBLE);
     int map2_order = data3[0];
     int map2_ordering = data3[1];
-    cerr << "map 2 info " << map2_order << " " << map2_ordering << endl;
+    cerr << "map 2 info " << map2_order << " " << map2_ordering << " " << npix3-1 << " pixels" << endl;
     
     dataset2_name = group.getObjnameByIdx(1);
     if( dataset2_name != "mask" ){
@@ -233,22 +234,23 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
         return;
     }
     dataset2 = group.openDataSet(dataset2_name);
-    ds2size = dataset2.getStorageSize() - 1;
-    int64 npix4 = ds2size/2/sizeof(int64);
-    cerr << "mask 2 has " << npix4 << " pixels" << endl;
-    int64 *data4 = (int64*) malloc( ds2size );
+    ds2size = dataset2.getStorageSize();
+    long npix4 = ds2size/2/sizeof(long);
+    cerr << "sizes " << sizeof(int64) << " " << sizeof(PredType::NATIVE_INT64) << " " << sizeof(PredType::NATIVE_INT32) << " " << sizeof(long) << endl;
+    cerr << "mask 2 has " << npix4-1 << " pixels" << endl;
+    long *data4 = (long*) malloc( ds2size );
     dataset2.read(data4, PredType::NATIVE_INT64);
     int mask2_order = data4[0];
     int mask2_ordering = data4[1];
-    if( mask1_ordering != RING ){
+    if( mask2_ordering != RING ){
         cerr << "Problem, mask2 ordering is not RING but " << mask2_ordering << endl;
         return;
     }
     cerr << "mask 2 info " << mask2_order << " " << mask2_ordering << endl;
-    vector<int64> mask2_pixels;
-    for( int i=1; i<npix4; ++i ){
-            if( data4[2*i+1] > 0.5 ){
-                mask2_pixels.push_back(data4[2*i]);
+    vector<long> mask2_pixels;
+    for( int i=2; i<2*npix4; i+=2 ){
+            if( data4[i+1] > 0.5 ){
+                mask2_pixels.push_back(data4[i]);
             }
     }
     free(data4);
@@ -267,7 +269,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
     int footprint_order = min_footprint_order;
     double footprint_area = 50000.;
     Healpix_Map<int> *footprintMap;
-    while(footprint_order <= 8){
+    while(footprint_order <= mask1_order){
         footprintMap = new Healpix_Map<int>(footprint_order, RING);
         footprintMap->fill(0);
         for( unsigned int i=0; i<mask1_pixels.size(); ++i ){
@@ -366,34 +368,47 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
 
     if( OUTPUT_FITS ){
 
-        system( "rm lowzMask.fits" );
-        fitshandle myfits;
-        myfits.create("lowzMask.fits");
-        Healpix_Map<int> lowzHMask0 = lowzMatchedMask->to_Healpix( 0 );
-        write_Healpix_map_to_fits(myfits, lowzHMask0, PLANCK_INT32);
-        myfits.close();
-
         system( "rm lowzMask0.fits" );
-        myfits = fitshandle();
+        fitshandle myfits;
         myfits.create("lowzMask0.fits");
         Healpix_Map<int> lowzHMask = lowzMask->to_Healpix( 0 );
         write_Healpix_map_to_fits(myfits, lowzHMask, PLANCK_INT32);
         myfits.close();
         
-        system( "rm highzMask.fits" );
-        myfits = fitshandle();
-        myfits.create("highzMask.fits");
-        // Healpix_Map<int> highzHMask(highzMask.Order(), RING);
-        // highzHMask.fill(0);
-        // for( int i1=0; i1<highzMask.Npartpix(); ++i1 ){
-        //   int i = highzMask.highResPix(i1);
-        //   if( highzMask[i] == 1 ){
-        //       highzHMask[i] = 1;
-        //   }
-        // }
-        Healpix_Map<int> highzHMask = highzMatchedMask->to_Healpix( 0 );
-        write_Healpix_map_to_fits(myfits, highzHMask, PLANCK_INT32);
-        myfits.close();
+        if( order < 14 ){ 
+            system( "rm lowzMask.fits" );
+            myfits = fitshandle();
+            myfits.create("lowzMask.fits");
+            Healpix_Map<int> lowzHMask0 = lowzMatchedMask->to_Healpix( 0 );
+            write_Healpix_map_to_fits(myfits, lowzHMask0, PLANCK_INT32);
+            myfits.close();
+
+            system( "rm highzMask.fits" );
+            myfits = fitshandle();
+            myfits.create("highzMask.fits");
+            Healpix_Map<int> highzHMask = highzMatchedMask->to_Healpix( 0 );
+            write_Healpix_map_to_fits(myfits, highzHMask, PLANCK_INT32);
+            myfits.close();
+        }
+        else{
+            system( "rm lowzMask.fits" );
+            myfits = fitshandle();
+            myfits.create("lowzMask.fits");
+            Partpix_Map2<int> lowzHMask1( 10, *footprintMap );
+            lowzHMask1.Import_degrade( *lowzMatchedMask, *footprintMap );
+            Healpix_Map<int> lowzHMask0 = lowzHMask1.to_Healpix( 0 );
+            write_Healpix_map_to_fits(myfits, lowzHMask0, PLANCK_INT32);
+            myfits.close();
+
+            system( "rm highzMask.fits" );
+            myfits = fitshandle();
+            myfits.create("highzMask.fits");
+            Partpix_Map2<int> highzHMask1( 10, *footprintMap );
+            highzHMask1.Import_degrade( *highzMatchedMask, *footprintMap );
+            Healpix_Map<int> highzHMask = highzHMask1.to_Healpix( 0 );
+            write_Healpix_map_to_fits(myfits, highzHMask, PLANCK_INT32);
+            myfits.close();
+        }
     }
 
     delete lowzMask;
@@ -407,7 +422,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
     lowzMap->fill(0.0);
     Partpix_Map2<float> *highzMap = new Partpix_Map2<float>(order, *footprintMap);
     highzMap->fill(0.0);
-    cerr << "Created Partpix maps for data" << endl;
+    cerr << "Created Partpix maps for data, order " << order << endl;
 
 #if USE_WEIGHTS
     Partpix_Map2<float> *lowzWeightMap = new Partpix_Map2<float>(order, *footprintMap);
@@ -418,10 +433,12 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
 #endif
 
     for( int i=1; i<npix1; ++i ){
-            (*lowzMap)[data1[2*i]] = data1[2*i+1];
+        // cerr << "trying low z pixel " << data1[2*i] << " value " << data1[2*i+1] << " i = " << i << endl;
+        (*lowzMap)[data1[2*i]] = data1[2*i+1];
     }
     for( int i=1; i<npix3; ++i ){
-            (*highzMap)[data3[2*i]] = data3[2*i+1];
+        // cerr << "trying high z pixel " << data3[2*i] << " value " << data3[2*i+1] << " i = " << i << endl;
+        (*highzMap)[data3[2*i]] = data3[2*i+1];
     }
     cerr << "Read in the data maps" << endl;
 
@@ -505,7 +522,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
                   }
               }
           }
-          double threshold = 0;
+          double threshold = 0.;
           for( int j1=0; j1<jackknifeMap1->Npartpix(); ++j1 ){
               int j = jackknifeMap1->highResPix(j1);
               if( (*jackknifeMap1)[j] > threshold )
@@ -567,6 +584,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
     vector<double> correlations(r_lows.size(), 0.);
     vector<double> ns(r_lows.size(), 0.);
     vector< vector<double> > pss( r_lows.size(), vector<double>() );
+    vector< vector<double> > jkcorrs( r_lows.size(), vector<double>() );
 
     cerr << "starting correlation stuff, with map resolutions " << lowzMap->Order() << " and " << highzMap->Order() << endl;
 
@@ -575,7 +593,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
     vector<int> jk_ns( r_lows.size(), 0. );
 
     // calculate a jkindex_array to save time in the loops
-    vector<int> jkindex_array( jackknifeMap.Npix(), -1 );
+    vector<int> jkindex_array( jackknifeMap.Npix(), jkpixels.size() );
     for( unsigned int k=0; k<jkpixels.size(); ++k )
         jkindex_array[jkpixels[k]] = k;
 
@@ -656,9 +674,11 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
         //vector<double> ni( jkpixels.size()+1, 0. );
         //vector<double> sumi( jkpixels.size()+1, 0. );
         vector<double> sumij( jkpixels.size()+1, 0. );
+        vector< vector<double> > sumij_injk( jkpixels.size()+1, vector<double>( jkpixels.size()+1, 0. ) );
         //vector<double> sumj( jkpixels.size()+1, 0. );
         //vector<double> nj( jkpixels.size()+1, 0. );
         vector<double> nij( jkpixels.size()+1, 0. );
+        vector< vector<double> > nij_injk( jkpixels.size()+1, vector<double>( jkpixels.size()+1, 0. ) );
 
         //double sumdist = 0.0;
         //double ndist = 0.0;
@@ -737,12 +757,9 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
             mult3 *= (*lowzWeightMap)[i]*(*highzWeightMap)[listpix_annulus[j]];
             multw *= (*lowzWeightMap)[i]*(*highzWeightMap)[listpix_annulus[j]];
     #endif
-            for( unsigned int k=0; k<jkpixels.size()+1; ++k ){
-                if( ((int) k == jkpix_index_j) || ((int) k == jkpix_index_i) )
-                    continue;
-                sumij[k] += mult3;
-                nij[k] += multw;
-            }
+
+            sumij_injk[jkpix_index_i][jkpix_index_j] += mult3;
+            nij_injk[jkpix_index_i][jkpix_index_j] += multw;
 
             // double sinjth = sin(1.5707963-pointing_j.theta);
             // double cosjth = cos(1.5707963-pointing_j.theta);
@@ -761,7 +778,23 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
         } // for i pixels in low-z map
 
         //double dist_mean = sumdist/ndist;
+        
+        // now rearrange jackknife stuff to exclude the pixel
+        for( unsigned int i=0; i<jkpixels.size()+1; ++i ){
+            for( unsigned int j=0; j<jkpixels.size()+1; ++j ){
+                for( unsigned int k=0; k<jkpixels.size(); ++k ){
+                    if( k != i && k != j ){
+                        sumij[k] += sumij_injk[i][j];
+                        nij[k] += nij_injk[i][j];
+                    }
+                    sumij[jkpixels.size()] += sumij_injk[i][j];
+                    nij[jkpixels.size()] += nij_injk[i][j];
+                }
+            }
+        }
 
+        
+        
         if( nij[jkpixels.size()] > 0 ){
             correlations[rbin] = sumij[jkpixels.size()]/nij[jkpixels.size()];
         }
@@ -781,20 +814,25 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
             }
           double ps = jkpixels.size()*correlations[rbin] - (jkpixels.size()-1)*corr_wo1;
           pss[rbin].push_back(ps);
+          jkcorrs[rbin].push_back(corr_wo1);
         }    
 
         // now average up the jackknife results for each radius
         unsigned int r = rbin;
         for( unsigned int p=0; p<pss[r].size(); ++p ){
-          jk_means[r] += pss[r][p];
+          //jk_means[r] += pss[r][p];
+            jk_means[r] += jkcorrs[r][p];
         }
         if( pss[r].size()>2 ){
-          jk_means[r] /= pss[r].size();
+          //jk_means[r] /= pss[r].size();
+          jk_means[r] /= jkcorrs[r].size();
 
           for( unsigned int p=0; p<pss[r].size(); ++p ){
-        jk_variance[r] += (pss[r][p]-jk_means[r])*(pss[r][p]-jk_means[r]);
+            //jk_variance[r] += (pss[r][p]-jk_means[r])*(pss[r][p]-jk_means[r]);
+              jk_variance[r] += (jkcorrs[r][p]-jk_means[r])*(jkcorrs[r][p]-jk_means[r]);
           }
-          float fraction = 1./(pss[r].size()*(pss[r].size()-1.));
+          //float fraction = 1./(pss[r].size()*(pss[r].size()-1.));
+          float fraction = (jkcorrs[r].size()-1.)/jkcorrs[r].size();
           jk_variance[r] *= fraction;
           jk_variance[r] /= area_fraction;
         }
@@ -851,14 +889,18 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
     cerr << "calculating covariance... " << endl;
     for( unsigned int i=0; i<r_lows.size(); ++i ){
       for( unsigned int j=0; j<r_lows.size(); ++j ){
-    if( pss[i].size() != pss[j].size() ){
-      cerr << "Problem, jackknife lists " << i << ", " << j << " are not the same size: " << pss[i].size() << ", " << pss[j].size() << endl;
-      return;
-    }
+    //if( pss[i].size() != pss[j].size() ){
+        if( jkcorrs[i].size() != jkcorrs[j].size() ){
+            cerr << "Problem, jackknife lists " << i << ", " << j << " are not the same size: " << jkcorrs[i].size() << ", " << jkcorrs[j].size() << endl;
+            return;
+        }
     for( unsigned int k=0; k<pss[i].size(); ++k ){
-      c[i][j] += (pss[i][k]-jk_means[i])*(pss[j][k]-jk_means[j]);
+      //c[i][j] += (pss[i][k]-jk_means[i])*(pss[j][k]-jk_means[j]);
+      c[i][j] += (jkcorrs[i][k]-jk_means[i])*(jkcorrs[j][k]-jk_means[j]);
     }
-    float fraction = 1./(pss[i].size()*(pss[i].size()-1.));
+    //float fraction = 1./(pss[i].size()*(pss[i].size()-1.));
+    //float fraction = 1./(pss[i].size()-1.);
+    float fraction = (jkcorrs[i].size()-1.)/(jkcorrs[i].size());
     c[i][j] *= fraction;
     c[i][j] /= area_fraction;
 
@@ -889,14 +931,13 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
 
 int main (int argc, char **argv){
     
-    if( argc != 3 ){
-        cerr << "Usage: correlate map1 map2" << endl;
+    if( argc != 4 ){
+        cerr << "Usage: correlate map1 map2 suffix" << endl;
         cerr << "       where the maps are hdf5 files produced by make_maps, that each have a map and a mask." << endl;
         return 1;
     }
     
-    char sfx[1] = "";
-    correlate( argv[1], argv[2], sfx );
+    correlate( argv[1], argv[2], argv[3] );
     
     return 0;
     
