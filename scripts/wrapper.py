@@ -66,7 +66,7 @@ if nofz_filename == catalog_filename or nofz_filename is None or nofz_filename =
     nofz_from_data = True
 
 # parse the catalog: construct N(z) data, calculate slope, etc.
-subcat_filenames = parse_data( catalog_filename, mag_cuts, hdf5file, add_nofz=False, sparse=True )
+subcat_filenames = parse_data( catalog_filename, mag_cuts, hdf5file, nofz_from_data, sparse=True )
 # print subcat_filenames
 
 # if the N(z) is from a separate file, put that in the hdf5 file now.
