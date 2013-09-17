@@ -15,6 +15,9 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
+#include <iomanip>
+using namespace std;
+
 #include <algorithm>
 using std::transform;
 #include <ctype.h>
@@ -39,7 +42,11 @@ using namespace std;
 void make_maps( const char *catalog_filename_c, const char *mask_filename_c, float *ang_means_c, int n_ang_bins0, float *ang_widths_c, int n_ang_bins, bool use_counts, bool use_mags, char *suffix_c ){
 
     //int n_ang_bins = ang_means.size();
+    double input_mask_cut = 1.e-5;
+    double pixel_multiple = 2.5;
 
+    cerr << setprecision(16);
+    
     if( !( use_counts || use_mags) ){
         cerr << "Not using either counts or mags... doing nothing!" << endl;
         return;
@@ -49,7 +56,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     string mask_filename(mask_filename_c);
     string suffix(suffix_c);
     
-    int min_footprint_order = 6;
+    int min_footprint_order = 3;
     
     // From the smallest angular bin width, figure out the necessary map resolution.
     float min_width = 1.e9;
@@ -60,7 +67,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     int order = 1;
     while(1){
       float pixel_size = sqrt(41253./(12.0*pow(pow(2.0, order), 2.0)));
-      if( 3.0*pixel_size < min_width )  // this 0.85 is a bit arbitrary
+      if( pixel_multiple*pixel_size < min_width )  // this 0.85 is a bit arbitrary
           break;
       ++order;
     }
@@ -139,7 +146,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
                     return;
                 }
             }
-            if( val > 0.5 )
+            if( val > input_mask_cut )
                 mask_pixels.push_back(pix);
         }
         fclose(maskfile);
@@ -186,9 +193,19 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
             ++footprint_order;
         }
         else{
-            footprint_area = footprint_area_new;
+            //footprint_area = footprint_area_new;
             break;
         }
+    }
+    // the previous footprint order was fine.
+    // we want this to be small because it's also the minimum jackknife order.
+    // so, go back to the last footprint order.
+    --footprint_order;
+    delete footprintMap;
+    footprintMap = new Healpix_Map<int>(footprint_order, RING);
+    footprintMap->fill(0);
+    for( unsigned int i=0; i<mask_pixels.size(); ++i ){
+        (*footprintMap)[ footprintMap->ang2pix(mask_base.pix2ang(mask_pixels[i])) ] = 1;
     }
     cerr << "Using footprint order " << footprintMap->Order() << " with " << footprint_area << " sq degrees." << endl;
 
@@ -222,7 +239,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     // system( "rm fp.fits" );
     // fitshandle myfits;
     // myfits.create("fp.fits");
-    // write_Healpix_map_to_fits(myfits, footprintMap, PLANCK_FLOAT64);
+    // write_Healpix_map_to_fits(myfits, *footprintMap, PLANCK_FLOAT64);
     // myfits.close();
     
     // make the maps
@@ -301,33 +318,50 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         string outfilename = "dc_map" + suffix + ".h5";
         H5::H5File *file = new H5::H5File( outfilename, H5F_ACC_TRUNC ); // clobber!
         H5::Group* group = new H5::Group( file->createGroup( "/data" ));
-        H5::PredType datatype( H5::PredType::NATIVE_FLOAT );
+        H5::PredType datatype_map( H5::PredType::NATIVE_DOUBLE );
+        H5::PredType datatype_mask( H5::PredType::NATIVE_INT64 );
         hsize_t dimsf[2];
         dimsf[1] = 2;
         int rank = 2;
 
         // the map dataset
-        float *data = new float[2*dcMap->Npartpix()+2];
+        int64 dsize = 2*dcMap->Npartpix()+2;
+        double *data = new double[dsize];
         data[0] = dcMap->Order();
         data[1] = RING;
-        unsigned int index = 2;
+        int64 index = 2;
         for( int64 i1=0; i1<dcMap->Npartpix(); ++i1 ){
             int64 i = dcMap->highResPix(i1);
-            data[index] = i;
-            ++index;
-            data[index] = (*dcMap)[i];
-            ++index;
+            // only write it out if it's inside the mask
+            if( (*dcMask)[dcMask->ang2pix(dcMap->pix2ang(i))] > 0.5 ){
+                data[index] = i;
+                ++index;
+                data[index] = (*dcMap)[i];
+                ++index;
+            }
         }
-        dimsf[0] = dcMap->Npartpix()+1;
+        dimsf[0] = index/2;
         H5::DataSpace *dataspace = new H5::DataSpace( rank, dimsf );
         string datasetname = "/data/map";
-        H5::DataSet *dataset = new H5::DataSet( file->createDataSet( datasetname, datatype, *dataspace ) );
-        dataset->write( data, H5::PredType::NATIVE_FLOAT );
+        H5::DataSet *dataset = new H5::DataSet( file->createDataSet( datasetname, datatype_map, *dataspace ) );
+        // TBD:  why still the 2gb problem??  VB!
+        if( dimsf[0] > 120000000 ){
+            cerr << "BAD: trying as a float...";
+            float *dataf = new float[index];
+            for( int64 i=0; i<index; ++i ){
+                dataf[i] = float(data[i]);
+            }
+            dataset->write( dataf, H5::PredType::NATIVE_FLOAT );
+            delete[] dataf;
+        }
+        else{
+            dataset->write( data, H5::PredType::NATIVE_DOUBLE );
+        }
         delete[] data;
         delete dataspace;
         delete dataset;
         
-        cerr << "done with the map" << endl;
+        cerr << "Wrote " << dimsf[0]-1 << " pixels to the map" << endl;
         delete dcMap;
         
         // the mask dataset
@@ -345,8 +379,9 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         dimsf[0] = dcMask->Npartpix()+1;
         H5::DataSpace *dataspace_mask = new H5::DataSpace( rank, dimsf );
         datasetname = "/data/mask";
-        H5::DataSet *dataset_mask = new H5::DataSet( file->createDataSet( datasetname, datatype, *dataspace_mask ) );
+        H5::DataSet *dataset_mask = new H5::DataSet( file->createDataSet( datasetname, datatype_mask, *dataspace_mask ) );
         dataset_mask->write( data_mask, H5::PredType::NATIVE_INT64 );
+        cerr << "Wrote " << dcMask->Npartpix() << " pixels to the mask" << endl;
         delete dataspace_mask;
         delete dataset_mask;
         delete[] data_mask;
@@ -445,28 +480,31 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         string outfilename = "dm_map" + suffix + ".h5";
         H5::H5File *file = new H5::H5File( outfilename, H5F_ACC_TRUNC ); // clobber!
         H5::Group* group = new H5::Group( file->createGroup( "/data" ));
-        H5::PredType datatype( H5::PredType::NATIVE_FLOAT );
+        H5::PredType datatype_map( H5::PredType::NATIVE_DOUBLE );
+        H5::PredType datatype_mask( H5::PredType::NATIVE_INT64 );
         hsize_t dimsf[2];
         dimsf[1] = 2;
         int rank = 2;
 
         // the map dataset
-        float *data = new float[2*dmMap->Npartpix()+2];
+        double *data = new double[2*dmMap->Npartpix()+2];
         data[0] = dmMap->Order();
         data[1] = RING;
         unsigned int index = 2;
         for( int64 i1=0; i1<dmMap->Npartpix(); ++i1 ){
             int64 i = dmMap->highResPix(i1);
-            data[index] = i;
-            ++index;
-            data[index] = (*dmMap)[i];
-            ++index;
+            if( (*dmMask)[dmMask->ang2pix(dmMap->pix2ang(i))] > 0.5 ){
+                data[index] = i;
+                ++index;
+                data[index] = (*dmMap)[i];
+                ++index;
+            }
         }
         dimsf[0] = dmMap->Npartpix()+1;
         H5::DataSpace *dataspace = new H5::DataSpace( rank, dimsf );
         string datasetname = "/data/map";
-        H5::DataSet *dataset = new H5::DataSet( file->createDataSet( datasetname, datatype, *dataspace ) );
-        dataset->write( data, H5::PredType::NATIVE_FLOAT );
+        H5::DataSet *dataset = new H5::DataSet( file->createDataSet( datasetname, datatype_map, *dataspace ) );
+        dataset->write( data, H5::PredType::NATIVE_DOUBLE );
         delete dataspace;
         delete dataset;
         delete[] data;
@@ -488,7 +526,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         dimsf[0] = dmMask->Npartpix()+1;
         H5::DataSpace *dataspace_mask = new H5::DataSpace( rank, dimsf );
         datasetname = "/data/mask";
-        H5::DataSet *dataset_mask = new H5::DataSet( file->createDataSet( datasetname, datatype, *dataspace_mask ) );
+        H5::DataSet *dataset_mask = new H5::DataSet( file->createDataSet( datasetname, datatype_mask, *dataspace_mask ) );
         dataset_mask->write( data_mask, H5::PredType::NATIVE_INT64 );
         delete dataspace_mask;
         delete dataset_mask;

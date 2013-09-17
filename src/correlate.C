@@ -38,6 +38,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
     cerr << setprecision(16);
     
     int min_footprint_order = 3;
+    double pixel_multiple = 2.5;
     
     string mapname1( mapn1 );
     string mapname2( mapn2 );
@@ -236,7 +237,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
     dataset2 = group.openDataSet(dataset2_name);
     ds2size = dataset2.getStorageSize();
     long npix4 = ds2size/2/sizeof(long);
-    cerr << "sizes " << sizeof(int64) << " " << sizeof(PredType::NATIVE_INT64) << " " << sizeof(PredType::NATIVE_INT32) << " " << sizeof(long) << endl;
+    //cerr << "sizes " << sizeof(int64) << " " << sizeof(PredType::NATIVE_INT64) << " " << sizeof(PredType::NATIVE_INT32) << " " << sizeof(long) << endl;
     cerr << "mask 2 has " << npix4-1 << " pixels" << endl;
     long *data4 = (long*) malloc( ds2size );
     dataset2.read(data4, PredType::NATIVE_INT64);
@@ -310,7 +311,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
     }
     cerr << "Using footprint order " << footprintMap->Order() << " with " << footprint_area << " sq degrees." << endl;
 
-    if( OUTPUT_FITS ){
+    if( OUTPUT_FITS && footprintMap->Order()<13 ){
         system( "rm fp.fits" );
         fitshandle myfits;
         myfits.create("fp.fits");
@@ -367,15 +368,15 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
     }
 
     if( OUTPUT_FITS ){
-
-        system( "rm lowzMask0.fits" );
-        fitshandle myfits;
-        myfits.create("lowzMask0.fits");
-        Healpix_Map<int> lowzHMask = lowzMask->to_Healpix( 0 );
-        write_Healpix_map_to_fits(myfits, lowzHMask, PLANCK_INT32);
-        myfits.close();
         
         if( order < 14 ){ 
+            system( "rm lowzMask0.fits" );
+            fitshandle myfits;
+            myfits.create("lowzMask0.fits");
+            Healpix_Map<int> lowzHMask = lowzMask->to_Healpix( 0 );
+            write_Healpix_map_to_fits(myfits, lowzHMask, PLANCK_INT32);
+            myfits.close();
+
             system( "rm lowzMask.fits" );
             myfits = fitshandle();
             myfits.create("lowzMask.fits");
@@ -392,7 +393,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
         }
         else{
             system( "rm lowzMask.fits" );
-            myfits = fitshandle();
+            fitshandle myfits;
             myfits.create("lowzMask.fits");
             Partpix_Map2<int> lowzHMask1( 10, *footprintMap );
             lowzHMask1.Import_degrade( *lowzMatchedMask, *footprintMap );
@@ -442,7 +443,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
     }
     cerr << "Read in the data maps" << endl;
 
-    if( OUTPUT_FITS ){
+    if( OUTPUT_FITS && order < 13 ){
         Healpix_Map<float> lowzHMap = lowzMap->to_Healpix( 0. );
         system( "rm lowzMap.fits" );
         fitshandle myfits;
@@ -625,7 +626,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
         order = 1;
         while(1){
           float pixel_size = sqrt(41253./(12.0*pow(pow(2.0, order), 2.0)));
-          if( 3.0*pixel_size < 57.3*(r_high-r_low) )  // this 0.85 is a bit arbitrary
+          if( pixel_multiple*pixel_size < 57.3*(r_high-r_low) )  // this 0.85 is a bit arbitrary
               break;
           ++order;
         }

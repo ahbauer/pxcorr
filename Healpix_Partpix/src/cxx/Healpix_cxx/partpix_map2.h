@@ -161,9 +161,9 @@ template<typename T> class Partpix_Map2: public Healpix_Base2
               resolutionMask.nest2xyf(m,x,y,f);
           int64 jmax = fact*(y+1);
           int64 imax = fact*(x+1);
-          for (int j=fact*y; j<jmax; ++j)
-            for (int i=fact*x; i<imax; ++i){
-              int mypix = (this->*from_xyf)(i,j,f);
+          for (int64 j=fact*y; j<jmax; ++j)
+            for (int64 i=fact*x; i<imax; ++i){
+              int64 mypix = (this->*from_xyf)(i,j,f);
               pixel_mapping_arraytohigh[array_index] = mypix;
               ++array_index;
             }
@@ -319,8 +319,8 @@ template<typename T> class Partpix_Map2: public Healpix_Base2
       int fact = nside_/orig.nside_;
       planck_assert (nside_==orig.nside_*fact,
         "the larger Nside must be a multiple of the smaller one");
-      // pix2xyf to_xyf = (orig.scheme_==RING) ?
-      //   &Healpix_Base2::ring2xyf : &Healpix_Base2::nest2xyf;
+      //pix2xyf to_xyf = (orig.scheme_==RING) ?
+        //&Healpix_Base2::ring2xyf : &Healpix_Base2::nest2xyf;
       xyf2pix from_xyf = (scheme_==RING) ?
         &Healpix_Base2::xyf2ring : &Healpix_Base2::xyf2nest;
 
@@ -334,9 +334,9 @@ template<typename T> class Partpix_Map2: public Healpix_Base2
             resolutionMask.ring2xyf(mr,xr,yr,fr);
         else
             resolutionMask.nest2xyf(mr,xr,yr,fr);
-        int jrmax = factr*(yr+1);
+        int64 jrmax = factr*(yr+1);
         int64 irmax = factr*(xr+1);
-        for (int jr=factr*yr; jr<jrmax; ++jr){
+        for (int64 jr=factr*yr; jr<jrmax; ++jr){
           for (int64 ir=factr*xr; ir<irmax; ++ir){
               int64 origpix = (orig.*from_xyf)(ir,jr,fr);
               // int x,y,f;
