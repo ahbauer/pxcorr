@@ -1,0 +1,33 @@
+HEALPIXPATH = ../Healpix_Partpix/src/cxx/generic_gcc
+HEALPIXLIBS = $(HEALPIXPATH)/lib/libc_utils.a $(HEALPIXPATH)/lib/libpsht.a $(HEALPIXPATH)/lib/libhealpix_cxx.a $(HEALPIXPATH)/lib/libcxxsupport.a
+HDFDIR      = /software/vo.paus.pic.es/hdf5/1.8.7
+HDFLIB      = ${HDFDIR}/lib
+HDF         = ${HDFLIB}/libhdf5.so ${HDFLIB}/libhdf5_hl.so ${HDFLIB}/libhdf5_cpp.so ${HDFLIB}/libhdf5_hl_cpp.so
+OPENCLDIR   = /System/Library/Frameworks/OpenCL.framework/Versions/A
+PYTHONDIR   = /usr/include/python2.6
+CFITSIO     = /nfs/pau/PAUdm/codes/jcarrete/science_pipeline_at_PIC/external_codes/fitsio/cfitsio
+
+CC          = g++
+SWIG        = /usr/bin/swig -classic
+
+CFLAGS      = -Wall -MD -I$(HEALPIXPATH)/include/ -I$(PYTHONDIR) -I/usr/local -I$(OPENCLDIR)/Headers/ -I$(HDFDIR)/include -I$(CFITSIO)
+LFLAGS      = -L$(HEALPIXPATH)/lib -L/usr/lib64 -L$(HDFLIB) -L$(CFITSIO) -lc_utils -lpsht -lhealpix_cxx -lcxxsupport -lcfitsio -lhdf5 -lz -Wl,-rpath=$(HDFLIB)
+#LFLAGS      = -L/usr/llvm-gcc-4.2/lib/gcc/i686-apple-darwin11/4.2.1/x86_64 -L$(CFITSIO) -L$(HEALPIXPATH)/lib -L/usr/lib64 -L$(HDFDIR)/lib -L$(OPENCLDIR)/Libraries/ \
+                -lcxxsupport -lhealpix_cxx -lpsht -lc_utils -lz -lcfitsio
+               
+               #-lgomp -lcfitsio
+
+all:    MK_LIBS
+
+MK_LIBS:
+	$(SWIG) -c++ -python make_maps.i 
+	$(CC) -fpic -c make_maps.C make_maps_wrap.cxx $(CFLAGS)
+	$(CC) -shared -lm -lpython2.6  $(HDF) -o _make_maps.so make_maps.o make_maps_wrap.o $(LFLAGS)
+	$(CC) make_maps.o $(HDF) -o ../bin/make_maps $(LFLAGS) -lm
+	$(SWIG) -c++ -python correlate.i 
+	$(CC) -fpic -c correlate.C correlate_wrap.cxx $(CFLAGS)
+	$(CC) -shared -lm -lpython2.6 -L$(PYTHONDIR) $(HDF) -o _correlate.so correlate.o correlate_wrap.o $(LFLAGS)
+	$(CC) correlate.o $(HDF) -o ../bin/correlate $(LFLAGS) -lm
+
+clean:
+	rm -f *.o *.so *.pyc *.pyo
