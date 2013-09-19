@@ -31,7 +31,7 @@ using namespace H5;
 
 #define USE_WEIGHTS 0
 
-void correlate( char* mapn1, char* mapn2, char* sfx ){
+void correlate( char* mapn1, char* mapn2, char* sfx, int r ){
     
     bool OUTPUT_FITS = true;
     cout << setiosflags(ios::fixed) << setprecision(16);
@@ -43,6 +43,11 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
     string mapname1( mapn1 );
     string mapname2( mapn2 );
     string suffix( sfx );
+    
+    bool single_rbin = true;
+    if( r < 0 ){
+        single_rbin = false;
+    }
 
     if( access( mapname1.c_str(), F_OK ) == -1 ){
         cerr << "File " << mapname1 << " is not readable!" << endl;
@@ -617,6 +622,10 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
     // # pragma omp parallel for schedule(dynamic, 1)
     for( int rbin=0; rbin<(int)r_lows.size(); ++rbin ){
 
+        if( single_rbin ){
+            rbin = r;
+        }
+
         float r_low = r_lows[rbin];
         float r_high = r_highs[rbin];
 
@@ -819,30 +828,29 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
         }    
 
         // now average up the jackknife results for each radius
-        unsigned int r = rbin;
-        for( unsigned int p=0; p<pss[r].size(); ++p ){
-          //jk_means[r] += pss[r][p];
-            jk_means[r] += jkcorrs[r][p];
+        for( unsigned int p=0; p<pss[rbin].size(); ++p ){
+          //jk_means[rbin] += pss[rbin][p];
+            jk_means[rbin] += jkcorrs[rbin][p];
         }
-        if( pss[r].size()>2 ){
-          //jk_means[r] /= pss[r].size();
-          jk_means[r] /= jkcorrs[r].size();
+        if( pss[rbin].size()>2 ){
+          //jk_means[rbin] /= pss[rbin].size();
+          jk_means[rbin] /= jkcorrs[rbin].size();
 
-          for( unsigned int p=0; p<pss[r].size(); ++p ){
-            //jk_variance[r] += (pss[r][p]-jk_means[r])*(pss[r][p]-jk_means[r]);
-              jk_variance[r] += (jkcorrs[r][p]-jk_means[r])*(jkcorrs[r][p]-jk_means[r]);
+          for( unsigned int p=0; p<pss[rbin].size(); ++p ){
+            //jk_variance[rbin] += (pss[rbin][p]-jk_means[rbin])*(pss[rbin][p]-jk_means[rbin]);
+              jk_variance[rbin] += (jkcorrs[rbin][p]-jk_means[rbin])*(jkcorrs[rbin][p]-jk_means[rbin]);
           }
-          //float fraction = 1./(pss[r].size()*(pss[r].size()-1.));
-          float fraction = (jkcorrs[r].size()-1.)/jkcorrs[r].size();
-          jk_variance[r] *= fraction;
-          jk_variance[r] /= area_fraction;
+          //float fraction = 1./(pss[rbin].size()*(pss[rbin].size()-1.));
+          float fraction = (jkcorrs[rbin].size()-1.)/jkcorrs[rbin].size();
+          jk_variance[rbin] *= fraction;
+          jk_variance[rbin] /= area_fraction;
         }
         else{
-          jk_means[r] = 0.;
-          jk_variance[r] = 0.;
+          jk_means[rbin] = 0.;
+          jk_variance[rbin] = 0.;
         }
 
-        cerr << distances[rbin] << " " << correlations[rbin] << " " << jk_means[r] << " " << sqrt(jk_variance[r]) << endl;
+        cerr << distances[rbin] << " " << correlations[rbin] << " " << jk_means[rbin] << " " << sqrt(jk_variance[rbin]) << endl;
 
         if( lowzMatchedMask != lowzMatchedMask_orig )
             delete lowzMatchedMask;
@@ -852,6 +860,10 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
             delete lowzMap;
         if( highzMap != highzMap_orig )
             delete highzMap;
+
+        if( single_rbin ){
+            rbin = r_lows.size();
+        }
 
     } // for annulus radius
     
@@ -866,64 +878,88 @@ void correlate( char* mapn1, char* mapn2, char* sfx ){
     delete highzWeightMap;
 #endif
 
-    stringstream corr_line;
-    stringstream jk_line;
-    stringstream err_line;
-    corr_line << "[" << correlations[0];
-    jk_line << "[" << jk_means[0];
-    err_line << "[" << sqrt(jk_variance[0]);
-    for( unsigned int i=1; i<correlations.size(); ++i ){
-        corr_line << ", " << correlations[i];
-        jk_line << ", " << jk_means[i];
-        err_line << ", " << sqrt(jk_variance[i]);
-    }
-    corr_line << "]";
-    jk_line << "]";
-    err_line << "]";
-    string corr_filename = "corr" + suffix;
-    ofstream corr_file(corr_filename.c_str());
-    corr_file << "[" << corr_line.str() << ", " << jk_line.str() << ", " << err_line.str() << "]" << endl;
-    corr_file.close();
 
-    // calculate the covariance matrix
-    vector< vector<double> > c( r_lows.size(), vector<double>(r_lows.size(), 0.) );
-    cerr << "calculating covariance... " << endl;
-    for( unsigned int i=0; i<r_lows.size(); ++i ){
-      for( unsigned int j=0; j<r_lows.size(); ++j ){
-    //if( pss[i].size() != pss[j].size() ){
-        if( jkcorrs[i].size() != jkcorrs[j].size() ){
-            cerr << "Problem, jackknife lists " << i << ", " << j << " are not the same size: " << jkcorrs[i].size() << ", " << jkcorrs[j].size() << endl;
-            return;
+    if( ! single_rbin ){
+        
+        stringstream corr_line;
+        stringstream jk_line;
+        stringstream err_line;
+        corr_line << "[" << correlations[0];
+        jk_line << "[" << jk_means[0];
+        err_line << "[" << sqrt(jk_variance[0]);
+        for( unsigned int i=1; i<correlations.size(); ++i ){
+            corr_line << ", " << correlations[i];
+            jk_line << ", " << jk_means[i];
+            err_line << ", " << sqrt(jk_variance[i]);
         }
-    for( unsigned int k=0; k<pss[i].size(); ++k ){
-      //c[i][j] += (pss[i][k]-jk_means[i])*(pss[j][k]-jk_means[j]);
-      c[i][j] += (jkcorrs[i][k]-jk_means[i])*(jkcorrs[j][k]-jk_means[j]);
-    }
-    //float fraction = 1./(pss[i].size()*(pss[i].size()-1.));
-    //float fraction = 1./(pss[i].size()-1.);
-    float fraction = (jkcorrs[i].size()-1.)/(jkcorrs[i].size());
-    c[i][j] *= fraction;
-    c[i][j] /= area_fraction;
+        corr_line << "]";
+        jk_line << "]";
+        err_line << "]";
+        string corr_filename = "corr" + suffix;
+        ofstream corr_file(corr_filename.c_str());
+        corr_file << "[" << corr_line.str() << ", " << jk_line.str() << ", " << err_line.str() << "]" << endl;
+        corr_file.close();
 
-      }
-    }
+        // calculate the covariance matrix
+        vector< vector<double> > c( r_lows.size(), vector<double>(r_lows.size(), 0.) );
+        cerr << "calculating covariance... " << endl;
+        for( unsigned int i=0; i<r_lows.size(); ++i ){
+          for( unsigned int j=0; j<r_lows.size(); ++j ){
+            if( jkcorrs[i].size() != jkcorrs[j].size() ){
+                cerr << "Problem, jackknife lists " << i << ", " << j << " are not the same size: " << jkcorrs[i].size() << ", " << jkcorrs[j].size() << endl;
+                return;
+            }
+            for( unsigned int k=0; k<pss[i].size(); ++k ){
+              //c[i][j] += (pss[i][k]-jk_means[i])*(pss[j][k]-jk_means[j]);
+              c[i][j] += (jkcorrs[i][k]-jk_means[i])*(jkcorrs[j][k]-jk_means[j]);
+            }
+            //float fraction = 1./(pss[i].size()*(pss[i].size()-1.));
+            //float fraction = 1./(pss[i].size()-1.);
+            float fraction = (jkcorrs[i].size()-1.)/(jkcorrs[i].size());
+            c[i][j] *= fraction;
+            c[i][j] /= area_fraction;
 
-    string cov_filename = "cov" + suffix;
-    ofstream cov_file(cov_filename.c_str());
-    cov_file << "[";
-    for( unsigned int k=0; k<r_lows.size(); ++k ){
-        if( k == 0 )
-            cov_file << "[" << c[k][0];
-        else
-            cov_file << ", [" << c[k][0];
-        for( unsigned int l=1; l<r_lows.size(); ++l ){
-            cov_file << ", " << c[k][l];
+          }
         }
-        cov_file << "]";
-    }
-    cov_file << "]" << endl;
-    cov_file.close();
 
+        string cov_filename = "cov" + suffix;
+        ofstream cov_file(cov_filename.c_str());
+        cov_file << "[";
+        for( unsigned int k=0; k<r_lows.size(); ++k ){
+            if( k == 0 ){
+                cov_file << "[" << c[k][0];
+            }
+            else{
+                cov_file << ", [" << c[k][0];
+            }
+            for( unsigned int l=1; l<r_lows.size(); ++l ){
+                cov_file << ", " << c[k][l];
+            }
+            cov_file << "]";
+        }
+        cov_file << "]" << endl;
+        cov_file.close();
+        
+    } // if not single_rbin
+    
+    // write out the whole jackknife set
+    else{
+        // write the results
+        string corr_filename = "corr" + suffix;
+        ofstream corr_file(corr_filename.c_str());
+        corr_file << "[" << correlations[r] << ", " << jk_means[r] << ", " << sqrt(jk_variance[r]) << "]" << endl;
+        corr_file.close();
+        
+        // write the jackknifes
+        string jk_filename = "jks" + suffix;
+        ofstream jk_file(jk_filename.c_str());
+        jk_file << "[" << jkcorrs[r][0];
+        for( unsigned int k=1; k<jkcorrs[r].size(); ++k ){
+            jk_file << ", " << jkcorrs[r][k];
+        }
+        jk_file << "]" << endl;
+        jk_file.close();
+    }
     
     return;
     
@@ -938,7 +974,7 @@ int main (int argc, char **argv){
         return 1;
     }
     
-    correlate( argv[1], argv[2], argv[3] );
+    correlate( argv[1], argv[2], argv[3], -1 );
     
     return 0;
     

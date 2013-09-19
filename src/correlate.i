@@ -1,7 +1,7 @@
 %module correlate
 %{
 #define SWIG_FILE_WITH_INIT
-extern void correlate( char* mapn1, char* mapn2, char* sfx );
+extern void correlate( char* mapn1, char* mapn2, char* sfx, int r );
 %}
 
 %include "numpy.i"
@@ -9,4 +9,4 @@ extern void correlate( char* mapn1, char* mapn2, char* sfx );
 import_array();
 %}
 
-extern void correlate( char* mapn1, char* mapn2, char* sfx );
+extern void correlate( char* mapn1, char* mapn2, char* sfx, int r );
