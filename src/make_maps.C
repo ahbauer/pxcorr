@@ -241,6 +241,14 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     // myfits.create("fp.fits");
     // write_Healpix_map_to_fits(myfits, *footprintMap, PLANCK_FLOAT64);
     // myfits.close();
+    // for( int f=0; f<footprintMap->Npix(); ++f ){
+    //     if( (*footprintMap)[f] > 0.5 ){
+    //         pointing mypointing = footprintMap->pix2ang(f);
+    //         double ra = mypointing.phi*180./3.1415926;
+    //         double dec = 90. - mypointing.theta*180./3.1415926;
+    //         cout << ra << " " << dec << " " << f << endl;
+    //     }
+    // }
     
     // make the maps
         
@@ -300,10 +308,14 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         }
     }
     if( n_pix == 0.0 ){
-        cerr << "No counts in the unmasked part of the map??" << endl;
-        return;
+        cerr << "No unmasked pixels??" << endl;
+        throw;
     }
     mean_counts /= n_pix;
+    if( mean_counts == 0. ){
+        cerr << "No counts in the unmasked part of the map??" << endl;
+        throw;
+    }
     for( int64 i1=0; i1<dcMap->Npartpix(); ++i1 ){
         int64 i = dcMap->highResPix(i1);
         (*dcMap)[i] = (*dcMap)[i]/mean_counts - 1.0;

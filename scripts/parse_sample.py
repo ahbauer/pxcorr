@@ -7,6 +7,7 @@ import math
 import numpy
 import tables
 import json
+from array import array
 from scipy.stats import gaussian_kde
 
 class photoz_entry(tables.IsDescription):
@@ -194,7 +195,7 @@ def parse_data3pt( filename, mag_cuts, f, sparse=True ):
                 z_spec.append(specz)
                 z_phot.append(photz)
 
-            outarray = numpy.array([float(splitted_line[0]), float(splitted_line[1]), mag])
+            outarray = array('d', [float(splitted_line[0]), float(splitted_line[1]), mag])
             outarray.tofile(filehandles[bin_z])
             nsample[bin_z] += 1
 
@@ -371,7 +372,7 @@ def parse_data( filename, mag_cuts, f, add_nofz=True, sparse=True ):
                 z_spec.append(specz)
                 z_phot.append(photz)
             
-            outarray = numpy.array([float(splitted_line[0]), float(splitted_line[1]), mag])
+            outarray = array('d', [float(splitted_line[0]), float(splitted_line[1]), mag]) # not numpy.array
             outarray.tofile(filehandles[bin_z])
             nsample[bin_z] += 1
 
