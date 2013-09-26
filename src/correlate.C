@@ -33,12 +33,13 @@ using namespace H5;
 
 void correlate( char* mapn1, char* mapn2, char* sfx, int r ){
     
-    bool OUTPUT_FITS = true;
+    bool OUTPUT_FITS = false;
     cout << setiosflags(ios::fixed) << setprecision(16);
     cerr << setprecision(16);
     
     int min_footprint_order = 3;
     double pixel_multiple = 2.5;
+    double jk_threshold_frac = 0.8;
     
     string mapname1( mapn1 );
     string mapname2( mapn2 );
@@ -468,7 +469,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r ){
     // insist on 90% completeness within each jackknife pixel.
     int jk_order = footprintMap->Order();
     vector<int> jkpixels;
-    Partpix_Map<int> *jackknifeMap1 = new Partpix_Map<int>(jk_order, *footprintMap);
+    Partpix_Map2<int> *jackknifeMap1 = new Partpix_Map2<int>(jk_order, *footprintMap);
     jackknifeMap1->fill(0);
     double pixel_size = sqrt(41253./jackknifeMap1->Npix());
     while( pixel_size > r_highs[r_highs.size()-1] ){
@@ -491,7 +492,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r ){
               jkpixels.clear();
               ++jk_order;
               delete jackknifeMap1;
-              jackknifeMap1 = new Partpix_Map<int>(jk_order, *footprintMap);
+              jackknifeMap1 = new Partpix_Map2<int>(jk_order, *footprintMap);
               jackknifeMap1->fill(0.);
               pixel_size = sqrt(41253./jackknifeMap1->Npix());
           }
@@ -513,7 +514,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r ){
               jkpixels.clear();
               ++jk_order;
               delete jackknifeMap1;
-              jackknifeMap1 = new Partpix_Map<int>(jk_order, *footprintMap);
+              jackknifeMap1 = new Partpix_Map2<int>(jk_order, *footprintMap);
               jackknifeMap1->fill(0);
               pixel_size = sqrt(41253./jackknifeMap1->Npix());
           }
@@ -534,8 +535,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r ){
               if( (*jackknifeMap1)[j] > threshold )
                   threshold = (*jackknifeMap1)[j];
           }
-          threshold /= 2.0;
-          //double threshold = 0.9*(highzMatchedMask.Npix()/jackknifeMap1.Npix());
+          threshold *= jk_threshold_frac;
           for( int i1=0; i1<jackknifeMap1->Npartpix(); ++i1 ){
               int i = jackknifeMap1->highResPix(i1);
               if( (*jackknifeMap1)[i] >= threshold ){
@@ -558,13 +558,14 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r ){
               jkpixels.clear();
               ++jk_order;
               delete jackknifeMap1;
-              jackknifeMap1 = new Partpix_Map<int>(jk_order, *footprintMap);
-              jackknifeMap1->fill(0.);
+              jackknifeMap1 = new Partpix_Map2<int>(jk_order, *footprintMap);
+              jackknifeMap1->fill(0);
               pixel_size = sqrt(41253./jackknifeMap1->Npix());
           }
       }
-      delete jackknifeMap1;
     }
+    delete jackknifeMap1;
+    
     if( pixel_size < r_highs[r_highs.size()-1] ){
       cerr << "Can not find a jackknife resolution with >50 regions and pixel size <" << 180/3.1415926*r_highs[r_highs.size()-1] << " degrees" << endl;
       return;
@@ -968,13 +969,18 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r ){
 
 int main (int argc, char **argv){
     
-    if( argc != 4 ){
-        cerr << "Usage: correlate map1 map2 suffix" << endl;
+    if( argc != 4 && argc != 5 ){
+        cerr << "Usage: correlate map1 map2 suffix (radial bin)" << endl;
         cerr << "       where the maps are hdf5 files produced by make_maps, that each have a map and a mask." << endl;
         return 1;
     }
+
+    int r = -1;
+    if( argc == 5 ){
+        r = atoi(argv[4]);
+    }
     
-    correlate( argv[1], argv[2], argv[3], -1 );
+    correlate( argv[1], argv[2], argv[3], r );
     
     return 0;
     

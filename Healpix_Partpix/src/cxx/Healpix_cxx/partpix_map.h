@@ -114,8 +114,8 @@ template<typename T> class Partpix_Map: public Healpix_Base
             }
         } // for m
         planck_assert( array_index == npartpix_, "array index != npartpix_" );        
-        //sort_partmap( pixel_mapping_arraytohigh, partmap );
-        sort( pixel_mapping_arraytohigh.begin(), pixel_mapping_arraytohigh.end() );
+        sort_partmap( pixel_mapping_arraytohigh, partmap );
+        //sort( pixel_mapping_arraytohigh.begin(), pixel_mapping_arraytohigh.end() );
     }
     // The same as before, since we don't want to make this a double template for resolutionMask too.
     Partpix_Map( int highResOrder, const Healpix_Map<double>& resolutionMask )
@@ -168,8 +168,8 @@ template<typename T> class Partpix_Map: public Healpix_Base
             }
         } // for m
         planck_assert( array_index == npartpix_, "array index != npartpix_" );
-        //sort_partmap( pixel_mapping_arraytohigh, partmap );
-        sort( pixel_mapping_arraytohigh.begin(), pixel_mapping_arraytohigh.end() );
+        sort_partmap( pixel_mapping_arraytohigh, partmap );
+        //sort( pixel_mapping_arraytohigh.begin(), pixel_mapping_arraytohigh.end() );
     }
     
     void clear(){

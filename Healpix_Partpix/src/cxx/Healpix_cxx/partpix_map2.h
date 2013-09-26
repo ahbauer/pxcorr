@@ -497,6 +497,8 @@ template<typename T> class Partpix_Map2: public Healpix_Base2
     /*! Returns a constant reference to the map data. */
     const arr<T> &Map() const { return partmap; }
 
+    vector<int64> return_pixel_mapping() { return pixel_mapping_arraytohigh; }
+
     /*! Returns the minimum and maximum value of the map in
         \a Min and \a Max.
 
