@@ -185,6 +185,8 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r ){
         cerr << u_width << endl;
         return;
     }
+    free(u_mean);
+    free(u_width);
 
     if( r_mids[0] - r_wids[0]/2.0 < 0.0 )
         r_lows.push_back(0.0001*3.1415926/180.);
@@ -448,6 +450,9 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r ){
         (*highzMap)[data3[2*i]] = data3[2*i+1];
     }
     cerr << "Read in the data maps" << endl;
+    free(data1);
+    free(data3);
+
 
     if( OUTPUT_FITS && order < 13 ){
         Healpix_Map<float> lowzHMap = lowzMap->to_Healpix( 0. );
