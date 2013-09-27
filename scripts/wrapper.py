@@ -26,7 +26,7 @@ config_file = sys.argv[1]
 
 config = yaml.load(open(config_file, 'r'))
 catalog_filename = config["catalog_filename"]
-mask_filename = config["mask_filename"]
+mask_filenames = config["mask_filenames"]
 nofz_filename = config["nofz_filename"]
 mag_cuts = config["mag_cuts"]
 use_counts = config["use_counts"]
@@ -61,7 +61,7 @@ if not nofz_from_data:
 
 for fi, filename in enumerate(subcat_filenames):
     suffix = "_" + str(fi)
-    make_maps.make_maps( filename, mask_filename, ang_mean, ang_width, use_counts, use_mags, suffix );
+    make_maps.make_maps( filename, mask_filenames[fi], ang_mean, ang_width, use_counts, use_mags, suffix );
     print "Finished making map from %s" %filename
 
 if only_makemaps:
