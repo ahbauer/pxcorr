@@ -52,11 +52,11 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r ){
 
     if( access( mapname1.c_str(), F_OK ) == -1 ){
         cerr << "File " << mapname1 << " is not readable!" << endl;
-        return;
+        throw;
     }
     if( access( mapname2.c_str(), F_OK ) == -1 ){
         cerr << "File " << mapname2 << " is not readable!" << endl;
-        return;
+        throw;
     }
     
     vector<float> r_lows;
@@ -71,18 +71,18 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r ){
     H5G_obj_t firstType = file1.getObjTypeByIdx(0);
     if( firstType != H5G_GROUP ){
         cerr << "The map is not standard format;  the first element is not a group." << endl;
-        return;
+        throw;
     }
     string group_name = file1.getObjnameByIdx(0);
     if( group_name != "data" ){
         cerr << "Group name is " << group_name << ", not data" << endl;
-        return;
+        throw;
     }
     Group group = file1.openGroup("data");
     string dataset1_name = group.getObjnameByIdx(0);
     if( dataset1_name != "map" ){
         cerr << "Dataset 1 name is " << dataset1_name << ", not map" << endl;
-        return;
+        throw;
     }
     DataSet dataset1 = group.openDataSet(dataset1_name);
     hsize_t ds1size = dataset1.getStorageSize();
@@ -102,7 +102,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r ){
     string dataset2_name = group.getObjnameByIdx(1);
     if( dataset2_name != "mask" ){
         cerr << "Dataset 2 name is " << dataset2_name << ", not mask" << endl;
-        return;
+        throw;
     }
     DataSet dataset2 = group.openDataSet(dataset2_name);
     hsize_t ds2size = dataset2.getStorageSize();
@@ -114,7 +114,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r ){
     int mask1_ordering = data2[1];
     if( mask1_ordering != RING ){
         cerr << "Problem, mask1 ordering is not RING but " << mask1_ordering << endl;
-        return;
+        throw;
     }
     cerr << "mask 1 info " << mask1_order << " " << mask1_ordering << endl;
     vector<long> mask1_pixels;
@@ -139,7 +139,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r ){
     string line(u_mean);
     if( line[0] != '[' ){
         cerr << "Problem parsing metadata line for u_mean" << endl << line << endl;
-        return;
+        throw;
     }
     size_t index1 = 1;
     while(1){
@@ -164,7 +164,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r ){
     line = string(u_width);
     if( line[0] != '[' ){
         cerr << "Problem parsing metadata line for u_width" << endl << line << endl;
-        return;
+        throw;
     }
     index1 = 1;
     while(1){
@@ -183,7 +183,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r ){
         cerr << "Problem parsing metadata: u_mean and u_width are different sizes:" << endl;
         cerr << u_mean << endl;
         cerr << u_width << endl;
-        return;
+        throw;
     }
     free(u_mean);
     free(u_width);
@@ -215,18 +215,18 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r ){
     firstType = file2.getObjTypeByIdx(0);
     if( firstType != H5G_GROUP ){
         cerr << "The map is not standard format;  the first element is not a group." << endl;
-        return;
+        throw;
     }
     group_name = file2.getObjnameByIdx(0);
     if( group_name != "data" ){
         cerr << "Group name is " << group_name << ", not data" << endl;
-        return;
+        throw;
     }
     group = file2.openGroup("data");
     dataset1_name = group.getObjnameByIdx(0);
     if( dataset1_name != "map" ){
         cerr << "Dataset 1 name is " << dataset1_name << ", not map" << endl;
-        return;
+        throw;
     }
     dataset1 = group.openDataSet(dataset1_name);
     ds1size = dataset1.getStorageSize();
@@ -240,7 +240,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r ){
     dataset2_name = group.getObjnameByIdx(1);
     if( dataset2_name != "mask" ){
         cerr << "Dataset 2 name is " << dataset2_name << ", not mask" << endl;
-        return;
+        throw;
     }
     dataset2 = group.openDataSet(dataset2_name);
     ds2size = dataset2.getStorageSize();
@@ -253,7 +253,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r ){
     int mask2_ordering = data4[1];
     if( mask2_ordering != RING ){
         cerr << "Problem, mask2 ordering is not RING but " << mask2_ordering << endl;
-        return;
+        throw;
     }
     cerr << "mask 2 info " << mask2_order << " " << mask2_ordering << endl;
     vector<long> mask2_pixels;
@@ -267,7 +267,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r ){
 
     if( map1_order != map2_order ){
         cerr << "Map orders must be the same: are " << map1_order << " and " << map2_order << endl;
-        return;
+        throw;
     }
     int order = map1_order;
 
@@ -573,7 +573,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r ){
     
     if( pixel_size < r_highs[r_highs.size()-1] ){
       cerr << "Can not find a jackknife resolution with >50 regions and pixel size <" << 180/3.1415926*r_highs[r_highs.size()-1] << " degrees" << endl;
-      return;
+      throw;
     }
     Healpix_Base jackknifeMap( jk_order, RING );
     cerr << "Constructed a jackknife map with order " << jk_order << ", "  << jkpixels.size() << " good pixels" << endl;
@@ -913,7 +913,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r ){
           for( unsigned int j=0; j<r_lows.size(); ++j ){
             if( jkcorrs[i].size() != jkcorrs[j].size() ){
                 cerr << "Problem, jackknife lists " << i << ", " << j << " are not the same size: " << jkcorrs[i].size() << ", " << jkcorrs[j].size() << endl;
-                return;
+                throw;
             }
             for( unsigned int k=0; k<pss[i].size(); ++k ){
               //c[i][j] += (pss[i][k]-jk_means[i])*(pss[j][k]-jk_means[j]);
