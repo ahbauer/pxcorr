@@ -49,7 +49,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     
     if( !( use_counts || use_mags) ){
         cerr << "Not using either counts or mags... doing nothing!" << endl;
-        return;
+        throw;
     }
 
     string catalog_filename(catalog_filename_c);
@@ -78,7 +78,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     FILE * file = fopen( catalog_filename.c_str(), "rb" );
     if( file == NULL ){
         cerr << "Problem opening " << catalog_filename << endl;
-        return;
+        throw;
     }
 
     vector<pointing> pointings;
@@ -115,7 +115,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         FILE * maskfile = fopen( mask_filename.c_str(), "r" );
         if( maskfile == NULL ){
             cerr << "Problem opening " << mask_filename << endl;
-            return;
+            throw;
         }
         bool header = true;
         while( fgets( line_char, 256, maskfile ) ){
@@ -124,12 +124,12 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
                 int num = sscanf(line_char, "%s %d", sch, &mask_order );
                 if( num != 2 ){
                     cerr << "Problem reading header from mask file, number of arguments read = " << num << ", not 2" << endl;
-                    return;
+                    throw;
                 }
                 scheme = string(sch);
                 if( (!scheme.compare("RING")) && (!scheme.compare("NEST")) ){
                     cerr << "Scheme listed in mask header line is not RING or NEST, but " << scheme << endl;
-                    return;
+                    throw;
                 }
                 header = false;
                 continue;
@@ -143,7 +143,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
                 num = sscanf(line_char, "%d", &pix );
                 if( num != 1 ){
                     cerr << "Problem reading from mask file, number of arguments read = " << num << ", not 1" << endl;
-                    return;
+                    throw;
                 }
             }
             if( val > input_mask_cut )
