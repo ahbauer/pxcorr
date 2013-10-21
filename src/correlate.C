@@ -31,9 +31,9 @@ using namespace H5;
 
 #define USE_WEIGHTS 0
 
-void correlate( char* mapn1, char* mapn2, char* sfx, int r ){
+void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, int *nout ){
     
-    bool OUTPUT_FITS = false;
+    bool OUTPUT_FITS = true;
     cout << setiosflags(ios::fixed) << setprecision(16);
     cerr << setprecision(16);
     
@@ -884,7 +884,6 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r ){
     delete highzWeightMap;
 #endif
 
-
     if( ! single_rbin ){
         
         stringstream corr_line;
@@ -946,25 +945,40 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r ){
         cov_file << "]" << endl;
         cov_file.close();
         
+        // this is just a placeholder
+        double *output = (double *) malloc((1)*sizeof(double));
+        output[0] = -999.;
+        *outarray = output;
+        *nout = 1;
+
     } // if not single_rbin
     
     // write out the whole jackknife set
     else{
-        // write the results
-        string corr_filename = "corr" + suffix;
-        ofstream corr_file(corr_filename.c_str());
-        corr_file << "[" << correlations[r] << ", " << jk_means[r] << ", " << sqrt(jk_variance[r]) << "]" << endl;
-        corr_file.close();
+        // // write the results
+        // string corr_filename = "corr" + suffix;
+        // ofstream corr_file(corr_filename.c_str());
+        // corr_file << "[" << correlations[r] << ", " << jk_means[r] << ", " << sqrt(jk_variance[r]) << "]" << endl;
+        // corr_file.close();
+        // 
+        // // write the jackknifes
+        // string jk_filename = "jks" + suffix;
+        // ofstream jk_file(jk_filename.c_str());
+        // jk_file << "[" << jkcorrs[r][0];
+        // for( unsigned int k=1; k<jkcorrs[r].size(); ++k ){
+        //     jk_file << ", " << jkcorrs[r][k];
+        // }
+        // jk_file << "]" << endl;
+        // jk_file.close();
         
-        // write the jackknifes
-        string jk_filename = "jks" + suffix;
-        ofstream jk_file(jk_filename.c_str());
-        jk_file << "[" << jkcorrs[r][0];
-        for( unsigned int k=1; k<jkcorrs[r].size(); ++k ){
-            jk_file << ", " << jkcorrs[r][k];
+        // return the results!
+        double *output = (double *) malloc((jkcorrs[r].size()+1)*sizeof(double));
+        output[0] = correlations[r];
+        for( unsigned int i=1; i<jkcorrs[r].size()+1; ++i ){
+            output[i] = jkcorrs[r][i-1];
         }
-        jk_file << "]" << endl;
-        jk_file.close();
+        *outarray = output;
+        *nout = jkcorrs[r].size()+1;
     }
     
     return;
@@ -985,7 +999,11 @@ int main (int argc, char **argv){
         r = atoi(argv[4]);
     }
     
-    correlate( argv[1], argv[2], argv[3], r );
+    // these are placeholders for swig return lists
+    double **outvec;
+    int size = 1;
+    
+    correlate( argv[1], argv[2], argv[3], r, outvec, &size );
     
     return 0;
     

@@ -83,6 +83,20 @@ nf = len( subcat_filenames )
 # about the file locations too.  correlate.correlate currently puts those output files 
 # in the directory from which it is called.).
 
+corr = np.ones((len(ang_mean), len(z_mean), len(z_mean)))
+corrcm = None
+corrmc = None
+corrmm = None
+if use_mags:
+    corrcm = np.ones((len(ang_mean), len(z_mean), len(z_mean)))
+    corrmc = np.ones((len(ang_mean), len(z_mean), len(z_mean)))
+    corrmm = np.ones((len(ang_mean), len(z_mean), len(z_mean)))
+
+jks = [[[None]], [[None]], [[None]]]
+jkscm = [[[None]], [[None]], [[None]]]
+jksmc = [[[None]], [[None]], [[None]]]
+jksmm = [[[None]], [[None]], [[None]]]
+
 for i in range(nf):
     for j in range(i, nf):
         name1 = "dc_map_" + str(i) + ".h5"
@@ -93,24 +107,40 @@ for i in range(nf):
         
         for r in range(len(config["ang_mean"])):
             suffix = "." + str(i) + "c." + str(j) + "c." + str(r)
-            correlate.correlate( name1, name2, suffix, r )
+            result = correlate.correlate( name1, name2, suffix, r )
+            corr[r,i,j] = result[0]
+            if i != j:
+                corr[r,j,i] = corr[r,i,j]
+            jks[r][i][j]=result[1:]
         
         if use_mags:
             name2 = "dm_map_" + str(j) + ".h5"
             print "Correlating %s and %s" %(name1, name2)
             for r in range(len(config["ang_mean"])):
                 suffix = "." + str(i) + "c." + str(j) + "m." + str(r)
-                correlate.correlate( name1, name2, suffix, r )
+                result = correlate.correlate( name1, name2, suffix, r )
+                corrcm[r,i,j] = result[0]
+                if i != j:
+                    corrcm[r,j,i] = corrcm[r,i,j]
+                jkscm[r][i][j] = result[1:]
             name1 = "dm_map_" + str(i) + ".h5"
             print "Correlating %s and %s" %(name1, name2)
             for r in range(len(config["ang_mean"])):
                 suffix = "." + str(i) + "m." + str(j) + "m." + str(r)
-                correlate.correlate( name1, name2, suffix, r )
+                result = correlate.correlate( name1, name2, suffix, r )
+                corrmm[r,i,j] = result[0]
+                if i != j:
+                    corrmm[r,j,i] = corrmm[r,i,j]
+                jksmm[r][i][j] = result[1:]
             name2 = "dc_map_" + str(j) + ".h5"
             print "Correlating %s and %s" %(name1, name2)
             for r in range(len(config["ang_mean"])):
                 suffix = "." + str(i) + "m." + str(j) + "c." + str(r)
-                correlate.correlate( name1, name2, suffix, r )
+                result = correlate.correlate( name1, name2, suffix, r )
+                corrmc[r,i,j] = result[0]
+                if i != j:
+                    corrmc[r,j,i] = corrmc[r,i,j]
+                jksmc[r][i][j] = result[1:]
 
 # packobs
 
@@ -119,17 +149,6 @@ print "Adding correlations"
 # add correlations to the file
 hdf5file.createGroup('/', 'corr')
 
-corr = np.ones((len(ang_mean), len(z_mean), len(z_mean)))
-for i in range(nf):
-    for j in range(i,nf):
-        for r in range(len(config["ang_mean"])):
-            file_path = "corr." + str(i) + "c." + str(j) + "c." + str(r)
-            datafile = open(file_path)
-            data = json.load(datafile)
-            datafile.close()
-            corr[r,i,j] = data[0] # correlation value at r.
-            if i != j:
-                corr[r,j,i] = data[0]
 corrobj = hdf5file.createArray('/corr', 'corr1', corr)
 corrobj.setAttr('ftype0', json.dumps('counts'))
 corrobj.setAttr('pop0', json.dumps('faint'))
@@ -137,63 +156,40 @@ corrobj.setAttr('ftype1', json.dumps('counts'))
 corrobj.setAttr('pop1', json.dumps('faint'))
 
 if( use_mags ):
-    for i in range(nf):
-        for j in range(i,nf):
-            for r in range(len(config["ang_mean"])):
-                file_path = "corr." + str(i) + "c." + str(j) + "m." + str(r)
-                datafile = open(file_path)
-                data = json.load(datafile)
-                datafile.close()
-                corr[r,i,j] = data[0]
-                if i != j:
-                    file_path = "corr." + str(i) + "m." + str(j) + "c." + str(r)
-                    datafile = open(file_path)
-                    data = json.load(datafile)
-                    datafile.close()
-                    corr[r,j,i] = data[0]
-    corrobj = hdf5file.createArray('/corr', 'corr2', corr)
+    
+    corrobj = hdf5file.createArray('/corr', 'corr2', corrcm)
     corrobj.setAttr('ftype0', json.dumps('counts'))
     corrobj.setAttr('pop0', json.dumps('faint'))
     corrobj.setAttr('ftype1', json.dumps('mags'))
     corrobj.setAttr('pop1', json.dumps('faint'))
     
-    for i in range(nf):
-        for j in range(i,nf):
-            for r in range(len(config["ang_mean"])):
-                file_path = "corr." + str(i) + "m." + str(j) + "m." + str(r)
-                datafile = open(file_path)
-                data = json.load(datafile)
-                datafile.close()
-                corr[r,i,j] = data[0]
-                if i != j:
-                    corr[r,j,i] = data[0]
-    corrobj = hdf5file.createArray('/corr', 'corr3', corr)
+    corrobj = hdf5file.createArray('/corr', 'corr3', corrmc)
+    corrobj.setAttr('ftype0', json.dumps('mags'))
+    corrobj.setAttr('pop0', json.dumps('faint'))
+    corrobj.setAttr('ftype1', json.dumps('counts'))
+    corrobj.setAttr('pop1', json.dumps('faint'))
+    
+    corrobj = hdf5file.createArray('/corr', 'corr4', corrmm)
     corrobj.setAttr('ftype0', json.dumps('mags'))
     corrobj.setAttr('pop0', json.dumps('faint'))
     corrobj.setAttr('ftype1', json.dumps('mags'))
     corrobj.setAttr('pop1', json.dumps('faint'))
 
 # add covariance to the file
-cov = np.zeros((len(ang_mean), len(ang_mean), len(z_mean), len(z_mean), len(z_mean), len(z_mean)))
 
+cov = np.zeros((len(ang_mean), len(ang_mean), len(z_mean), len(z_mean), len(z_mean), len(z_mean)))
 
 print "Calculating covarinances"
 njk = 0
 for i in range(nf):
     for j in range(i,nf):
         for r1 in range(len(ang_mean)):
-            file_path = "jks." + str(i) + "c." + str(j) + "c." + str(r1)
-            datafile = open(file_path)
-            jk1 = json.load(datafile) # list of jackknife values
-            datafile.close()
+            jk1 = jks[r1][i][j]
             jk1_mean = np.mean(jk1)
             # print "r1 %d: read in %d jk values, mean %e (first %e)" %(r1, len(jk1), jk1_mean, jk1[0])
             njk = len(jk1)
             for r2 in range(len(ang_mean)):
-                file_path = "jks." + str(i) + "c." + str(j) + "c." + str(r2)
-                datafile = open(file_path)
-                jk2 = json.load(datafile) # list of jackknife values
-                datafile.close()
+                jk2 = jks[r2][i][j]
                 jk2_mean = np.mean(jk2)
                 # print "r2 %d: read in %d jk values, mean %e (first %e)" %(r2, len(jk2), jk2_mean, jk2[0])
                 if njk != len(jk2):
@@ -224,6 +220,9 @@ corrobj.setAttr('pop2', json.dumps('faint'))
 corrobj.setAttr('ftype3', json.dumps('counts'))
 corrobj.setAttr('pop3', json.dumps('faint'))
 
+print corr[:,0,0]
+print cov[:,:,0,0,0,0]
+
 if( use_mags ):
 
     cov = np.zeros((len(ang_mean), len(ang_mean), len(z_mean), len(z_mean), len(z_mean), len(z_mean)))
@@ -232,18 +231,12 @@ if( use_mags ):
     for i in range(nf):
         for j in range(i,nf):
             for r1 in range(len(ang_mean)):
-                file_path = "jks." + str(i) + "c." + str(j) + "m." + str(r1)
-                datafile = open(file_path)
-                jk1 = json.load(datafile) # list of jackknife values
-                datafile.close()
+                jk1 = jkscm[r1][i][j]
                 jk1_mean = np.mean(jk1)
                 # print "r1 %d: read in %d jk values, mean %e (first %e)" %(r1, len(jk1), jk1_mean, jk1[0])
                 njk = len(jk1)
                 for r2 in range(len(ang_mean)):
-                    file_path = "jks." + str(i) + "c." + str(j) + "m." + str(r2)
-                    datafile = open(file_path)
-                    jk2 = json.load(datafile) # list of jackknife values
-                    datafile.close()
+                    jk2 = jkscm[r2][i][j]
                     jk2_mean = np.mean(jk2)
                     # print "r2 %d: read in %d jk values, mean %e (first %e)" %(r2, len(jk2), jk2_mean, jk2[0])
                     if njk != len(jk2):
@@ -273,18 +266,12 @@ if( use_mags ):
     for i in range(nf):
         for j in range(i,nf):
             for r1 in range(len(ang_mean)):
-                file_path = "jks." + str(i) + "m." + str(j) + "c." + str(r1)
-                datafile = open(file_path)
-                jk1 = json.load(datafile) # list of jackknife values
-                datafile.close()
+                jk1 = jksmc[r1][i][j]
                 jk1_mean = np.mean(jk1)
                 # print "r1 %d: read in %d jk values, mean %e (first %e)" %(r1, len(jk1), jk1_mean, jk1[0])
                 njk = len(jk1)
                 for r2 in range(len(ang_mean)):
-                    file_path = "jks." + str(i) + "m." + str(j) + "c." + str(r2)
-                    datafile = open(file_path)
-                    jk2 = json.load(datafile) # list of jackknife values
-                    datafile.close()
+                    jk2 = jksmc[r2][i][j]
                     jk2_mean = np.mean(jk2)
                     # print "r2 %d: read in %d jk values, mean %e (first %e)" %(r2, len(jk2), jk2_mean, jk2[0])
                     if njk != len(jk2):
@@ -314,18 +301,12 @@ if( use_mags ):
     for i in range(nf):
         for j in range(i,nf):
             for r1 in range(len(ang_mean)):
-                file_path = "jks." + str(i) + "m." + str(j) + "m." + str(r1)
-                datafile = open(file_path)
-                jk1 = json.load(datafile) # list of jackknife values
-                datafile.close()
+                jk1 = jksmm[r1][i][j]
                 jk1_mean = np.mean(jk1)
                 # print "r1 %d: read in %d jk values, mean %e (first %e)" %(r1, len(jk1), jk1_mean, jk1[0])
                 njk = len(jk1)
                 for r2 in range(len(ang_mean)):
-                    file_path = "jks." + str(i) + "m." + str(j) + "m." + str(r2)
-                    datafile = open(file_path)
-                    jk2 = json.load(datafile) # list of jackknife values
-                    datafile.close()
+                    jk2 = jksmm[r2][i][j]
                     jk2_mean = np.mean(jk2)
                     # print "r2 %d: read in %d jk values, mean %e (first %e)" %(r2, len(jk2), jk2_mean, jk2[0])
                     if njk != len(jk2):
