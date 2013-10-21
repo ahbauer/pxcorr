@@ -21,7 +21,7 @@ class slopes_entry(tables.IsDescription):
     mag = tables.Float64Col(dflt=0.0, pos=1)
     size = tables.Float64Col(dflt=0.0, pos=1)
 
-def measure_slopes( mags, f, mag_maxz, mag_nzs, mag_cuts, z_edges, pop, use_mags ):
+def measure_slopes( mags, f, mag_maxz, mag_nzs, mag_cut, index, pop, use_mags ):
     
     # loop over z bins to calculate one slope per each
     slope_array = numpy.zeros(mag_nzs)
@@ -39,14 +39,6 @@ def measure_slopes( mags, f, mag_maxz, mag_nzs, mag_cuts, z_edges, pop, use_mags
                 continue
 
             magz = (zbin_fine+0.5)*mag_maxz/mag_nzs
-            if magz >= z_edges[len(z_edges)-1]:
-                zbin2 = len(z_edges)-2 # zbin2 is a bin in the correlation z binning
-            else:
-                inds = numpy.digitize([magz], z_edges)
-                zbin2 = inds[0]-1
-                if zbin2 < 0:
-                    zbin2 = 0
-            mag_cut = mag_cuts[zbin2]
 
             # kde!
             # NOTE: i'm setting alpha=0 for bins with no data!
@@ -57,15 +49,14 @@ def measure_slopes( mags, f, mag_maxz, mag_nzs, mag_cuts, z_edges, pop, use_mags
                 slope_kde = 0.4
             else:
                 slope_kde = (numpy.log10(y_kde2)-numpy.log10(y_kde1))/0.01
-            # print >> sys.stderr, "kde slope %f" %slope_kde
 
-            # for the actual result, let's use the fit slope, and use the other two to estimate an error.
             slope_array[zbin_fine] = 2.5*slope_kde - 1
             print >> sys.stderr, "z bin %d at %f s = %f alpha = %f" %(zbin_fine, (zbin_fine+0.5)*mag_maxz/mag_nzs, slope_kde, slope_array[zbin_fine])
 
     # save slopes: a table, for lots of redshift values.
     f.createGroup('/', 'slopes')
-    slopes_table = f.createTable('/slopes', 'slope1', slopes_entry)
+    tablename = 'slope' + str(index)
+    slopes_table = f.createTable('/slopes', tablename, slopes_entry)
     slopes_table.setAttr('ftype', json.dumps('counts'))
     slopes_table.setAttr('pop', json.dumps(pop))
     row = slopes_table.row
@@ -254,7 +245,7 @@ def parse_data3pt( filename, mag_cuts, f, sparse=True ):
     return outcat_filenames
 
 
-def parse_data( filename, mag_cuts, f, add_nofz=True, sparse=True ):
+def parse_data( filename, mag_cut, f, index, add_nofz=True, sparse=True ):
 
     # read the needed metadata
     meta = f.getNode('/meta', 'meta')
@@ -268,11 +259,11 @@ def parse_data( filename, mag_cuts, f, add_nofz=True, sparse=True ):
     z_means = json.loads(injson)
     injson = getattr(getattr(metapop, 'attrs'), 'z_width')
     z_widths = json.loads(injson)
+
     
     z_edges = []
-    z_edges.append(z_means[0]-z_widths[0]/2.0)
-    for i in range(len(z_means)):
-        z_edges.append(z_means[i]+z_widths[i]/2.0)
+    z_edges.append(z_means[index]-z_widths[index]/2.0)
+    z_edges.append(z_means[index]+z_widths[index]/2.0)
     
     # arrays for output later
     z_phot = []
@@ -282,33 +273,13 @@ def parse_data( filename, mag_cuts, f, add_nofz=True, sparse=True ):
     mag_nzs = 100
     mag_maxz = 2.0
 
-    # make a matrix with sides z_phot and mag.
-    # the noise will be determined from the counts vs z 
-    nbins_z = len(z_means)
-    min_z = 0.0
-    max_z = z_means[nbins_z-1] + z_widths[nbins_z-1]/2.0
-    data = numpy.zeros(nbins_z)
 
-    # open the output files
-    # these at some point will turn into FIFOs...?
-    # samples = []
-    # for zbin in range(nbins_z):
-    #     samples.append(dict())
-    #     samples[zbin]['ra'] = []
-    #     samples[zbin]['dec'] = []
-    #     samples[zbin]['mag'] = []
-
-    filehandles = []
-    outcat_filenames = []
-    for zbin in range(nbins_z):
-        outfilename = 'sample_catalog' + str(zbin)
-        outcat_filenames.append(outfilename)
-        f1=open(outfilename, 'wb')
-        filehandles.append(f1)
+    outfilename = 'sample_catalog' + str(index)
+    f1=open(outfilename, 'wb')
 
     mags = []
-    if( mag_maxz < max_z ):
-        mag_maxz = max_z
+    if( mag_maxz < z_edges[1] ):
+        mag_maxz = z_edges[1]
     for z in range(mag_nzs):
         mags.append([])
     
@@ -316,7 +287,7 @@ def parse_data( filename, mag_cuts, f, add_nofz=True, sparse=True ):
     # this SHOULD be an sql query to the DB...
     # but, for now it is just an input file.    catalog = open(filename, "r")
     catalog = open(filename, "r")
-    nsample = numpy.zeros(nbins_z)
+    nsample = 0
     use_mags = True
     for line in catalog:
         splitted_line = line.split()
@@ -339,55 +310,39 @@ def parse_data( filename, mag_cuts, f, add_nofz=True, sparse=True ):
             mag = 0.
             use_mags = False
         
-        # what correlation redshift bin are we in?
+        
+        # are we in the correlation z bin?
         if( photz <= z_edges[0] or photz >= z_edges[-1] ):
             continue
-        inds = numpy.digitize([photz], z_edges)
-        bin_z = inds[0]-1
-
-        # keep the info for the slopes even if outside the bin ranges
+        
+        # keep the info for the slopes even if outside the mag bin ranges
         # but get rid of objects well below the mag limit since those will 
         # probably be bad.
         zbin_for_mag = int(math.floor(photz/(mag_maxz/mag_nzs)))
         if( zbin_for_mag > mag_nzs-1 ):
             continue
-        interp_mag_cut = numpy.interp(photz, z_means, mag_cuts)
-        if mag < interp_mag_cut+1:
+        if mag < mag_cut+1:
             mags[zbin_for_mag].append(mag)
         
-        # only keep objs within the z binning range
-        if( photz < min_z or photz > max_z ):
-            continue
         
-        if bin_z < 0:
-            continue
-        data[bin_z] += 1
-    
         # if brighter than the mag cut, we want to correlate these!
-        if( mag < mag_cuts[bin_z] ):
+        if( mag < mag_cut ):
             # print to output "stream"
-            # outstring = "%s %s %f\n" %(splitted_line[0], splitted_line[1], mag)
-            # filehandles[bin_z].write(outstring)
             if( add_nofz and specz > 0.0 and specz < 10.0 ):
                 z_spec.append(specz)
                 z_phot.append(photz)
             
             outarray = array('d', [float(splitted_line[0]), float(splitted_line[1]), mag]) # not numpy.array
-            outarray.tofile(filehandles[bin_z])
-            nsample[bin_z] += 1
-
-            # samples[bin_z]['ra'].append(float(splitted_line[0]))
-            # samples[bin_z]['dec'].append(float(splitted_line[1]))
-            # samples[bin_z]['mag'].append(mag)
+            outarray.tofile(f1)
+            nsample += 1
 
     
     print >> sys.stderr, "read in catalog."
     if add_nofz:
         print >> sys.stderr, "%d spectroscopic zs." %(len(z_spec))
 
-    for zbin in range(nbins_z):
-        print >> sys.stderr, "bin %d: %d objs" %(zbin, nsample[zbin])
-        filehandles[zbin].close()
+    print >> sys.stderr, "%d objs" %(nsample)
+    f1.close()
 
     
     # save N(z) info
@@ -404,8 +359,10 @@ def parse_data( filename, mag_cuts, f, add_nofz=True, sparse=True ):
         
         # photoz: a table
         f.createGroup('/', 'photoz')
-        f.createGroup('/photoz', 'catalog')
-        photoz_table = f.createTable("/photoz/catalog", pop, photoz_entry)
+        catalogname = 'catalog' + str(index)
+        f.createGroup('/photoz', catalogname)
+        catalogname = '/photoz/' + catalogname
+        photoz_table = f.createTable(catalogname, pop, photoz_entry)
         photoz_table.setAttr('pop', json.dumps(pop))
         row = photoz_table.row
         for i in range(len(z_phot)):
@@ -418,24 +375,23 @@ def parse_data( filename, mag_cuts, f, add_nofz=True, sparse=True ):
 
     # save noise info: an array of one value per redshift bin.
     f.createGroup('/', 'noise')
-    noise_array = numpy.zeros(nbins_z)
-    for z in range(nbins_z):
-        if data[z] > 0:
-            noise_array[z] = 1.0/data[z]
-
-    noise = f.createArray('/noise', 'noise1', numpy.diag(noise_array))
+    noise_array = 0.;
+    if nsample > 0:
+        noise_array = [1.0/nsample]
+    catalogname = 'noise' + str(index)
+    noise = f.createArray('/noise', catalogname, noise_array)
     noise.setAttr('ftype0', json.dumps('counts'))
     noise.setAttr('pop0', json.dumps(pop))
     noise.setAttr('ftype1', json.dumps('counts'))
     noise.setAttr('pop1', json.dumps(pop))
     
     # measure slopes of the number counts, etc.
-    measure_slopes( mags, f, mag_maxz, mag_nzs, mag_cuts, z_edges, pop, use_mags )
+    measure_slopes( mags, f, mag_maxz, mag_nzs, mag_cut, index, pop, use_mags )
 
-    return outcat_filenames
+    return outfilename
 
 
-def add_nofz( filename, f, pop ):
+def add_nofz( filename, f, index, pop ):
     
     catalog = open(filename, "r")
     z_phot = []
@@ -452,7 +408,8 @@ def add_nofz( filename, f, pop ):
     # photoz: a table
     f.createGroup('/', 'photoz')
     f.createGroup('/photoz', 'catalog')
-    photoz_table = f.createTable("/photoz/catalog", pop, photoz_entry)
+    tablename = 'table' + str(index)
+    photoz_table = f.createTable("/photoz/catalog", tablename, photoz_entry)
     photoz_table.setAttr('pop', json.dumps(pop))
     row = photoz_table.row
     for i in range(len(z_phot)):
