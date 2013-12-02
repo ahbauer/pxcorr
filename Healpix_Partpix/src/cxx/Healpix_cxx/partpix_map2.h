@@ -313,7 +313,7 @@ template<typename T> class Partpix_Map2: public Healpix_Base2
         ordering scheme and the map resolution. \a orig must have higher
         resolution than the current map. */
         
-    void Import_upgrade (const Partpix_Map2<T> &orig, const Healpix_Map<T>& resolutionMask)
+    void Import_upgrade (const Partpix_Map2<T> &orig, const Healpix_Map<double>& resolutionMask)
       {
       planck_assert(nside_>orig.nside_,"Import_upgrade: this is no upgrade");
       int fact = nside_/orig.nside_;
@@ -357,6 +357,50 @@ template<typename T> class Partpix_Map2: public Healpix_Base2
       sort_partmap( pixel_mapping_arraytohigh, partmap );    
     } // Import_upgrade
         
+        
+    void Import_upgrade (const Partpix_Map2<T> &orig, const Healpix_Map<int>& resolutionMask)
+      {
+      planck_assert(nside_>orig.nside_,"Import_upgrade: this is no upgrade");
+      int fact = nside_/orig.nside_;
+      planck_assert (nside_==orig.nside_*fact,
+        "the larger Nside must be a multiple of the smaller one");
+      //pix2xyf to_xyf = (orig.scheme_==RING) ?
+        //&Healpix_Base2::ring2xyf : &Healpix_Base2::nest2xyf;
+      xyf2pix from_xyf = (scheme_==RING) ?
+        &Healpix_Base2::xyf2ring : &Healpix_Base2::xyf2nest;
+
+    int64 arrayindex = 0;
+    int factr = orig.nside_/resolutionMask.Nside();
+    for( int mr=0; mr<resolutionMask.Npix(); ++mr ){
+        if( resolutionMask[mr] == 0 )
+            continue;
+        int xr,yr,fr;
+        if( resolutionMask.Scheme()==RING )
+            resolutionMask.ring2xyf(mr,xr,yr,fr);
+        else
+            resolutionMask.nest2xyf(mr,xr,yr,fr);
+        int64 jrmax = factr*(yr+1);
+        int64 irmax = factr*(xr+1);
+        for (int64 jr=factr*yr; jr<jrmax; ++jr){
+          for (int64 ir=factr*xr; ir<irmax; ++ir){
+              int64 origpix = (orig.*from_xyf)(ir,jr,fr);
+              // int x,y,f;
+              // (orig.*to_xyf)(origpix,x,y,f);
+              int64 jmax = fact*(jr+1);
+              int64 imax = fact*(ir+1);
+              for (int64 j=fact*jr; j<jmax; ++j){
+                for (int64 i=fact*ir; i<imax; ++i){
+                  int64 mypix = (this->*from_xyf)(i,j,fr);
+                  pixel_mapping_arraytohigh[arrayindex] = mypix;
+                  partmap[arrayindex] = orig.partmap_at_highresindex(origpix);
+                  ++arrayindex;
+                }
+              }
+          }
+        }
+      }
+      sort_partmap( pixel_mapping_arraytohigh, partmap );    
+    } // Import_upgrade
         
       /*  
     void Import_upgrade (const Partpix_Map2<T> &orig, const Healpix_Map<T>& resolutionMask)

@@ -54,7 +54,11 @@ def measure_slopes( mags, f, mag_maxz, mag_nzs, mag_cut, index, pop, use_mags ):
             print >> sys.stderr, "z bin %d at %f s = %f alpha = %f" %(zbin_fine, (zbin_fine+0.5)*mag_maxz/mag_nzs, slope_kde, slope_array[zbin_fine])
 
     # save slopes: a table, for lots of redshift values.
-    f.createGroup('/', 'slopes')
+    # does the group already exist?
+    try:
+        g = f.getNode('/', 'slopes', 'Group')
+    except tables.exceptions.NoSuchNodeError:
+        f.createGroup('/', 'slopes')
     tablename = 'slope' + str(index)
     slopes_table = f.createTable('/slopes', tablename, slopes_entry)
     slopes_table.setAttr('ftype', json.dumps('counts'))
@@ -358,7 +362,11 @@ def parse_data( filename, mag_cut, f, index, add_nofz=True, sparse=True ):
             z_spec = z_spec2
         
         # photoz: a table
-        f.createGroup('/', 'photoz')
+        # does the group already exist?
+        try:
+            g = f.getNode('/', 'photoz', 'Group')
+        except tables.exceptions.NoSuchNodeError:
+            f.createGroup('/', 'photoz')
         catalogname = 'catalog' + str(index)
         f.createGroup('/photoz', catalogname)
         catalogname = '/photoz/' + catalogname
@@ -372,25 +380,30 @@ def parse_data( filename, mag_cut, f, index, add_nofz=True, sparse=True ):
             row['weight'] = 1.0
             row.append()
         photoz_table.flush()
+    
+    # measure slopes of the number counts, etc.
+    measure_slopes( mags, f, mag_maxz, mag_nzs, mag_cut, index, pop, use_mags )
 
+    return outfilename, nsample
+
+
+def add_noise( f, pop, nobjs_array ):
     # save noise info: an array of one value per redshift bin.
-    f.createGroup('/', 'noise')
-    noise_array = 0.;
-    if nsample > 0:
-        noise_array = [1.0/nsample]
-    catalogname = 'noise' + str(index)
-    noise = f.createArray('/noise', catalogname, noise_array)
+    # does the group already exist?
+    try:
+        g = f.getNode('/', 'noise', 'Group')
+    except tables.exceptions.NoSuchNodeError:
+        f.createGroup('/', 'noise')
+
+    noise_array = 1/nobjs_array # not sqrt?
+    noise = f.createArray('/noise', 'noise1', numpy.diag(noise_array))
+
     noise.setAttr('ftype0', json.dumps('counts'))
     noise.setAttr('pop0', json.dumps(pop))
     noise.setAttr('ftype1', json.dumps('counts'))
     noise.setAttr('pop1', json.dumps(pop))
     
-    # measure slopes of the number counts, etc.
-    measure_slopes( mags, f, mag_maxz, mag_nzs, mag_cut, index, pop, use_mags )
-
-    return outfilename
-
-
+    
 def add_nofz( filename, f, index, pop ):
     
     catalog = open(filename, "r")

@@ -31,43 +31,10 @@ using namespace H5;
 
 #define USE_WEIGHTS 0
 
-void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, int *nout ){
+void read_hdf5map( string mapname, unsigned long **map_pix, float **map_data, unsigned long &npix, vector<unsigned long>& mask_pixel_list, int& mask_order, vector<float>& r_mids, vector<float>& r_wids ){
     
-    bool OUTPUT_FITS = true;
-    cout << setiosflags(ios::fixed) << setprecision(16);
-    cerr << setprecision(16);
     
-    int min_footprint_order = 3;
-    double pixel_multiple = 2.5;
-    double jk_threshold_frac = 0.8;
-    
-    string mapname1( mapn1 );
-    string mapname2( mapn2 );
-    string suffix( sfx );
-    
-    bool single_rbin = true;
-    if( r < 0 ){
-        single_rbin = false;
-    }
-
-    if( access( mapname1.c_str(), F_OK ) == -1 ){
-        cerr << "File " << mapname1 << " is not readable!" << endl;
-        throw;
-    }
-    if( access( mapname2.c_str(), F_OK ) == -1 ){
-        cerr << "File " << mapname2 << " is not readable!" << endl;
-        throw;
-    }
-    
-    vector<float> r_lows;
-    vector<float> r_mids;
-    vector<float> r_highs;
-    vector<float> r_wids;
-    
-    // read in hdf5 maps + masks
-    
-    // file 1
-    H5File file1( mapname1, H5F_ACC_RDONLY );
+    H5File file1( mapname, H5F_ACC_RDONLY );
     H5G_obj_t firstType = file1.getObjTypeByIdx(0);
     if( firstType != H5G_GROUP ){
         cerr << "The map is not standard format;  the first element is not a group." << endl;
@@ -79,54 +46,66 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, i
         throw;
     }
     Group group = file1.openGroup("data");
-    string dataset1_name = group.getObjnameByIdx(0);
-    if( dataset1_name != "map" ){
-        cerr << "Dataset 1 name is " << dataset1_name << ", not map" << endl;
-        throw;
-    }
-    DataSet dataset1 = group.openDataSet(dataset1_name);
+    DataSet dataset1 = group.openDataSet("pixels");
+
     hsize_t ds1size = dataset1.getStorageSize();
-    int npix1 = ds1size/2/sizeof(double);
-    double *data1 = (double*) malloc( ds1size );
-    dataset1.read(data1, PredType::NATIVE_DOUBLE);
-    int map1_order = data1[0];
-    int map1_ordering = data1[1];
-    cerr << "map 1 info " << map1_order << " " << map1_ordering << " " << npix1-1 << " pixels" << endl;
-    // for( int i=1; i<npix1; ++i ){
-    //     for( int j=0; j<2; ++j ){
-    //         cout << data1[2*i+j] << " ";
-    //     }
-    //     cout << endl;
-    // }
-    
-    string dataset2_name = group.getObjnameByIdx(1);
-    if( dataset2_name != "mask" ){
-        cerr << "Dataset 2 name is " << dataset2_name << ", not mask" << endl;
+    npix = ds1size/sizeof(unsigned long);
+
+    (*map_pix) = new unsigned long[ds1size];
+
+    cerr << "reading map_pix... " << endl;
+    dataset1.read(*map_pix, PredType::NATIVE_ULONG);
+    cerr << " done!" << endl;
+
+    DataSet dataset1a = group.openDataSet("values");
+
+    ds1size = dataset1a.getStorageSize();
+    if( npix != ds1size/sizeof(float) ){
+        cerr << "Problem, number of pixels " << npix << " != number of data points " << ds1size/sizeof(float) << endl;
         throw;
     }
-    DataSet dataset2 = group.openDataSet(dataset2_name);
+
+    (*map_data) = new float[ds1size];
+    cerr << "reading map_data...";
+    dataset1a.read(*map_data, PredType::NATIVE_FLOAT);
+    cerr << " done!" << endl;
+    
+    cerr << "map has order " << (*map_pix)[0] << " and scheme " << (*map_data)[0] << endl;
+
+    DataSet dataset2 = group.openDataSet("mask_pixels");
     hsize_t ds2size = dataset2.getStorageSize();
-    long npix2 = ds2size/2/sizeof(long);
+    unsigned long npix2 = ds2size/sizeof(unsigned long);
     cerr << "mask 1 has " << npix2-1 << " pixels" << endl;
-    long *data2 = (long*) malloc( ds2size );
-    dataset2.read(data2, PredType::NATIVE_INT64);
-    int mask1_order = data2[0];
-    int mask1_ordering = data2[1];
-    if( mask1_ordering != RING ){
-        cerr << "Problem, mask1 ordering is not RING but " << mask1_ordering << endl;
+
+    unsigned long *mask_pix = new unsigned long[ds2size];
+    dataset2.read(mask_pix, PredType::NATIVE_ULONG);
+
+    DataSet dataset2a = group.openDataSet("mask_values");
+    ds2size = dataset2.getStorageSize();
+    if( npix2 != ds2size/sizeof(unsigned long) ){
+        cerr << "Problem, mask has " << npix2 << " pixels but " << ds2size/sizeof(unsigned long) << " values" << endl;
         throw;
     }
-    cerr << "mask 1 info " << mask1_order << " " << mask1_ordering << endl;
-    vector<long> mask1_pixels;
-    for( int i=2; i<2*npix2; i+=2 ){
-            if( data2[i+1] > 0.5 ){
-                mask1_pixels.push_back(data2[i]);
-            }
+
+    unsigned long *mask_data = new unsigned long[ds2size];
+    dataset2a.read(mask_data, PredType::NATIVE_ULONG);
+
+    if( mask_data[0] != RING ){
+        cerr << "Problem, mask ordering is not RING but " << mask_data[0] << endl;
+        throw;
     }
-    free(data2);
-    Healpix_Base2 mask1_base( mask1_order, RING );
+    mask_order = mask_pix[0];
+    cerr << "mask info " << mask_order << " " << mask_data[0] << endl;
+    for( unsigned long i=1; i<npix2; ++i ){
+        if( mask_data[i] > 0.5 ){
+            mask_pixel_list.push_back(mask_pix[i]);
+        }
+    }
     
-    // get the metadata from file 1 (why not)
+    delete[] mask_pix;
+    delete[] mask_data;
+    
+    // get the metadata from the file
     group = file1.openGroup("meta");
     DataSet dataSet = group.openDataSet("meta");
     Attribute attr = dataSet.openAttribute("u_mean");
@@ -188,6 +167,87 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, i
     free(u_mean);
     free(u_width);
 
+    cerr << "Finished reading in the map" << endl;
+    
+    return;
+}
+
+void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, int *nout ){
+    
+    bool OUTPUT_FITS = true;
+    cout << setiosflags(ios::fixed) << setprecision(16);
+    cerr << setprecision(16);
+    
+    int min_footprint_order = 3;
+    double pixel_multiple = 2.5;
+    double jk_threshold_frac = 0.8;
+    
+    string mapname1( mapn1 );
+    string mapname2( mapn2 );
+    string suffix( sfx );
+
+    cerr << "Correlating " << mapname1 << " x " << mapname2 << " rbin " << r << " with suffix " << suffix << endl;
+    
+    bool single_rbin = true;
+    if( r < 0 ){
+        single_rbin = false;
+    }
+
+    if( access( mapname1.c_str(), F_OK ) == -1 ){
+        cerr << "File " << mapname1 << " is not readable!" << endl;
+        throw;
+    }
+    if( access( mapname2.c_str(), F_OK ) == -1 ){
+        cerr << "File " << mapname2 << " is not readable!" << endl;
+        throw;
+    }
+    
+    vector<float> r_mids;
+    vector<float> r_wids;
+    vector<float> r_lows;
+    vector<float> r_highs;
+    
+    // read in hdf5 maps + masks
+    
+    cerr << "Reading in file 1" << endl;
+    
+    vector<unsigned long> mask1_pixels;
+    unsigned long *map1_pix;
+    float *map1_data;
+    unsigned long npix1;
+    int mask1_order;
+
+    read_hdf5map( mapname1, &map1_pix, &map1_data, npix1, mask1_pixels, mask1_order, r_mids, r_wids );
+    
+    cerr << "returned from reading the map" << endl;
+    
+    int map1_order = int(map1_pix[0]);
+
+    cerr << "map1 order = " << map1_pix[0] << endl;
+
+    int map1_ordering = int(map1_data[0]);
+    
+    cerr << "map 1 info " << map1_order << " " << map1_ordering << " " << npix1-1 << " pixels" << endl;
+
+    Healpix_Base2 mask1_base( mask1_order, RING );
+
+    cerr << "Reading in file 2" << endl;
+    
+    vector<unsigned long> mask2_pixels;
+    unsigned long *map2_pix;
+    float *map2_data;
+    unsigned long npix2;
+    int mask2_order;
+    
+    vector<float> r_mids2;
+    vector<float> r_wids2;
+    read_hdf5map( mapname2, &map2_pix, &map2_data, npix2, mask2_pixels, mask2_order, r_mids2, r_wids2 );
+    
+    int map2_order = map2_pix[0];
+    int map2_ordering = map2_data[0];
+    
+    cerr << "map 2 info " << map2_order << " " << map2_ordering << " " << npix2-1 << " pixels" << endl;
+
     if( r_mids[0] - r_wids[0]/2.0 < 0.0 )
         r_lows.push_back(0.0001*3.1415926/180.);
     else
@@ -197,6 +257,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, i
         r_lows.push_back(r_mids[i] - r_wids[i]/2.0);
         r_highs.push_back(r_mids[i] + r_wids[i]/2.0);
     }
+
     cerr << "r_lows: ";
     for( unsigned int i=0; i<r_lows.size(); ++i )
         cerr << r_lows[i] << " ";
@@ -210,59 +271,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, i
         cerr << r_highs[i] << " ";
     cerr << endl;
     
-    // file 2
-    H5File file2( mapname2, H5F_ACC_RDONLY );
-    firstType = file2.getObjTypeByIdx(0);
-    if( firstType != H5G_GROUP ){
-        cerr << "The map is not standard format;  the first element is not a group." << endl;
-        throw;
-    }
-    group_name = file2.getObjnameByIdx(0);
-    if( group_name != "data" ){
-        cerr << "Group name is " << group_name << ", not data" << endl;
-        throw;
-    }
-    group = file2.openGroup("data");
-    dataset1_name = group.getObjnameByIdx(0);
-    if( dataset1_name != "map" ){
-        cerr << "Dataset 1 name is " << dataset1_name << ", not map" << endl;
-        throw;
-    }
-    dataset1 = group.openDataSet(dataset1_name);
-    ds1size = dataset1.getStorageSize();
-    int npix3 = ds1size/2/sizeof(double);
-    double *data3 = (double*) malloc( ds1size );
-    dataset1.read(data3, PredType::NATIVE_DOUBLE);
-    int map2_order = data3[0];
-    int map2_ordering = data3[1];
-    cerr << "map 2 info " << map2_order << " " << map2_ordering << " " << npix3-1 << " pixels" << endl;
-    
-    dataset2_name = group.getObjnameByIdx(1);
-    if( dataset2_name != "mask" ){
-        cerr << "Dataset 2 name is " << dataset2_name << ", not mask" << endl;
-        throw;
-    }
-    dataset2 = group.openDataSet(dataset2_name);
-    ds2size = dataset2.getStorageSize();
-    long npix4 = ds2size/2/sizeof(long);
-    //cerr << "sizes " << sizeof(int64) << " " << sizeof(PredType::NATIVE_INT64) << " " << sizeof(PredType::NATIVE_INT32) << " " << sizeof(long) << endl;
-    cerr << "mask 2 has " << npix4-1 << " pixels" << endl;
-    long *data4 = (long*) malloc( ds2size );
-    dataset2.read(data4, PredType::NATIVE_INT64);
-    int mask2_order = data4[0];
-    int mask2_ordering = data4[1];
-    if( mask2_ordering != RING ){
-        cerr << "Problem, mask2 ordering is not RING but " << mask2_ordering << endl;
-        throw;
-    }
-    cerr << "mask 2 info " << mask2_order << " " << mask2_ordering << endl;
-    vector<long> mask2_pixels;
-    for( int i=2; i<2*npix4; i+=2 ){
-            if( data4[i+1] > 0.5 ){
-                mask2_pixels.push_back(data4[i]);
-            }
-    }
-    free(data4);
+
     Healpix_Base2 mask2_base( mask2_order, RING );
 
     if( map1_order != map2_order ){
@@ -441,17 +450,19 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, i
     cerr << "Created Partpix maps for weights" << endl;
 #endif
 
-    for( int i=1; i<npix1; ++i ){
-        // cerr << "trying low z pixel " << data1[2*i] << " value " << data1[2*i+1] << " i = " << i << endl;
-        (*lowzMap)[data1[2*i]] = data1[2*i+1];
+    for( unsigned long i=1; i<npix1; ++i ){
+        // cerr << "trying low z pixel " << map_data[2*i] << " value " << map_data[2*i+1] << " i = " << i << endl;
+        (*lowzMap)[map1_pix[i]] = map1_data[i];
     }
-    for( int i=1; i<npix3; ++i ){
+    for( unsigned long i=1; i<npix2; ++i ){
         // cerr << "trying high z pixel " << data3[2*i] << " value " << data3[2*i+1] << " i = " << i << endl;
-        (*highzMap)[data3[2*i]] = data3[2*i+1];
+        (*highzMap)[map2_pix[i]] = map2_data[i];
     }
     cerr << "Read in the data maps" << endl;
-    free(data1);
-    free(data3);
+    free(map1_pix);
+    free(map1_data);
+    free(map2_pix);
+    free(map2_data);
 
 
     if( OUTPUT_FITS && order < 13 ){

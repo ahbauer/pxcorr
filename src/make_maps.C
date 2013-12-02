@@ -46,6 +46,9 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     double input_mask_cut = 1.e-5;
     double pixel_multiple = 2.5;
 
+    cerr << "some sizes: " << sizeof(hsize_t) << " " << sizeof(int) << " " << sizeof(int64) << " " << sizeof(float) << " " << sizeof(double) << endl;
+    cerr << H5::PredType::NATIVE_ULONG.getSize() << " " << H5::PredType::NATIVE_LLONG.getSize() << " " << H5::PredType::NATIVE_FLOAT.getSize() << endl;
+
     cerr << setprecision(16);
     
     if( !( use_counts || use_mags) ){
@@ -57,6 +60,8 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     string mask_filename(mask_filename_c);
     string suffix(suffix_c);
     
+    cerr << "make_maps " << catalog_filename << " " << mask_filename << endl;
+
     int min_footprint_order = 3;
     
     if( catalog_filename.rfind(".fits") != string::npos ){
@@ -76,7 +81,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
             footprintMap = new Healpix_Map<int>(footprint_order, RING);
             footprintMap->fill(0);
             for( int i=0; i<inputmap.Npix(); ++i ){
-                if( inputmap[i] != 0. && inputmap[i] != Healpix_undef )
+                if( inputmap[i] != 0. && inputmap[i] != Healpix_undef && ! isnan(inputmap[i]) )
                     (*footprintMap)[ footprintMap->ang2pix(inputmap.pix2ang(i)) ] = 1;
             }
             double footprint_area_new = 0.;
@@ -113,12 +118,13 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         Partpix_Map2<int> *dcMask = new Partpix_Map2<int>(inputmap.Order(), *footprintMap);
         dcMask->fill(0);
         for( int i=0; i<inputmap.Npix(); ++i ){
-            if( inputmap[i] != 0. && inputmap[i] != Healpix_undef ){
+            if( inputmap[i] != 0. && inputmap[i] != Healpix_undef && ! isnan(inputmap[i]) ){
                 (*dcMap)[i] = inputmap[i];
                 (*dcMask)[i] = 1;
             }
         }
-        
+        // free the memory
+        inputmap = Healpix_Map<double>(1, RING);
         
         // now turn the counts map into a delta map
         double mean_counts = 0.0;
@@ -143,6 +149,42 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         for( int64 i1=0; i1<dcMap->Npartpix(); ++i1 ){
             int64 i = dcMap->highResPix(i1);
             (*dcMap)[i] = (*dcMap)[i]/mean_counts - 1.0;
+        }
+        
+        // now make sure the file is the resolution necessary for the smallest angular bin
+        // i realize that this is moot if the input res is lower, but it will keep the code from crashing.
+        float min_width = 1.e9;
+        for( int i=0; i<n_ang_bins; ++i ){
+            if( ang_widths_c[i] < min_width )
+                min_width = ang_widths_c[i];
+        }
+        int order = 1;
+        while(1){
+          float pixel_size = sqrt(41253./(12.0*pow(pow(2.0, order), 2.0)));
+          if( pixel_multiple*pixel_size < min_width )  // this 0.85 is a bit arbitrary
+              break;
+          ++order;
+        }
+        cerr << "Using order " << order << " for minimum angular width " << min_width << endl;
+        if( order > dcMap->Order() ){
+            Partpix_Map2<float> *dcMap2 = new Partpix_Map2<float>(order, *footprintMap);
+            Partpix_Map2<int> *dcMask2 = new Partpix_Map2<int>(order, *footprintMap);
+            dcMap2->Import_upgrade(*dcMap, *footprintMap);
+            dcMask2->Import_upgrade(*dcMask, *footprintMap);
+            delete dcMap;
+            delete dcMask;
+            dcMap = dcMap2;
+            dcMask = dcMask2;
+        }
+        else if( order < dcMap->Order() ){
+            Partpix_Map2<float> *dcMap2 = new Partpix_Map2<float>(order, *footprintMap);
+            Partpix_Map2<int> *dcMask2 = new Partpix_Map2<int>(order, *footprintMap);
+            dcMap2->Import_degrade(*dcMap, *footprintMap);
+            dcMask2->Import_degrade(*dcMask, *footprintMap);
+            delete dcMap;
+            delete dcMask;
+            dcMap = dcMap2;
+            dcMask = dcMask2;
         }
         
         // and write out the map
@@ -454,73 +496,92 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
 void write_map( Partpix_Map2<float> *dcMap, Partpix_Map2<int> *dcMask, string outfilename, string ftype, float *ang_means_c, float *ang_widths_c, int n_ang_bins ){
     
     // write out the maps (hdf5)
+    cerr << "writing " << outfilename << endl;
+
     H5::H5File *file = new H5::H5File( outfilename, H5F_ACC_TRUNC ); // clobber!
     H5::Group* group = new H5::Group( file->createGroup( "/data" ));
-    H5::PredType datatype_map( H5::PredType::NATIVE_DOUBLE );
-    H5::PredType datatype_mask( H5::PredType::NATIVE_INT64 );
-    hsize_t dimsf[2];
-    dimsf[1] = 2;
-    int rank = 2;
+    H5::PredType datatype_map( H5::PredType::NATIVE_FLOAT );
+    H5::PredType datatype_pix( H5::PredType::NATIVE_ULONG );
+    H5::PredType datatype_mask( H5::PredType::NATIVE_ULONG );
+    // hsize_t dimsf[2];
+    // dimsf[1] = 2;
+    // int rank = 2;
+    hsize_t dimsf[1];
+    int rank = 1;
+
+    // cerr << "sizes " << H5::PredType::NATIVE_FLOAT.getSize() << " " << sizeof(H5::PredType::NATIVE_FLOAT) << " " << sizeof(double) << " " << sizeof(float) << endl;
 
     // the map dataset
-    int64 dsize = 2*dcMap->Npartpix()+2;
-    double *data = new double[dsize];
-    data[0] = dcMap->Order();
-    data[1] = RING;
-    int64 index = 2;
+    int64 dsize = dcMap->Npartpix()+1;
+    float *data = new float[dsize];
+    unsigned long *pix = new unsigned long[dsize];
+    pix[0] = dcMap->Order();
+    data[0] = RING;
+    int64 index = 1;
     for( int64 i1=0; i1<dcMap->Npartpix(); ++i1 ){
-        int64 i = dcMap->highResPix(i1);
+        unsigned long i = dcMap->highResPix(i1);
         // only write it out if it's inside the mask
         if( (*dcMask)[dcMask->ang2pix(dcMap->pix2ang(i))] > 0.5 ){
-            data[index] = i;
-            ++index;
+            pix[index] = i;
             data[index] = (*dcMap)[i];
             ++index;
         }
     }
-    dimsf[0] = index/2;
-    H5::DataSpace *dataspace = new H5::DataSpace( rank, dimsf );
-    string datasetname = "/data/map";
-    H5::DataSet *dataset = new H5::DataSet( file->createDataSet( datasetname, datatype_map, *dataspace ) );
-    // TBD:  why still the 2gb problem??  VB!
-    if( dimsf[0] > 120000000 ){
-        cerr << "BAD: trying as a float...";
-        float *dataf = new float[index];
-        for( int64 i=0; i<index; ++i ){
-            dataf[i] = float(data[i]);
-        }
-        dataset->write( dataf, H5::PredType::NATIVE_FLOAT );
-        delete[] dataf;
-    }
-    else{
-        dataset->write( data, H5::PredType::NATIVE_DOUBLE );
-    }
-    delete[] data;
-    delete dataspace;
-    delete dataset;
+    dimsf[0] = index;
+    cerr << "length of array to save = " << index << endl;
+    H5::DataSpace *dataspace1 = new H5::DataSpace( rank, dimsf );
+    H5::DataSpace *dataspace2 = new H5::DataSpace( rank, dimsf );
+    string datasetname1 = "/data/pixels";
+    string datasetname2 = "/data/values";
+    H5::DataSet *dataset1 = new H5::DataSet( file->createDataSet( datasetname1, datatype_pix, *dataspace1 ) );
+    H5::DataSet *dataset2 = new H5::DataSet( file->createDataSet( datasetname2, datatype_map, *dataspace2 ) );
+    
+    cerr << "Writing the data" << endl;
+    cerr << "Values size " << H5::PredType::NATIVE_FLOAT.getSize() << "x" << dimsf[0] << endl;
+    dataset2->write( data, H5::PredType::NATIVE_FLOAT );
+    
+    cerr << "Pixels size " << H5::PredType::NATIVE_ULONG.getSize() << "x" << dimsf[0] << endl;
+    dataset1->write( pix, H5::PredType::NATIVE_ULONG );
 
-    cerr << "Wrote " << dimsf[0]-1 << " pixels to the map" << endl;
+    cerr << "Deleting info" << endl;
+
+    delete[] data;
+    delete[] pix;
+    delete dataspace1;
+    delete dataspace2;
+    delete dataset1;
+    delete dataset2;
+    
+    cerr << "Wrote " << dimsf[0] << "-1 pixels to the map" << endl;
 
     // the mask dataset
-    int64 *data_mask = new int64[2*dcMask->Npartpix()+2];
-    data_mask[0] = dcMask->Order();
-    data_mask[1] = RING;
-    index = 2;
+    unsigned long *data_mask = new unsigned long[dcMask->Npartpix()+1];
+    unsigned long *pix_mask = new unsigned long[dcMask->Npartpix()+1];
+    pix_mask[0] = dcMask->Order();
+    data_mask[0] = RING;
+    index = 1;
     for( int64 i1=0; i1<dcMask->Npartpix(); ++i1 ){
         int64 i = dcMask->highResPix(i1);
-        data_mask[index] = i;
-        ++index;
+        pix_mask[index] = i;
         data_mask[index] = (*dcMask)[i];
         ++index;
     }
     dimsf[0] = dcMask->Npartpix()+1;
+    H5::DataSpace *dataspace_pix = new H5::DataSpace( rank, dimsf );
     H5::DataSpace *dataspace_mask = new H5::DataSpace( rank, dimsf );
-    datasetname = "/data/mask";
-    H5::DataSet *dataset_mask = new H5::DataSet( file->createDataSet( datasetname, datatype_mask, *dataspace_mask ) );
-    dataset_mask->write( data_mask, H5::PredType::NATIVE_INT64 );
+    datasetname1 = "/data/mask_pixels";
+    datasetname2 = "/data/mask_values";
+    H5::DataSet *dataset_mask1 = new H5::DataSet( file->createDataSet( datasetname1, datatype_mask, *dataspace_pix ) );
+    H5::DataSet *dataset_mask2 = new H5::DataSet( file->createDataSet( datasetname2, datatype_mask, *dataspace_mask ) );
+    dataset_mask1->write( pix_mask, H5::PredType::NATIVE_ULONG );
+    dataset_mask2->write( data_mask, H5::PredType::NATIVE_ULONG );
     cerr << "Wrote " << dcMask->Npartpix() << " pixels to the mask" << endl;
+    
+    delete dataspace_pix;
     delete dataspace_mask;
-    delete dataset_mask;
+    delete dataset_mask1;
+    delete dataset_mask2;
+    delete[] pix_mask;
     delete[] data_mask;
 
     // the metadata

@@ -11,7 +11,7 @@ import ctypes
 import yaml
 
 from make_meta import make_metadata
-from parse_sample import parse_data, add_nofz
+from parse_sample import parse_data, add_nofz, add_noise
 from packobs import add_corr, add_cov
 
 sys.path.append("/Users/bauer/software/pxcorr/src/")
@@ -39,47 +39,53 @@ use_counts = config["use_counts"]
 use_mags = config["use_mags"]
 only_auto = config["only_auto"]
 only_makemaps = config["only_makemaps"]
+only_correlate = config["only_correlate"]
 pop = config["pop"]
 
-
-# make some metadata to tell us what to do
 hdf5file = tables.openFile('pxcorr_out.h5', 'w')
-ang_info = make_metadata( hdf5file, z_means, z_widths, ang_mean, ang_width, pop)
-print ang_info
 
-# do the following for each map
-# note: this can be parallelized and done separately for each map
-# the maps need to be copied back from the nodes, though.
-for c, catalog_filename in enumerate(catalog_filenames):
+if not only_correlate:
+    # make some metadata to tell us what to do
+    ang_info = make_metadata( hdf5file, z_means, z_widths, ang_mean, ang_width, pop)
+    print ang_info
+
+    # do the following for each map
+    # note: this can be parallelized and done separately for each map
+    # the maps need to be copied back from the nodes, though.
+    nobjs = np.zeros(len(catalog_filenames))
+    for c, catalog_filename in enumerate(catalog_filenames):
     
-    # do we want to figure out the N(z) from the catalog or a separate training set file?
-    nofz_from_data = False
-    if nofz_filenames[c] == catalog_filename or nofz_filenames[c] is None or nofz_filenames[c] == 'None':
-        nofz_from_data = True
+        # do we want to figure out the N(z) from the catalog or a separate training set file?
+        nofz_from_data = False
+        if nofz_filenames[c] == catalog_filename or nofz_filenames[c] is None or nofz_filenames[c] == 'None':
+            nofz_from_data = True
 
-    subcat_filename = None
-    if catalog_filename.endswith(".fits"):
-        print "Found an input Healpix map!"
-        subcat_filename = catalog_filename
+        subcat_filename = None
+        if catalog_filename.endswith(".fits"):
+            print "Found an input Healpix map!"
+            subcat_filename = catalog_filename
 
-    else:
-        # parse the catalog: construct N(z) data, calculate slope, etc.
-        # these things are necessary for interpretation with martin erikson's modeling code.
-        subcat_filename = parse_data( catalog_filename, mag_cuts[c], hdf5file, c, nofz_from_data, sparse=True )
+        else:
+            # parse the catalog: construct N(z) data, calculate slope, etc.
+            # these things are necessary for interpretation with martin erikson's modeling code.
+            subcat_filename, nobj = parse_data( catalog_filename, mag_cuts[c], hdf5file, c, nofz_from_data, sparse=True )
+            nobjs[c] = nobj
 
-        # if the N(z) is from a separate file, put that in the hdf5 file now.
-        # note that this info must correspond to (have the same cuts as) the data catalog!
-        if not nofz_from_data:
-            add_nofz( nofz_filename, hdf5file, c, pop )
+            # if the N(z) is from a separate file, put that in the hdf5 file now.
+            # note that this info must correspond to (have the same cuts as) the data catalog!
+            if not nofz_from_data:
+                add_nofz( nofz_filenames[c], hdf5file, c, pop )
+        
+        suffix = "_" + str(c)
+        make_maps.make_maps( subcat_filename, mask_filenames[c], ang_mean, ang_width, use_counts, use_mags, suffix );
+        print "Finished making map from %s" %subcat_filename
+    # end parallelizable loop
 
-    suffix = "_" + str(c)
-    make_maps.make_maps( subcat_filename, mask_filenames[c], ang_mean, ang_width, use_counts, use_mags, suffix );
-    print "Finished making map from %s" %subcat_filename
-# end parallelizable loop
+    add_noise( hdf5file, pop, nobjs )
 
-if only_makemaps:
-    hdf5file.close()
-    exit(0)
+    if only_makemaps:
+        hdf5file.close()
+        exit(0)
 
 nf = len( catalog_filenames )
 
@@ -135,6 +141,7 @@ for i in range(nf):
         
         for r in range(len(config["ang_mean"])):
             suffix = "." + str(i) + "c." + str(j) + "c." + str(r)
+            print "Calling for r=%d" %r
             result = correlate.correlate( name1, name2, suffix, r )
             corr[r,i,j] = result[0]
             if i != j:
