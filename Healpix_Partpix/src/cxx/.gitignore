@@ -1,3 +1,5 @@
 build.*/
 generic_gcc/
 osx/
+doc/
+docsrc/htmldoc/
