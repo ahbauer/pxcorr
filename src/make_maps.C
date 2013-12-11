@@ -40,10 +40,11 @@ using namespace std;
 
 void write_map( Partpix_Map2<float> *dcMap, Partpix_Map2<int> *dcMask, string outfilename, string ftype, float *ang_means_c, float *ang_widths_c, int n_ang_bins );
 
+void read_mask( string mask_filename, vector<int>& mask_pixels, Healpix_Base2& mask_base );
+
 void make_maps( const char *catalog_filename_c, const char *mask_filename_c, float *ang_means_c, int n_ang_bins0, float *ang_widths_c, int n_ang_bins, bool use_counts, bool use_mags, char *suffix_c ){
 
     //int n_ang_bins = ang_means.size();
-    double input_mask_cut = 1.e-5;
     double pixel_multiple = 2.5;
 
     cerr << "some sizes: " << sizeof(hsize_t) << " " << sizeof(int) << " " << sizeof(int64) << " " << sizeof(float) << " " << sizeof(double) << endl;
@@ -64,6 +65,27 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
 
     int min_footprint_order = 3;
     
+    // From the smallest angular bin width, figure out the necessary map resolution.
+    float min_width = 1.e9;
+    for( int i=0; i<n_ang_bins; ++i ){
+        if( ang_widths_c[i] < min_width )
+            min_width = ang_widths_c[i];
+    }
+    int order = 1;
+    while(1){
+      float pixel_size = sqrt(41253./(12.0*pow(pow(2.0, order), 2.0)));
+      if( pixel_multiple*pixel_size < min_width )  // this 0.85 is a bit arbitrary
+          break;
+      ++order;
+    }
+    cerr << "Using order " << order << " for minimum angular width " << min_width << endl;
+    
+    Healpix_Map<int> *footprintMap;
+    int mask_order;
+    vector<int> mask_pixels;
+    Healpix_Base2 mask_base;
+    Partpix_Map2<int> *dcMask;
+    
     if( catalog_filename.rfind(".fits") != string::npos ){
         
         cerr << "make_maps: Found a Healpix map as input!" << endl;
@@ -72,60 +94,155 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         if( inputmap.Scheme() == NEST )
             inputmap.swap_scheme();
         
-        // what's the footprint?
-        int footprint_order = min_footprint_order;
-        double footprint_area = 50000.;
-        Healpix_Map<int> *footprintMap = new Healpix_Map<int>(1, RING);
-        while(footprint_order <= inputmap.Order()){
+        // if there's no extra mask, use all the non-zero healpix pixel as the good area, and to find the footprint.
+        if( mask_filename == "None" || mask_filename == "none" || mask_filename == "NONE" || mask_filename == "null" || mask_filename == "NULL" ){
+        
+            // what's the footprint?
+            int footprint_order = min_footprint_order;
+            double footprint_area = 50000.;
+            Healpix_Map<int> *footprintMap = new Healpix_Map<int>(1, RING);
+            while(footprint_order <= inputmap.Order()){
+                delete footprintMap;
+                footprintMap = new Healpix_Map<int>(footprint_order, RING);
+                footprintMap->fill(0);
+                for( int i=0; i<inputmap.Npix(); ++i ){
+                    if( inputmap[i] != 0. && inputmap[i] != Healpix_undef && ! isnan(inputmap[i]) )
+                        (*footprintMap)[ footprintMap->ang2pix(inputmap.pix2ang(i)) ] = 1;
+                }
+                double footprint_area_new = 0.;
+                for( int i=0; i<footprintMap->Npix(); ++i ){
+                  if( (*footprintMap)[i] == 1 )
+                      footprint_area_new += 1.0;
+                }
+                footprint_area_new *= (41253./footprintMap->Npix());
+                if( footprint_area_new <= 0.8*footprint_area ){
+                    footprint_area = footprint_area_new;
+                    cerr << "Footprint order " << footprint_order << " uses area " << footprint_area << " sq degrees... trying the next order." << endl;
+                    ++footprint_order;
+                }
+                else{
+                    break;
+                }
+            }
+            // the previous footprint order was fine.
+            // we want this to be small because it's also the minimum jackknife order.
+            // so, go back to the last footprint order.
+            --footprint_order;
             delete footprintMap;
             footprintMap = new Healpix_Map<int>(footprint_order, RING);
             footprintMap->fill(0);
             for( int i=0; i<inputmap.Npix(); ++i ){
-                if( inputmap[i] != 0. && inputmap[i] != Healpix_undef && ! isnan(inputmap[i]) )
-                    (*footprintMap)[ footprintMap->ang2pix(inputmap.pix2ang(i)) ] = 1;
+                (*footprintMap)[ footprintMap->ang2pix(inputmap.pix2ang(i)) ] = 1;
             }
-            double footprint_area_new = 0.;
-            for( int i=0; i<footprintMap->Npix(); ++i ){
-              if( (*footprintMap)[i] == 1 )
-                  footprint_area_new += 1.0;
+            cerr << "Using footprint order " << footprintMap->Order() << " with " << footprint_area << " sq degrees." << endl;
+        
+            // Now fill in the mask
+            dcMask = new Partpix_Map2<int>(inputmap.Order(), *footprintMap);
+            dcMask->fill(0);
+            for( int i=0; i<inputmap.Npix(); ++i ){
+                if( inputmap[i] != 0. && inputmap[i] != Healpix_undef && ! isnan(inputmap[i]) ){
+                    (*dcMask)[i] = 1;
+                }
             }
-            footprint_area_new *= (41253./footprintMap->Npix());
-            if( footprint_area_new <= 0.8*footprint_area ){
-                footprint_area = footprint_area_new;
-                cerr << "Footprint order " << footprint_order << " uses area " << footprint_area << " sq degrees... trying the next order." << endl;
-                ++footprint_order;
+            cerr << "Finished filling in the mask from the Healpix input itself" << endl;
+            
+        } // if there's no mask to go with the healpix map
+        
+        else{
+            
+            string scheme;
+            
+            // read in the mask
+            read_mask( mask_filename, mask_pixels, mask_base );
+            mask_order = mask_base.Order();
+            
+            // from the masks, determine the best possible healpix footprint
+            // requirements: must cover all of the mask area
+            // must cover <80% of the area covered by the next lowest resolution
+            // must be order <= 6 ?
+            int footprint_order = min_footprint_order;
+            double footprint_area = 50000.;
+            footprintMap = new Healpix_Map<int>(1, RING);
+            while(footprint_order <= mask_order){
+                delete footprintMap;
+                footprintMap = new Healpix_Map<int>(footprint_order, RING);
+                footprintMap->fill(0);
+                for( unsigned int i=0; i<mask_pixels.size(); ++i ){
+                    (*footprintMap)[ footprintMap->ang2pix(mask_base.pix2ang(mask_pixels[i])) ] = 1;
+                }
+                double footprint_area_new = 0.;
+                for( int i=0; i<footprintMap->Npix(); ++i ){
+                  if( (*footprintMap)[i] == 1 )
+                      footprint_area_new += 1.0;
+                }
+                footprint_area_new *= (41253./footprintMap->Npix());
+                if( footprint_area_new <= 0.8*footprint_area ){
+                    footprint_area = footprint_area_new;
+                    cerr << "Footprint order " << footprint_order << " uses area " << footprint_area << " sq degrees... trying the next order." << endl;
+                    ++footprint_order;
+                }
+                else{
+                    //footprint_area = footprint_area_new;
+                    break;
+                }
             }
-            else{
-                break;
+            // the previous footprint order was fine.
+            // we want this to be small because it's also the minimum jackknife order.
+            // so, go back to the last footprint order.
+            --footprint_order;
+            delete footprintMap;
+            footprintMap = new Healpix_Map<int>(footprint_order, RING);
+            footprintMap->fill(0);
+            for( unsigned int i=0; i<mask_pixels.size(); ++i ){
+                (*footprintMap)[ footprintMap->ang2pix(mask_base.pix2ang(mask_pixels[i])) ] = 1;
             }
-        }
-        // the previous footprint order was fine.
-        // we want this to be small because it's also the minimum jackknife order.
-        // so, go back to the last footprint order.
-        --footprint_order;
-        delete footprintMap;
-        footprintMap = new Healpix_Map<int>(footprint_order, RING);
-        footprintMap->fill(0);
-        for( int i=0; i<inputmap.Npix(); ++i ){
-            (*footprintMap)[ footprintMap->ang2pix(inputmap.pix2ang(i)) ] = 1;
-        }
-        cerr << "Using footprint order " << footprintMap->Order() << " with " << footprint_area << " sq degrees." << endl;
+            cerr << "Using footprint order " << footprintMap->Order() << " with " << footprint_area << " sq degrees." << endl;
+            
+            // fill in the Partpix mask(s)
+            dcMask = new Partpix_Map2<int>(mask_order, *footprintMap);
+            dcMask->fill(0);
+            for( unsigned int i=0; i<mask_pixels.size(); ++i ){
+              if( ! (*footprintMap)[ footprintMap->ang2pix(mask_base.pix2ang(mask_pixels[i])) ] ){
+                  cerr << "Skipping mask pixel " << i << "!" << endl;
+                  continue;
+              }
+              (*dcMask)[mask_pixels[i]] = 1;
+            }
+            mask_pixels.clear();
+
+            cerr << "Finished filling in the supplied mask" << endl;
+            
+        } // if there is a mask to go with the healpix map
         
         
         // now make the healpix map into a partpix map
         Partpix_Map2<float> *dcMap = new Partpix_Map2<float>(inputmap.Order(), *footprintMap);
         dcMap->fill(0.);
-        Partpix_Map2<int> *dcMask = new Partpix_Map2<int>(inputmap.Order(), *footprintMap);
-        dcMask->fill(0);
         for( int i=0; i<inputmap.Npix(); ++i ){
             if( inputmap[i] != 0. && inputmap[i] != Healpix_undef && ! isnan(inputmap[i]) ){
-                (*dcMap)[i] = inputmap[i];
-                (*dcMask)[i] = 1;
+                if( (*footprintMap)[ footprintMap->ang2pix(inputmap.pix2ang(i)) ] )
+                    (*dcMap)[i] = inputmap[i];
             }
         }
         // free the memory
         inputmap = Healpix_Map<double>(1, RING);
         
+        
+        // make sure that the map is the same resolution as the mask
+        if( dcMap->Order() > dcMask->Order() ){
+            Partpix_Map2<float> *dcMap2 = new Partpix_Map2<float>(mask_order, *footprintMap);
+            dcMap2->Import_degrade(*dcMap, *footprintMap);
+            delete dcMap;
+            dcMap = dcMap2;
+        }
+        else if( dcMap->Order() < dcMask->Order() ){
+            Partpix_Map2<float> *dcMap2 = new Partpix_Map2<float>(mask_order, *footprintMap);
+            dcMap2->Import_upgrade(*dcMap, *footprintMap);
+            delete dcMap;
+            dcMap = dcMap2;
+        }
+        
+    
         // now turn the counts map into a delta map
         double mean_counts = 0.0;
         double n_pix = 0.0;
@@ -150,22 +267,9 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
             int64 i = dcMap->highResPix(i1);
             (*dcMap)[i] = (*dcMap)[i]/mean_counts - 1.0;
         }
-        
+    
         // now make sure the file is the resolution necessary for the smallest angular bin
         // i realize that this is moot if the input res is lower, but it will keep the code from crashing.
-        float min_width = 1.e9;
-        for( int i=0; i<n_ang_bins; ++i ){
-            if( ang_widths_c[i] < min_width )
-                min_width = ang_widths_c[i];
-        }
-        int order = 1;
-        while(1){
-          float pixel_size = sqrt(41253./(12.0*pow(pow(2.0, order), 2.0)));
-          if( pixel_multiple*pixel_size < min_width )  // this 0.85 is a bit arbitrary
-              break;
-          ++order;
-        }
-        cerr << "Using order " << order << " for minimum angular width " << min_width << endl;
         if( order > dcMap->Order() ){
             Partpix_Map2<float> *dcMap2 = new Partpix_Map2<float>(order, *footprintMap);
             Partpix_Map2<int> *dcMask2 = new Partpix_Map2<int>(order, *footprintMap);
@@ -186,12 +290,12 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
             dcMap = dcMap2;
             dcMask = dcMask2;
         }
-        
+    
         // and write out the map
         string outfilename = "dc_map" + suffix + ".h5";
         string ftype = "counts";
         write_map( dcMap, dcMask, outfilename, ftype, ang_means_c, ang_widths_c, n_ang_bins );
-        
+    
         cerr << "Wrote map to file" << endl;
         delete dcMap;
         delete dcMask;
@@ -203,20 +307,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     
     
     
-    // From the smallest angular bin width, figure out the necessary map resolution.
-    float min_width = 1.e9;
-    for( int i=0; i<n_ang_bins; ++i ){
-        if( ang_widths_c[i] < min_width )
-            min_width = ang_widths_c[i];
-    }
-    int order = 1;
-    while(1){
-      float pixel_size = sqrt(41253./(12.0*pow(pow(2.0, order), 2.0)));
-      if( pixel_multiple*pixel_size < min_width )  // this 0.85 is a bit arbitrary
-          break;
-      ++order;
-    }
-    cerr << "Using order " << order << " for minimum angular width " << min_width << endl;
+
     
     // read in the galaxy catalog
     FILE * file = fopen( catalog_filename.c_str(), "rb" );
@@ -241,11 +332,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     
     
     // read in the mask
-    char line_char[256];
     string scheme;
-    int mask_order;
-    vector<int> mask_pixels;
-    Healpix_Base2 mask_base;
     if( mask_filename == "None" || mask_filename == "none" || mask_filename == "NONE" || mask_filename == "null" || mask_filename == "NULL" ){
         cerr << "Making a dummy mask file from the data itself.  This is not the best idea." << endl;
         mask_order = order-2;
@@ -256,60 +343,10 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         unique(mask_pixels.begin(), mask_pixels.end());
     }
     else{
-        FILE * maskfile = fopen( mask_filename.c_str(), "r" );
-        if( maskfile == NULL ){
-            cerr << "Problem opening " << mask_filename << endl;
-            throw;
-        }
-        bool header = true;
-        while( fgets( line_char, 256, maskfile ) ){
-            if( header ){
-                char sch[16];
-                int num = sscanf(line_char, "%s %d", sch, &mask_order );
-                if( num != 2 ){
-                    cerr << "Problem reading header from mask file, number of arguments read = " << num << ", not 2" << endl;
-                    throw;
-                }
-                scheme = string(sch);
-                if( (!scheme.compare("RING")) && (!scheme.compare("NEST")) ){
-                    cerr << "Scheme listed in mask header line is not RING or NEST, but " << scheme << endl;
-                    throw;
-                }
-                header = false;
-                continue;
-            }
-            int pix;
-            double val;
-            int num = sscanf(line_char, "%d %lf", &pix, &val );
-            if( num != 2 ){
-                // allow the implicit assumption of a pixel's existence in the list meaning that the mask is good there.
-                val = 1.0;
-                num = sscanf(line_char, "%d", &pix );
-                if( num != 1 ){
-                    cerr << "Problem reading from mask file, number of arguments read = " << num << ", not 1" << endl;
-                    throw;
-                }
-            }
-            if( val > input_mask_cut )
-                mask_pixels.push_back(pix);
-        }
-        fclose(maskfile);
-        cerr << "Read in mask information, scheme " << scheme << ", order " << mask_order << ", " << mask_pixels.size() << " pixels" << endl;
-        mask_base = Healpix_Base2( mask_order, RING );
-        vector<int> mask_pixels_nest( mask_pixels );
-        if( scheme.compare("NEST") == 0 ){
-            cerr << "Changing mask to RING scheme... ";
-            for( unsigned int i=0; i<mask_pixels.size(); ++i ){
-                mask_pixels[i] = mask_base.nest2ring(mask_pixels_nest[i]);
-            }
-            scheme = "RING";
-            cerr << "Done!" << endl;
-        }
-        sort( mask_pixels.begin(), mask_pixels.end() );
-        mask_pixels_nest.clear();
+        read_mask(mask_filename, mask_pixels, mask_base);
     }
-    cerr << "Finished with the mask" << endl;
-    
+    mask_order = mask_base.Order();
+    cerr << "Finished with the mask: " << mask_pixels.size() << " good pixels with order " << mask_order << endl;
     
     // from the masks, determine the best possible healpix footprint
     // requirements: must cover all of the mask area
@@ -317,7 +354,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     // must be order <= 6 ?
     int footprint_order = min_footprint_order;
     double footprint_area = 50000.;
-    Healpix_Map<int> *footprintMap = new Healpix_Map<int>(1, RING);
+    footprintMap = new Healpix_Map<int>(1, RING);
     while(footprint_order <= mask_order){
         delete footprintMap;
         footprintMap = new Healpix_Map<int>(footprint_order, RING);
@@ -354,7 +391,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     cerr << "Using footprint order " << footprintMap->Order() << " with " << footprint_area << " sq degrees." << endl;
 
     // fill in the Partpix mask(s)
-    Partpix_Map2<int> *dcMask = new Partpix_Map2<int>(mask_order, *footprintMap);
+    dcMask = new Partpix_Map2<int>(mask_order, *footprintMap);
     dcMask->fill(0);
     Partpix_Map2<int> *dmMask;
     if( use_mags )
@@ -491,6 +528,71 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
 
     return;
 }
+
+
+void read_mask( string mask_filename, vector<int>& mask_pixels, Healpix_Base2& mask_base ){
+    
+    double input_mask_cut = 1.e-5;
+        
+    FILE * maskfile = fopen( mask_filename.c_str(), "r" );
+    if( maskfile == NULL ){
+        cerr << "Problem opening " << mask_filename << endl;
+        throw;
+    }
+    bool header = true;
+    string scheme;
+    int mask_order;
+    char line_char[256];
+    while( fgets( line_char, 256, maskfile ) ){
+        if( header ){
+            char sch[16];
+            int num = sscanf(line_char, "%s %d", sch, &mask_order );
+            if( num != 2 ){
+                cerr << "Problem reading header from mask file, number of arguments read = " << num << ", not 2" << endl;
+                throw;
+            }
+            scheme = string(sch);
+            if( (!scheme.compare("RING")) && (!scheme.compare("NEST")) ){
+                cerr << "Scheme listed in mask header line is not RING or NEST, but " << scheme << endl;
+                throw;
+            }
+            header = false;
+            continue;
+        }
+        int pix;
+        double val;
+        int num = sscanf(line_char, "%d %lf", &pix, &val );
+        if( num != 2 ){
+            // allow the implicit assumption of a pixel's existence in the list meaning that the mask is good there.
+            val = 1.0;
+            num = sscanf(line_char, "%d", &pix );
+            if( num != 1 ){
+                cerr << "Problem reading from mask file, number of arguments read = " << num << ", not 1" << endl;
+                throw;
+            }
+        }
+        if( val > input_mask_cut )
+            mask_pixels.push_back(pix);
+    }
+    fclose(maskfile);
+    cerr << "Read in mask information, scheme " << scheme << ", order " << mask_order << ", " << mask_pixels.size() << " pixels" << endl;
+    mask_base = Healpix_Base2( mask_order, RING );
+    vector<int> mask_pixels_nest( mask_pixels );
+    if( scheme.compare("NEST") == 0 ){
+        cerr << "Changing mask to RING scheme... ";
+        for( unsigned int i=0; i<mask_pixels.size(); ++i ){
+            mask_pixels[i] = mask_base.nest2ring(mask_pixels_nest[i]);
+        }
+        scheme = "RING";
+        cerr << "Done!" << endl;
+    }
+    sort( mask_pixels.begin(), mask_pixels.end() );
+    mask_pixels_nest.clear();
+    
+    return;
+    
+}
+
 
 
 void write_map( Partpix_Map2<float> *dcMap, Partpix_Map2<int> *dcMask, string outfilename, string ftype, float *ang_means_c, float *ang_widths_c, int n_ang_bins ){

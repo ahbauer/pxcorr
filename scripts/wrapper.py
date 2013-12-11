@@ -144,9 +144,10 @@ for i in range(nf):
             print "Calling for r=%d" %r
             result = correlate.correlate( name1, name2, suffix, r )
             corr[r,i,j] = result[0]
+            jks[r][i][j]=result[1:]
             if i != j:
                 corr[r,j,i] = corr[r,i,j]
-            jks[r][i][j]=result[1:]
+                jks[r][j][i] = jks[r][i][j]
         
         if use_mags:
             name2 = "dm_map_" + str(j) + ".h5"
@@ -155,27 +156,30 @@ for i in range(nf):
                 suffix = "." + str(i) + "c." + str(j) + "m." + str(r)
                 result = correlate.correlate( name1, name2, suffix, r )
                 corrcm[r,i,j] = result[0]
+                jkscm[r][i][j] = result[1:]
                 if i != j:
                     corrcm[r,j,i] = corrcm[r,i,j]
-                jkscm[r][i][j] = result[1:]
+                    jkscm[r][j][i] = jkscm[r][i][j]
             name1 = "dm_map_" + str(i) + ".h5"
             print "Correlating %s and %s" %(name1, name2)
             for r in range(len(config["ang_mean"])):
                 suffix = "." + str(i) + "m." + str(j) + "m." + str(r)
                 result = correlate.correlate( name1, name2, suffix, r )
                 corrmm[r,i,j] = result[0]
+                jksmm[r][i][j] = result[1:]
                 if i != j:
                     corrmm[r,j,i] = corrmm[r,i,j]
-                jksmm[r][i][j] = result[1:]
+                    jksmm[r][j][i] = jksmm[r][i][j]
             name2 = "dc_map_" + str(j) + ".h5"
             print "Correlating %s and %s" %(name1, name2)
             for r in range(len(config["ang_mean"])):
                 suffix = "." + str(i) + "m." + str(j) + "c." + str(r)
                 result = correlate.correlate( name1, name2, suffix, r )
                 corrmc[r,i,j] = result[0]
+                jksmc[r][i][j] = result[1:]
                 if i != j:
                     corrmc[r,j,i] = corrmc[r,i,j]
-                jksmc[r][i][j] = result[1:]
+                    jksmc[r][j][i] = jksmc[r][i][j]
 
 # packobs
 
@@ -217,24 +221,23 @@ cov = np.zeros((len(ang_mean), len(ang_mean), len(z_means), len(z_means), len(z_
 print "Calculating covarinances"
 njk = 0
 for i in range(nf):
-    for j in range(i,nf):
-        for r1 in range(len(ang_mean)):
-            jk1 = jks[r1][i][j]
-            jk1_mean = np.mean(jk1)
-            # print "r1 %d: read in %d jk values, mean %e (first %e)" %(r1, len(jk1), jk1_mean, jk1[0])
-            njk = len(jk1)
-            for r2 in range(len(ang_mean)):
-                jk2 = jks[r2][i][j]
-                jk2_mean = np.mean(jk2)
-                # print "r2 %d: read in %d jk values, mean %e (first %e)" %(r2, len(jk2), jk2_mean, jk2[0])
-                if njk != len(jk2):
-                    print "Error, %d and %d jks are sizes %d != %d" %(r1,r2,len(jk1),len(jk2))
-                for k in range(njk):
-                    cov[r1,r2,i,j,i,j] = cov[r1,r2,i,j,i,j] + (jk1[k]-jk1_mean)*(jk2[k]-jk2_mean)
-                    if i != j:
-                        cov[r1,r2,j,i,i,j] = cov[r1,r2,j,i,i,j] + (jk1[k]-jk1_mean)*(jk2[k]-jk2_mean)
-                        cov[r1,r2,i,j,j,i] = cov[r1,r2,i,j,j,i] + (jk1[k]-jk1_mean)*(jk2[k]-jk2_mean)
-                        cov[r1,r2,j,i,j,i] = cov[r1,r2,j,i,j,i] + (jk1[k]-jk1_mean)*(jk2[k]-jk2_mean)
+    for j in range(nf):
+        for k in range(nf):
+            for l in range(nf):
+                for r1 in range(len(ang_mean)):
+                    jk1 = jks[r1][i][j]
+                    jk1_mean = np.mean(jk1)
+                    # print "r1 %d: read in %d jk values, mean %e (first %e)" %(r1, len(jk1), jk1_mean, jk1[0])
+                    njk = len(jk1)
+                    for r2 in range(len(ang_mean)):
+                        jk2 = jks[r2][k][l]
+                        jk2_mean = np.mean(jk2)
+                        # print "r2 %d: read in %d jk values, mean %e (first %e)" %(r2, len(jk2), jk2_mean, jk2[0])
+                        if njk != len(jk2):
+                            print "Error, %d and %d jks are sizes %d != %d" %(r1,r2,len(jk1),len(jk2))
+                        for jk in range(njk):
+                            cov[r1,r2,i,j,k,l] = cov[r1,r2,i,j,k,l] + (jk1[jk]-jk1_mean)*(jk2[jk]-jk2_mean)
+
 cov = (float(njk-1.0))/float(njk) * cov
 
 # TBD: include area fraction to account for jackknife area being a bit smaller than the total?
