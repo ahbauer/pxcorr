@@ -65,15 +65,6 @@ if not only_correlate:
         exit(0)
 
 
-# hdf5 stuff, all separated.
-hdf5file = tables.openFile('pxcorr_out.h5', 'w')
-make_metadata( hdf5file, z_means, z_widths, ang_means, ang_widths, pop)
-noise_to_hdf5( hdf5file, pop, nobjs )
-for index in range(nf):
-    slopes_to_hdf5( hdf5file, slopes_filenames[index], index, pop )
-    nofz_to_hdf5( hdf5file, nofz_filenames[index], index, pop )
-
-
 
 # FOR JORGE:
 # there are 3 loops here: i & j are over redshift bins, and r is over radial bins.
@@ -168,6 +159,18 @@ for i in range(nf):
                     jksmc[r][j][i] = jksmc[r][i][j]
 
 # packobs
+
+
+
+print "Starting hdf5 file stuff"
+hdf5file = tables.openFile('pxcorr_out.h5', 'w')
+make_metadata( hdf5file, z_means, z_widths, ang_means, ang_widths, pop)
+noise_to_hdf5( hdf5file, pop, nobjs )
+for index in range(nf):
+    slopes_to_hdf5( hdf5file, slopes_filenames[index], index, pop )
+    nofz_to_hdf5( hdf5file, nofz_filenames[index], index, pop )
+
+
 
 print "Adding correlations"
 
