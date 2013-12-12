@@ -28,10 +28,10 @@ def make_metadata(f, z_mean, z_width, ang_mean, ang_width, pop):
     
     # f.close()
     
-    ang_info = np.zeros((2,len(ang_mean)))
-    ang_info[0:] = ang_mean
-    ang_info[1:] = ang_width
-    return ang_info
+    # ang_info = np.zeros((2,len(ang_mean)))
+    # ang_info[0:] = ang_mean
+    # ang_info[1:] = ang_width
+    # return ang_info
 
     
 def make_metadata3pt(f, z_mean, z_width, angles, r_12s, r_23s, pop):

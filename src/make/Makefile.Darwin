@@ -1,6 +1,6 @@
 HEALPIXPATH =  ../Healpix_Partpix/src/cxx/osx
-HDFDIR     =  /usr/local/hdf5-1.8.11/hdf5
-HDF        =  /usr/local/hdf5-1.8.11/hdf5/lib/libhdf5.a /usr/local/hdf5-1.8.11/hdf5/lib/libhdf5_hl.a /usr/local/hdf5-1.8.11/hdf5/lib/libhdf5_cpp.a /usr/local/hdf5-1.8.11/hdf5/lib/libhdf5_hl_cpp.a
+HDFDIR     =  /usr/local/hdf5-1.8.9/hdf5
+HDF        =  /usr/local/hdf5-1.8.9/hdf5/lib/libhdf5.a /usr/local/hdf5-1.8.9/hdf5/lib/libhdf5_hl.a /usr/local/hdf5-1.8.9/hdf5/lib/libhdf5_cpp.a /usr/local/hdf5-1.8.9/hdf5/lib/libhdf5_hl_cpp.a
 OPENCLDIR   = /System/Library/Frameworks/OpenCL.framework/Versions/A
 #PYTHONDIR   = /Library/Frameworks/Python.framework/Versions/2.7/include/python2.7
 

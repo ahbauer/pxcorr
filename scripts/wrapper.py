@@ -11,11 +11,10 @@ import ctypes
 import yaml
 
 from make_meta import make_metadata
-from parse_sample import parse_data, add_nofz, add_noise
+from parse_sample import nofz_to_hdf5, noise_to_hdf5, slopes_to_hdf5, construct_inputs
 from packobs import add_corr, add_cov
 
 sys.path.append("/Users/bauer/software/pxcorr/src/")
-import make_maps
 import correlate
 
 if len(sys.argv) != 2:
@@ -32,8 +31,8 @@ mag_cuts = config["mag_cuts"]
 z_means = config["z_means"]
 z_widths = config["z_widths"]
 
-ang_mean = config["ang_mean"]
-ang_width = config["ang_width"]
+ang_means = config["ang_mean"]
+ang_widths = config["ang_width"]
 
 use_counts = config["use_counts"]
 use_mags = config["use_mags"]
@@ -42,52 +41,39 @@ only_makemaps = config["only_makemaps"]
 only_correlate = config["only_correlate"]
 pop = config["pop"]
 
-hdf5file = tables.openFile('pxcorr_out.h5', 'w')
+
+
+nf = len(catalog_filenames)
+nr = len(ang_means)
+
+nobjs = np.ones(nf)
+slopes_filenames = ['']*nf # this is ok because strings are immutable...
 
 if not only_correlate:
-    # make some metadata to tell us what to do
-    ang_info = make_metadata( hdf5file, z_means, z_widths, ang_mean, ang_width, pop)
-    print ang_info
-
+    
     # do the following for each map
     # note: this can be parallelized and done separately for each map
     # the maps need to be copied back from the nodes, though.
-    nobjs = np.zeros(len(catalog_filenames))
-    for c, catalog_filename in enumerate(catalog_filenames):
     
-        # do we want to figure out the N(z) from the catalog or a separate training set file?
-        nofz_from_data = False
-        if nofz_filenames[c] == catalog_filename or nofz_filenames[c] is None or nofz_filenames[c] == 'None':
-            nofz_from_data = True
-
-        subcat_filename = None
-        if catalog_filename.endswith(".fits"):
-            print "Found an input Healpix map!"
-            subcat_filename = catalog_filename
-
-        else:
-            # parse the catalog: construct N(z) data, calculate slope, etc.
-            # these things are necessary for interpretation with martin erikson's modeling code.
-            subcat_filename, nobj = parse_data( catalog_filename, mag_cuts[c], hdf5file, c, nofz_from_data, sparse=True )
-            nobjs[c] = nobj
-
-            # if the N(z) is from a separate file, put that in the hdf5 file now.
-            # note that this info must correspond to (have the same cuts as) the data catalog!
-            if not nofz_from_data:
-                add_nofz( nofz_filenames[c], hdf5file, c, pop )
-        
+    for c in range(nf):
+        # the suffix is the identifier we add to the filenames saved inside construct_inputs to know that it's from this catalog, etc.
+        # it will be something associated with the job id or whatever.
         suffix = "_" + str(c)
-        make_maps.make_maps( subcat_filename, mask_filenames[c], ang_mean, ang_width, use_counts, use_mags, suffix );
-        print "Finished making map from %s" %subcat_filename
-    # end parallelizable loop
-
-    add_noise( hdf5file, pop, nobjs )
-
+        nobjs[c], slopes_filenames[c], nofz_filenames[c] = construct_inputs( suffix, catalog_filenames[c], nofz_filenames[c], mask_filenames[c], ang_means, ang_widths, z_means[c], z_widths[c], mag_cuts[c], use_counts, use_mags )    
+    
     if only_makemaps:
-        hdf5file.close()
         exit(0)
 
-nf = len( catalog_filenames )
+
+# hdf5 stuff, all separated.
+hdf5file = tables.openFile('pxcorr_out.h5', 'w')
+make_metadata( hdf5file, z_means, z_widths, ang_means, ang_widths, pop)
+noise_to_hdf5( hdf5file, pop, nobjs )
+for index in range(nf):
+    slopes_to_hdf5( hdf5file, slopes_filenames[index], index, pop )
+    nofz_to_hdf5( hdf5file, nofz_filenames[index], index, pop )
+
+
 
 # FOR JORGE:
 # there are 3 loops here: i & j are over redshift bins, and r is over radial bins.
@@ -102,20 +88,20 @@ nf = len( catalog_filenames )
 # about the file locations too.  correlate.correlate currently puts those output files 
 # in the directory from which it is called.).
 
-corr = np.ones((len(ang_mean), nf, nf))
+corr = np.ones((nr, nf, nf))
 corrcm = None
 corrmc = None
 corrmm = None
 if use_mags:
-    corrcm = np.ones((len(ang_mean), nf, nf))
-    corrmc = np.ones((len(ang_mean), nf, nf))
-    corrmm = np.ones((len(ang_mean), nf, nf))
+    corrcm = np.ones((nr, nf, nf))
+    corrmc = np.ones((nr, nf, nf))
+    corrmm = np.ones((nr, nf, nf))
 
 jks = []
 jkscm = []
 jksmc = []
 jksmm = []
-for r in range(len(ang_mean)):
+for r in range(nr):
     jks.append([])
     jkscm.append([])
     jksmc.append([])
@@ -139,7 +125,7 @@ for i in range(nf):
             continue
         print "Correlating %s and %s" %(name1, name2)
         
-        for r in range(len(config["ang_mean"])):
+        for r in range(nr):
             suffix = "." + str(i) + "c." + str(j) + "c." + str(r)
             print "Calling for r=%d" %r
             result = correlate.correlate( name1, name2, suffix, r )
@@ -152,7 +138,7 @@ for i in range(nf):
         if use_mags:
             name2 = "dm_map_" + str(j) + ".h5"
             print "Correlating %s and %s" %(name1, name2)
-            for r in range(len(config["ang_mean"])):
+            for r in range(nr):
                 suffix = "." + str(i) + "c." + str(j) + "m." + str(r)
                 result = correlate.correlate( name1, name2, suffix, r )
                 corrcm[r,i,j] = result[0]
@@ -162,7 +148,7 @@ for i in range(nf):
                     jkscm[r][j][i] = jkscm[r][i][j]
             name1 = "dm_map_" + str(i) + ".h5"
             print "Correlating %s and %s" %(name1, name2)
-            for r in range(len(config["ang_mean"])):
+            for r in range(nr):
                 suffix = "." + str(i) + "m." + str(j) + "m." + str(r)
                 result = correlate.correlate( name1, name2, suffix, r )
                 corrmm[r,i,j] = result[0]
@@ -172,7 +158,7 @@ for i in range(nf):
                     jksmm[r][j][i] = jksmm[r][i][j]
             name2 = "dc_map_" + str(j) + ".h5"
             print "Correlating %s and %s" %(name1, name2)
-            for r in range(len(config["ang_mean"])):
+            for r in range(nr):
                 suffix = "." + str(i) + "m." + str(j) + "c." + str(r)
                 result = correlate.correlate( name1, name2, suffix, r )
                 corrmc[r,i,j] = result[0]
@@ -216,7 +202,7 @@ if( use_mags ):
 
 # add covariance to the file
 
-cov = np.zeros((len(ang_mean), len(ang_mean), len(z_means), len(z_means), len(z_means), len(z_means)))
+cov = np.zeros((nr, nr, len(z_means), len(z_means), len(z_means), len(z_means)))
 
 print "Calculating covarinances"
 njk = 0
@@ -224,12 +210,12 @@ for i in range(nf):
     for j in range(nf):
         for k in range(nf):
             for l in range(nf):
-                for r1 in range(len(ang_mean)):
+                for r1 in range(nr):
                     jk1 = jks[r1][i][j]
                     jk1_mean = np.mean(jk1)
                     # print "r1 %d: read in %d jk values, mean %e (first %e)" %(r1, len(jk1), jk1_mean, jk1[0])
                     njk = len(jk1)
-                    for r2 in range(len(ang_mean)):
+                    for r2 in range(nr):
                         jk2 = jks[r2][k][l]
                         jk2_mean = np.mean(jk2)
                         # print "r2 %d: read in %d jk values, mean %e (first %e)" %(r2, len(jk2), jk2_mean, jk2[0])
@@ -263,17 +249,17 @@ print cov[:,:,0,0,0,0]
 
 if( use_mags ):
 
-    cov = np.zeros((len(ang_mean), len(ang_mean), len(z_means), len(z_means), len(z_means), len(z_means)))
+    cov = np.zeros((nr, nr, len(z_means), len(z_means), len(z_means), len(z_means)))
 
     njk = 0
     for i in range(nf):
         for j in range(i,nf):
-            for r1 in range(len(ang_mean)):
+            for r1 in range(nr):
                 jk1 = jkscm[r1][i][j]
                 jk1_mean = np.mean(jk1)
                 # print "r1 %d: read in %d jk values, mean %e (first %e)" %(r1, len(jk1), jk1_mean, jk1[0])
                 njk = len(jk1)
-                for r2 in range(len(ang_mean)):
+                for r2 in range(nr):
                     jk2 = jkscm[r2][i][j]
                     jk2_mean = np.mean(jk2)
                     # print "r2 %d: read in %d jk values, mean %e (first %e)" %(r2, len(jk2), jk2_mean, jk2[0])
@@ -298,17 +284,17 @@ if( use_mags ):
     corrobj.setAttr('pop3', json.dumps('faint'))
     
     
-    cov = np.zeros((len(ang_mean), len(ang_mean), len(z_means), len(z_means), len(z_means), len(z_means)))
+    cov = np.zeros((nr, nr, len(z_means), len(z_means), len(z_means), len(z_means)))
 
     njk = 0
     for i in range(nf):
         for j in range(i,nf):
-            for r1 in range(len(ang_mean)):
+            for r1 in range(nr):
                 jk1 = jksmc[r1][i][j]
                 jk1_mean = np.mean(jk1)
                 # print "r1 %d: read in %d jk values, mean %e (first %e)" %(r1, len(jk1), jk1_mean, jk1[0])
                 njk = len(jk1)
-                for r2 in range(len(ang_mean)):
+                for r2 in range(nr):
                     jk2 = jksmc[r2][i][j]
                     jk2_mean = np.mean(jk2)
                     # print "r2 %d: read in %d jk values, mean %e (first %e)" %(r2, len(jk2), jk2_mean, jk2[0])
@@ -333,17 +319,17 @@ if( use_mags ):
     corrobj.setAttr('pop3', json.dumps('faint'))
     
     
-    cov = np.zeros((len(ang_mean), len(ang_mean), len(z_means), len(z_means), len(z_means), len(z_means)))
+    cov = np.zeros((nr, nr, len(z_means), len(z_means), len(z_means), len(z_means)))
 
     njk = 0
     for i in range(nf):
         for j in range(i,nf):
-            for r1 in range(len(ang_mean)):
+            for r1 in range(nr):
                 jk1 = jksmm[r1][i][j]
                 jk1_mean = np.mean(jk1)
                 # print "r1 %d: read in %d jk values, mean %e (first %e)" %(r1, len(jk1), jk1_mean, jk1[0])
                 njk = len(jk1)
-                for r2 in range(len(ang_mean)):
+                for r2 in range(nr):
                     jk2 = jksmm[r2][i][j]
                     jk2_mean = np.mean(jk2)
                     # print "r2 %d: read in %d jk values, mean %e (first %e)" %(r2, len(jk2), jk2_mean, jk2[0])
