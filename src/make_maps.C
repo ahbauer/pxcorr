@@ -89,10 +89,10 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     if( catalog_filename.rfind(".fits") != string::npos ){
         
         cerr << "make_maps: Found a Healpix map as input!" << endl;
-        Healpix_Map<double> inputmap;
-        read_Healpix_map_from_fits( catalog_filename, inputmap );
-        if( inputmap.Scheme() == NEST )
-            inputmap.swap_scheme();
+        Healpix_Map<double> *inputmap = new Healpix_Map<double>();
+        read_Healpix_map_from_fits( catalog_filename, *inputmap );
+        if( inputmap->Scheme() == NEST )
+            inputmap->swap_scheme();
         
         // if there's no extra mask, use all the non-zero healpix pixel as the good area, and to find the footprint.
         if( mask_filename == "None" || mask_filename == "none" || mask_filename == "NONE" || mask_filename == "null" || mask_filename == "NULL" ){
@@ -101,13 +101,13 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
             int footprint_order = min_footprint_order;
             double footprint_area = 50000.;
             Healpix_Map<int> *footprintMap = new Healpix_Map<int>(1, RING);
-            while(footprint_order <= inputmap.Order()){
+            while(footprint_order <= inputmap->Order()){
                 delete footprintMap;
                 footprintMap = new Healpix_Map<int>(footprint_order, RING);
                 footprintMap->fill(0);
-                for( int i=0; i<inputmap.Npix(); ++i ){
-                    if( inputmap[i] != 0. && inputmap[i] != Healpix_undef && ! isnan(inputmap[i]) )
-                        (*footprintMap)[ footprintMap->ang2pix(inputmap.pix2ang(i)) ] = 1;
+                for( int i=0; i<inputmap->Npix(); ++i ){
+                    if( (*inputmap)[i] != 0. && (*inputmap)[i] != Healpix_undef && ! isnan((*inputmap)[i]) )
+                        (*footprintMap)[ footprintMap->ang2pix(inputmap->pix2ang(i)) ] = 1;
                 }
                 double footprint_area_new = 0.;
                 for( int i=0; i<footprintMap->Npix(); ++i ){
@@ -131,16 +131,16 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
             delete footprintMap;
             footprintMap = new Healpix_Map<int>(footprint_order, RING);
             footprintMap->fill(0);
-            for( int i=0; i<inputmap.Npix(); ++i ){
-                (*footprintMap)[ footprintMap->ang2pix(inputmap.pix2ang(i)) ] = 1;
+            for( int i=0; i<inputmap->Npix(); ++i ){
+                (*footprintMap)[ footprintMap->ang2pix(inputmap->pix2ang(i)) ] = 1;
             }
             cerr << "Using footprint order " << footprintMap->Order() << " with " << footprint_area << " sq degrees." << endl;
         
             // Now fill in the mask
-            dcMask = new Partpix_Map2<int>(inputmap.Order(), *footprintMap);
+            dcMask = new Partpix_Map2<int>(inputmap->Order(), *footprintMap);
             dcMask->fill(0);
-            for( int i=0; i<inputmap.Npix(); ++i ){
-                if( inputmap[i] != 0. && inputmap[i] != Healpix_undef && ! isnan(inputmap[i]) ){
+            for( int i=0; i<inputmap->Npix(); ++i ){
+                if( (*inputmap)[i] != 0. && (*inputmap)[i] != Healpix_undef && ! isnan((*inputmap)[i]) ){
                     (*dcMask)[i] = 1;
                 }
             }
@@ -216,16 +216,16 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         
         
         // now make the healpix map into a partpix map
-        Partpix_Map2<float> *dcMap = new Partpix_Map2<float>(inputmap.Order(), *footprintMap);
+        Partpix_Map2<float> *dcMap = new Partpix_Map2<float>(inputmap->Order(), *footprintMap);
         dcMap->fill(0.);
-        for( int i=0; i<inputmap.Npix(); ++i ){
-            if( inputmap[i] != 0. && inputmap[i] != Healpix_undef && ! isnan(inputmap[i]) ){
-                if( (*footprintMap)[ footprintMap->ang2pix(inputmap.pix2ang(i)) ] )
-                    (*dcMap)[i] = inputmap[i];
+        for( int i=0; i<inputmap->Npix(); ++i ){
+            if( (*inputmap)[i] != 0. && (*inputmap)[i] != Healpix_undef && ! isnan((*inputmap)[i]) ){
+                if( (*footprintMap)[ footprintMap->ang2pix(inputmap->pix2ang(i)) ] )
+                    (*dcMap)[i] = (*inputmap)[i];
             }
         }
         // free the memory
-        inputmap = Healpix_Map<double>(1, RING);
+        delete inputmap;
         
         
         // make sure that the map is the same resolution as the mask
