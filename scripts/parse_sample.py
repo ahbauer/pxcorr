@@ -9,7 +9,7 @@ import tables
 import json
 from array import array
 from scipy.stats import gaussian_kde
-sys.path.append("/Users/bauer/software/pxcorr/src/")
+sys.path.append("/nfs/pic.es/user/b/bauer/software/pxcorr/src/")
 import make_maps
 
 class photoz_entry(tables.IsDescription):
@@ -441,7 +441,7 @@ def construct_inputs( suffix, catalog_filename, nofz_filename, mask_filename, an
 
     subcat_filename = None
     slopes_filename = None
-    nobj = 0
+    nobj = 1
     if catalog_filename.endswith(".fits"):
         print "Found an input Healpix map!"
         subcat_filename = catalog_filename

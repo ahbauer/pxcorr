@@ -89,8 +89,25 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     if( catalog_filename.rfind(".fits") != string::npos ){
         
         cerr << "make_maps: Found a Healpix map as input!" << endl;
-        Healpix_Map<double> *inputmap = new Healpix_Map<double>();
-        read_Healpix_map_from_fits( catalog_filename, *inputmap );
+        Healpix_Map<double> *inputmap = new Healpix_Map<double>(11, RING);
+	cerr << "made a new empty healpix map" << endl;
+        // read_Healpix_map_from_fits( catalog_filename, *inputmap );
+	fitshandle inp;
+	cerr << "declared fitshandle" << endl;
+	inp.open (catalog_filename);
+	cerr << "opened input file" << endl;
+	inp.goto_hdu (2);
+	cerr << "went to hdu 2" << endl;
+	// read_Healpix_map_from_fits( inp, *inputmap, 1 );
+	string ordering;
+	inp.get_key("ORDERING", ordering);
+	cerr << "ordering = " << ordering << endl;
+	arr<double> myarr;
+	cerr << "reading entire column" << endl;
+	inp.read_entire_column(1,myarr);
+	cerr << "read in the entire column!" << endl;
+	inputmap->Set(myarr, ordering=="RING" ? RING : NEST);
+	cerr << "read in the map from file" << endl;
         if( inputmap->Scheme() == NEST )
             inputmap->swap_scheme();
         
