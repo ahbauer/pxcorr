@@ -59,7 +59,7 @@ if not only_correlate:
         # the suffix is the identifier we add to the filenames saved inside construct_inputs to know that it's from this catalog, etc.
         # it will be something associated with the job id or whatever.
         suffix = "_" + str(c)
-        nobjs[c], slopes_filenames[c], nofz_filenames[c] = construct_inputs( suffix, catalog_filenames[c], nofz_filenames[c], mask_filenames[c], ang_means, ang_widths, z_means[c], z_widths[c], mag_cuts[c], use_counts, use_mags )    
+        nobjs[c], slopes_filenames[c], nofz_filenames[c] = construct_inputs( suffix, catalog_filenames[c], use_counts, use_mags, ang_means, ang_widths, nofz_filenames[c], mask_filenames[c], z_means[c], z_widths[c], mag_cuts[c] )
     
     if only_makemaps:
         exit(0)

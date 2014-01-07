@@ -23,76 +23,8 @@ class slopes_entry(tables.IsDescription):
     mag = tables.Float64Col(dflt=0.0, pos=1)
     size = tables.Float64Col(dflt=0.0, pos=1)
 
-def measure_slopes( mags, mag_maxz, mag_nzs, mag_cut, suffix, use_mags ):
-    
-    # loop over z bins to calculate one slope per each
-    slope_array = numpy.zeros(mag_nzs)
-    if not use_mags:
-        print >> sys.stderr, "setting all alphas to zero!"
-        
-    else:
-        for zbin_fine in range(mag_nzs):
-
-            # don't bother trying if there are very few objs
-            if( len(mags[zbin_fine]) < 100 ):
-                slope_array[zbin_fine] = 0.
-                continue
-
-            magz = (zbin_fine+0.5)*mag_maxz/mag_nzs
-
-            # kde!
-            # NOTE: i'm setting alpha=0 for bins with no data!
-            kde = gaussian_kde(mags[zbin_fine])
-            y_kde1 = kde.evaluate(mag_cut)
-            y_kde2 = kde.evaluate(mag_cut+0.01)
-            if( y_kde1 == 0 or y_kde2 == 0 ):
-                slope_kde = 0.4
-            else:
-                slope_kde = (numpy.log10(y_kde2)-numpy.log10(y_kde1))/0.01
-
-            slope_array[zbin_fine] = 2.5*slope_kde - 1
-            print >> sys.stderr, "z bin %d at %f s = %f alpha = %f" %(zbin_fine, (zbin_fine+0.5)*mag_maxz/mag_nzs, slope_kde, slope_array[zbin_fine])
-            
-    # write to output file, so the epilogue can read it in and save it to the hdf5 file.
-    outfilename = "slopes_" + suffix + ".ssv"
-    outfile = open( outfilename, 'w' )
-    for s, slope in enumerate(slope_array):
-        outfile.write( "{0:.4f} {0:.4f}\n".format((s+0.5)*mag_maxz/mag_nzs, slope) )
-    outfile.close()
-    return outfilename
-    
-
-def slopes_to_hdf5( f, slopes_filename, index, pop ):
-
-    # save slopes: a table, for lots of redshift values.
-    # does the group already exist?
-    try:
-        g = f.getNode('/', 'slopes', 'Group')
-    except tables.exceptions.NoSuchNodeError:
-        f.createGroup('/', 'slopes')
-    tablename = 'slope' + str(index)
-    slopes_table = f.createTable('/slopes', tablename, slopes_entry)
-    slopes_table.setAttr('ftype', json.dumps('counts'))
-    slopes_table.setAttr('pop', json.dumps(pop))
-    row = slopes_table.row
-    
-    
-    # read in the slopes from the file
-    infile = open( slopes_filename, 'r' )
-    for line in infile:
-        entries = line.split()
-        
-        row['z'] = float(entries[0])
-        row['counts'] = float(entries[1])
-        row['mag'] = 0. # TODO!
-        row['size'] = 0. # TODO?
-        row.append()
-
-    infile.close()
-    slopes_table.flush()
 
 
-    
 def parse_data3pt( filename, mag_cuts, f, sparse=True ):
 
     # read the needed metadata
@@ -378,8 +310,79 @@ def parse_data( filename, mag_cut, suffix, z_mean, z_width, add_nofz=True, spars
     slopes_filename = measure_slopes( mags, mag_maxz, mag_nzs, mag_cut, suffix, use_mags )
     
     return outfilename, nsample, slopes_filename, nofz_filename
-    
-    
+
+
+
+def measure_slopes( mags, mag_maxz, mag_nzs, mag_cut, suffix, use_mags ):
+
+    # loop over z bins to calculate one slope per each
+    slope_array = numpy.zeros(mag_nzs)
+    if not use_mags:
+        print >> sys.stderr, "setting all alphas to zero!"
+
+    else:
+        for zbin_fine in range(mag_nzs):
+
+            # don't bother trying if there are very few objs
+            if( len(mags[zbin_fine]) < 100 ):
+                slope_array[zbin_fine] = 0.
+                continue
+
+            magz = (zbin_fine+0.5)*mag_maxz/mag_nzs
+
+            # kde!
+            # NOTE: i'm setting alpha=0 for bins with no data!
+            kde = gaussian_kde(mags[zbin_fine])
+            y_kde1 = kde.evaluate(mag_cut)
+            y_kde2 = kde.evaluate(mag_cut+0.01)
+            if( y_kde1 == 0 or y_kde2 == 0 ):
+                slope_kde = 0.4
+            else:
+                slope_kde = (numpy.log10(y_kde2)-numpy.log10(y_kde1))/0.01
+
+            slope_array[zbin_fine] = 2.5*slope_kde - 1
+            print >> sys.stderr, "z bin %d at %f s = %f alpha = %f" %(zbin_fine, (zbin_fine+0.5)*mag_maxz/mag_nzs, slope_kde, slope_array[zbin_fine])
+
+    # write to output file, so the epilogue can read it in and save it to the hdf5 file.
+    outfilename = "slopes_" + suffix + ".ssv"
+    outfile = open( outfilename, 'w' )
+    for s, slope in enumerate(slope_array):
+        outfile.write( "{0:.4f} {0:.4f}\n".format((s+0.5)*mag_maxz/mag_nzs, slope) )
+    outfile.close()
+    return outfilename
+
+
+
+def slopes_to_hdf5( f, slopes_filename, index, pop ):
+
+    # save slopes: a table, for lots of redshift values.
+    # does the group already exist?
+    try:
+        g = f.getNode('/', 'slopes', 'Group')
+    except tables.exceptions.NoSuchNodeError:
+        f.createGroup('/', 'slopes')
+    tablename = 'slope' + str(index)
+    slopes_table = f.createTable('/slopes', tablename, slopes_entry)
+    slopes_table.setAttr('ftype', json.dumps('counts'))
+    slopes_table.setAttr('pop', json.dumps(pop))
+    row = slopes_table.row
+
+
+    # read in the slopes from the file
+    infile = open( slopes_filename, 'r' )
+    for line in infile:
+        entries = line.split()
+
+        row['z'] = float(entries[0])
+        row['counts'] = float(entries[1])
+        row['mag'] = 0. # TODO!
+        row['size'] = 0. # TODO?
+        row.append()
+
+    infile.close()
+    slopes_table.flush()
+
+
 
 def nofz_to_hdf5( f, nofz_filename, index, pop ):
     
@@ -412,8 +415,6 @@ def nofz_to_hdf5( f, nofz_filename, index, pop ):
 
 
 
-
-
 def noise_to_hdf5( f, pop, nobjs_array ):
     # save noise info: an array of one value per redshift bin.
     # does the group already exist?
@@ -432,7 +433,7 @@ def noise_to_hdf5( f, pop, nobjs_array ):
     
 
 
-def construct_inputs( suffix, catalog_filename, nofz_filename, mask_filename, ang_means, ang_widths, z_mean, z_width, mag_cut, use_counts, use_mags ):
+def construct_inputs( suffix, catalog_filename, use_counts, use_mags, ang_means, ang_widths, nofz_filename, mask_filename, z_mean, z_width, mag_cut ):
     
     # do we want to figure out the N(z) from the catalog or a separate training set file?
     nofz_from_data = False
