@@ -173,8 +173,8 @@ void read_hdf5map( string mapname, unsigned long **map_pix, float **map_data, un
 }
 
 void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, int *nout ){
-    
-    bool OUTPUT_FITS = true;
+ 
+    bool OUTPUT_FITS = false;
     cout << setiosflags(ios::fixed) << setprecision(16);
     cerr << setprecision(16);
     
@@ -364,7 +364,9 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, i
     cerr << "Imported from resolution " << mask1_order << " to " << order << endl;
 
     Partpix_Map2<int> *highzMask = new Partpix_Map2<int>(mask2_order, *footprintMap);
+    cerr << "declared highzmask with order " << mask2_order << endl;
     highzMask->fill(0);
+    cerr << "filled it" << endl;
     for( unsigned int i=0; i<mask2_pixels.size(); ++i ){
       if( ! (*footprintMap)[ footprintMap->ang2pix(mask2_base.pix2ang(mask2_pixels[i])) ] ){
           cerr << "Skipping high z mask pixel " << i << "!" << endl;
@@ -372,20 +374,26 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, i
       }
       (*highzMask)[mask2_pixels[i]] = 1;
     }
+    cerr << "done with the loop" << endl;
     mask2_pixels.clear();
+    cerr << "cleared" << endl;
     Partpix_Map2<int> *highzMatchedMask = new Partpix_Map2<int>(order, *footprintMap);
+    cerr << "high z sk has order " << order << endl;
     if( order > highzMask->Order() ){
         highzMatchedMask->Import_upgrade( *highzMask, *footprintMap );
+        cerr << "import upgraded" << endl;
     }
     else if( order == highzMask->Order() ){
         highzMatchedMask->Import_nograde( *highzMask, *footprintMap );
+        cerr << "import nograded" << endl;
     }
     else{
         highzMatchedMask->Import_degrade( *highzMask, *footprintMap );
+        cerr << "import degraded" << endl;
     }
 
     if( OUTPUT_FITS ){
-        
+        cerr << "outputing fits!" << endl;        
         if( order < 14 ){ 
             system( "rm lowzMask0.fits" );
             fitshandle myfits;
@@ -429,8 +437,11 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, i
         }
     }
 
+    cerr << "before deleting lowzMask" << endl;
     delete lowzMask;
+    cerr << "before deleting highzmask" << endl;
     delete highzMask;
+
 
     cerr << "Finished making high z Partpix matched mask" << endl;
     cerr << "Imported from resolution " << mask2_order << " to " << order << endl;
@@ -889,7 +900,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, i
     delete lowzMap_orig;
     delete highzMap_orig;
     delete footprintMap;
-    
+
 #if USE_WEIGHTS
     delete lowzWeightMap;
     delete highzWeightMap;
@@ -982,9 +993,12 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, i
         // jk_file << "]" << endl;
         // jk_file.close();
         
+	cerr << "about to malloc return array" << endl;
+
         // return the results!
         double *output = (double *) malloc((jkcorrs[r].size()+1)*sizeof(double));
         output[0] = correlations[r];
+	cerr << "assigning the jk stuff" << endl;
         for( unsigned int i=1; i<jkcorrs[r].size()+1; ++i ){
             output[i] = jkcorrs[r][i-1];
         }
@@ -1011,11 +1025,13 @@ int main (int argc, char **argv){
     }
     
     // these are placeholders for swig return lists
-    double **outvec;
+    double *outvec;
     int size = 1;
     
-    correlate( argv[1], argv[2], argv[3], r, outvec, &size );
+    correlate( argv[1], argv[2], argv[3], r, &outvec, &size );
     
+    free( outvec );
+
     return 0;
     
 }

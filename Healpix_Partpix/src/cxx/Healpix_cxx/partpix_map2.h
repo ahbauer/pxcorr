@@ -753,7 +753,7 @@ template<typename T> class Partpix_Map2: public Healpix_Base2
         // check the sort
         for( i=0; i<n-1; ++i){
             if( pixel_mapping[i+1] <= pixel_mapping[i] ){
-                fprintf( stderr, "pixel %d = %ld, %d+1 = %ld !\n", i, pixel_mapping[i], i, pixel_mapping[i+1] );
+                //fprintf( stderr, "pixel %d = %ld, %d+1 = %ld !\n", i, pixel_mapping[i], i, pixel_mapping[i+1] );
                 throw;
             }
         }
