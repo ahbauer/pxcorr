@@ -54,7 +54,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     
     if( !( use_counts || use_mags) ){
         cerr << "Not using either counts or mags... doing nothing!" << endl;
-        throw;
+        throw exception();
     }
 
     string catalog_filename(catalog_filename_c);
@@ -89,6 +89,12 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     if( catalog_filename.rfind(".fits") != string::npos ){
         
         cerr << "make_maps: Found a Healpix map as input!" << endl;
+
+        if( ! (use_counts == true && use_mags == false) ){
+            cerr << "make_maps: Healpix input, but not use_counts=1 and use_mags=0... this doesn't make sense." << endl;
+            throw exception();
+        }
+
         Healpix_Map<double> *inputmap = new Healpix_Map<double>(11, RING);
 	cerr << "made a new empty healpix map" << endl;
         // read_Healpix_map_from_fits( catalog_filename, *inputmap );
@@ -273,12 +279,12 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         }
         if( n_pix == 0.0 ){
             cerr << "No unmasked pixels??" << endl;
-            throw;
+            throw exception();
         }
         mean_counts /= n_pix;
         if( mean_counts == 0. ){
             cerr << "No counts in the unmasked part of the map??" << endl;
-            throw;
+            throw exception();
         }
         for( int64 i1=0; i1<dcMap->Npartpix(); ++i1 ){
             int64 i = dcMap->highResPix(i1);
@@ -330,7 +336,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     FILE * file = fopen( catalog_filename.c_str(), "rb" );
     if( file == NULL ){
         cerr << "Problem opening " << catalog_filename << endl;
-        throw;
+        throw exception();
     }
 
     vector<pointing> pointings;
@@ -427,9 +433,16 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     // convert the mag mask to be the same resolution as the map
     if( use_mags ){
         Partpix_Map2<int> *dmMask2 = new Partpix_Map2<int>( order, *footprintMap );
-        dmMask2->Import_upgrade(*dmMask, *footprintMap);
-        delete(dmMask);
-        dmMask = dmMask2;
+        if( order > dmMask->Order() ){
+            dmMask2->Import_upgrade(*dmMask, *footprintMap);
+            delete(dmMask);
+            dmMask = dmMask2;
+        }
+        else if( order < dmMask->Order() ){
+            dmMask2->Import_degrade(*dmMask, *footprintMap);
+            delete(dmMask);
+            dmMask = dmMask2;
+        }
     }
     
     cerr << "Finished filling in the mask(s)" << endl;
@@ -507,12 +520,12 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     }
     if( n_pix == 0.0 ){
         cerr << "No unmasked pixels??" << endl;
-        throw;
+        throw exception();
     }
     mean_counts /= n_pix;
     if( mean_counts == 0. ){
         cerr << "No counts in the unmasked part of the map??" << endl;
-        throw;
+        throw exception();
     }
     for( int64 i1=0; i1<dcMap->Npartpix(); ++i1 ){
         int64 i = dcMap->highResPix(i1);
@@ -554,7 +567,7 @@ void read_mask( string mask_filename, vector<int>& mask_pixels, Healpix_Base2& m
     FILE * maskfile = fopen( mask_filename.c_str(), "r" );
     if( maskfile == NULL ){
         cerr << "Problem opening " << mask_filename << endl;
-        throw;
+        throw exception();
     }
     bool header = true;
     string scheme;
@@ -566,12 +579,12 @@ void read_mask( string mask_filename, vector<int>& mask_pixels, Healpix_Base2& m
             int num = sscanf(line_char, "%s %d", sch, &mask_order );
             if( num != 2 ){
                 cerr << "Problem reading header from mask file, number of arguments read = " << num << ", not 2" << endl;
-                throw;
+                throw exception();
             }
             scheme = string(sch);
             if( (!scheme.compare("RING")) && (!scheme.compare("NEST")) ){
                 cerr << "Scheme listed in mask header line is not RING or NEST, but " << scheme << endl;
-                throw;
+                throw exception();
             }
             header = false;
             continue;
@@ -585,7 +598,7 @@ void read_mask( string mask_filename, vector<int>& mask_pixels, Healpix_Base2& m
             num = sscanf(line_char, "%d", &pix );
             if( num != 1 ){
                 cerr << "Problem reading from mask file, number of arguments read = " << num << ", not 1" << endl;
-                throw;
+                throw exception();
             }
         }
         if( val > input_mask_cut )

@@ -9,7 +9,7 @@ import tables
 import json
 from array import array
 from scipy.stats import gaussian_kde
-sys.path.append("/nfs/pic.es/user/b/bauer/software/pxcorr/src/")
+sys.path.append("/Users/bauer/software/pxcorr/src/")
 import make_maps
 
 class photoz_entry(tables.IsDescription):
@@ -361,7 +361,7 @@ def slopes_to_hdf5( f, slopes_filename, index, pop ):
         g = f.getNode('/', 'slopes', 'Group')
     except tables.exceptions.NoSuchNodeError:
         f.createGroup('/', 'slopes')
-    tablename = 'slope' + str(index)
+    tablename = pop
     slopes_table = f.createTable('/slopes', tablename, slopes_entry)
     slopes_table.setAttr('ftype', json.dumps('counts'))
     slopes_table.setAttr('pop', json.dumps(pop))
@@ -392,10 +392,10 @@ def nofz_to_hdf5( f, nofz_filename, index, pop ):
         g = f.getNode('/', 'photoz', 'Group')
     except tables.exceptions.NoSuchNodeError:
         f.createGroup('/', 'photoz')
-    catalogname = 'catalog' + str(index)
-    f.createGroup('/photoz', catalogname)
-    catalogname = '/photoz/' + catalogname
-    photoz_table = f.createTable(catalogname, pop, photoz_entry)
+    # catalogname = 'catalog' + str(index)
+    # f.createGroup('/photoz', catalogname)
+    # catalogname = '/photoz/' + catalogname
+    photoz_table = f.createTable('/photoz', pop, photoz_entry)
     photoz_table.setAttr('pop', json.dumps(pop))
     row = photoz_table.row
     
@@ -415,7 +415,7 @@ def nofz_to_hdf5( f, nofz_filename, index, pop ):
 
 
 
-def noise_to_hdf5( f, pop, nobjs_array ):
+def noise_to_hdf5( f, pops, ftypes, nobjs_array ):
     # save noise info: an array of one value per redshift bin.
     # does the group already exist?
     try:
@@ -426,10 +426,10 @@ def noise_to_hdf5( f, pop, nobjs_array ):
     noise_array = 1/nobjs_array # not sqrt?
     noise = f.createArray('/noise', 'noise1', numpy.diag(noise_array))
 
-    noise.setAttr('ftype0', json.dumps('counts'))
-    noise.setAttr('pop0', json.dumps(pop))
-    noise.setAttr('ftype1', json.dumps('counts'))
-    noise.setAttr('pop1', json.dumps(pop))
+    noise.setAttr('ftype0', json.dumps(ftypes[0]))
+    noise.setAttr('ftype1', json.dumps(ftypes[1]))
+    for i in range(len(pops)):
+        noise.setAttr('pop'+str(i), json.dumps(pops[i]))
     
 
 

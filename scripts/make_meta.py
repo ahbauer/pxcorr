@@ -9,7 +9,7 @@ import tables
 
 # write an hdf5 file with metadata, for input to other code.
 
-def make_metadata(f, z_mean, z_width, ang_mean, ang_width, pop):
+def make_metadata(f, z_mean, z_width, ang_mean, ang_width, mag_cuts, pops, ftypes):
     # f = tables.openFile('metadata.hdf5', 'w')
     
     f.createGroup('/', 'meta')
@@ -18,20 +18,18 @@ def make_metadata(f, z_mean, z_width, ang_mean, ang_width, pop):
     meta.setAttr("ang_mean", json.dumps(ang_mean))
     meta.setAttr('ang_width', json.dumps(ang_width))
     meta.setAttr('fourier', json.dumps(False))
-    meta.setAttr('pop', json.dumps([pop]))
+    meta.setAttr('pop', json.dumps(pops))
+    meta.setAttr('ftype', json.dumps(ftypes))
 
-    f.createGroup('/meta', pop)
-    groupname = '/meta/' + pop
-    metapop = f.createArray(groupname, 'meta', np.ones(0))
-    metapop.setAttr('z_mean', json.dumps(z_mean))
-    metapop.setAttr('z_width', json.dumps(z_width))
+    # TBD: this needs fixing upon agreement about len(z_mean) per pop
+
+    for i in range(len(pops)):
+        f.createGroup('/meta', pops[i])
+        groupname = '/meta/' + pops[i]
+        metapop = f.createArray(groupname, 'meta', np.ones(0))
+        metapop.setAttr('z_mean', json.dumps(z_mean[i]))
+        metapop.setAttr('z_width', json.dumps(z_width[i]))
     
-    # f.close()
-    
-    # ang_info = np.zeros((2,len(ang_mean)))
-    # ang_info[0:] = ang_mean
-    # ang_info[1:] = ang_width
-    # return ang_info
 
     
 def make_metadata3pt(f, z_mean, z_width, angles, r_12s, r_23s, pop):

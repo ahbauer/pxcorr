@@ -38,12 +38,12 @@ void read_hdf5map( string mapname, unsigned long **map_pix, float **map_data, un
     H5G_obj_t firstType = file1.getObjTypeByIdx(0);
     if( firstType != H5G_GROUP ){
         cerr << "The map is not standard format;  the first element is not a group." << endl;
-        throw;
+        throw exception();
     }
     string group_name = file1.getObjnameByIdx(0);
     if( group_name != "data" ){
         cerr << "Group name is " << group_name << ", not data" << endl;
-        throw;
+        throw exception();
     }
     Group group = file1.openGroup("data");
     DataSet dataset1 = group.openDataSet("pixels");
@@ -62,7 +62,7 @@ void read_hdf5map( string mapname, unsigned long **map_pix, float **map_data, un
     ds1size = dataset1a.getStorageSize();
     if( npix != ds1size/sizeof(float) ){
         cerr << "Problem, number of pixels " << npix << " != number of data points " << ds1size/sizeof(float) << endl;
-        throw;
+        throw exception();
     }
 
     (*map_data) = new float[ds1size];
@@ -84,7 +84,7 @@ void read_hdf5map( string mapname, unsigned long **map_pix, float **map_data, un
     ds2size = dataset2.getStorageSize();
     if( npix2 != ds2size/sizeof(unsigned long) ){
         cerr << "Problem, mask has " << npix2 << " pixels but " << ds2size/sizeof(unsigned long) << " values" << endl;
-        throw;
+        throw exception();
     }
 
     unsigned long *mask_data = new unsigned long[ds2size];
@@ -92,7 +92,7 @@ void read_hdf5map( string mapname, unsigned long **map_pix, float **map_data, un
 
     if( mask_data[0] != RING ){
         cerr << "Problem, mask ordering is not RING but " << mask_data[0] << endl;
-        throw;
+        throw exception();
     }
     mask_order = mask_pix[0];
     cerr << "mask info " << mask_order << " " << mask_data[0] << endl;
@@ -118,7 +118,7 @@ void read_hdf5map( string mapname, unsigned long **map_pix, float **map_data, un
     string line(u_mean);
     if( line[0] != '[' ){
         cerr << "Problem parsing metadata line for u_mean" << endl << line << endl;
-        throw;
+        throw exception();
     }
     size_t index1 = 1;
     while(1){
@@ -143,7 +143,7 @@ void read_hdf5map( string mapname, unsigned long **map_pix, float **map_data, un
     line = string(u_width);
     if( line[0] != '[' ){
         cerr << "Problem parsing metadata line for u_width" << endl << line << endl;
-        throw;
+        throw exception();
     }
     index1 = 1;
     while(1){
@@ -162,7 +162,7 @@ void read_hdf5map( string mapname, unsigned long **map_pix, float **map_data, un
         cerr << "Problem parsing metadata: u_mean and u_width are different sizes:" << endl;
         cerr << u_mean << endl;
         cerr << u_width << endl;
-        throw;
+        throw exception();
     }
     free(u_mean);
     free(u_width);
@@ -195,11 +195,11 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, i
 
     if( access( mapname1.c_str(), F_OK ) == -1 ){
         cerr << "File " << mapname1 << " is not readable!" << endl;
-        throw;
+        throw exception();
     }
     if( access( mapname2.c_str(), F_OK ) == -1 ){
         cerr << "File " << mapname2 << " is not readable!" << endl;
-        throw;
+        throw exception();
     }
     
     vector<float> r_mids;
@@ -276,7 +276,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, i
 
     if( map1_order != map2_order ){
         cerr << "Map orders must be the same: are " << map1_order << " and " << map2_order << endl;
-        throw;
+        throw exception();
     }
     int order = map1_order;
 
@@ -595,7 +595,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, i
     
     if( pixel_size < r_highs[r_highs.size()-1] ){
       cerr << "Can not find a jackknife resolution with >50 regions and pixel size <" << 180/3.1415926*r_highs[r_highs.size()-1] << " degrees" << endl;
-      throw;
+      throw exception();
     }
     Healpix_Base jackknifeMap( jk_order, RING );
     cerr << "Constructed a jackknife map with order " << jk_order << ", "  << jkpixels.size() << " good pixels" << endl;
@@ -704,7 +704,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, i
         }
         else{
             cerr << "This combination of orders is not supported!  lowzMap.Order() = " << lowzMap->Order() << ", order = " << order << ", jackknifeMap.Order() = " << jackknifeMap.Order() << endl;
-            throw;
+            throw exception();
         }
         order = lowzMap->Order();
         cerr << "done!" << endl;
@@ -934,7 +934,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, i
           for( unsigned int j=0; j<r_lows.size(); ++j ){
             if( jkcorrs[i].size() != jkcorrs[j].size() ){
                 cerr << "Problem, jackknife lists " << i << ", " << j << " are not the same size: " << jkcorrs[i].size() << ", " << jkcorrs[j].size() << endl;
-                throw;
+                throw exception();
             }
             for( unsigned int k=0; k<pss[i].size(); ++k ){
               //c[i][j] += (pss[i][k]-jk_means[i])*(pss[j][k]-jk_means[j]);

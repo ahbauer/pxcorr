@@ -39,7 +39,7 @@ use_mags = config["use_mags"]
 only_auto = config["only_auto"]
 only_makemaps = config["only_makemaps"]
 only_correlate = config["only_correlate"]
-pop = config["pop"]
+pops = config["pops"]
 
 
 
@@ -48,6 +48,12 @@ nr = len(ang_means)
 
 nobjs = np.ones(nf)
 slopes_filenames = ['']*nf # this is ok because strings are immutable...
+
+ftypes = []
+if use_counts:
+    ftypes.append('counts')
+if use_mags:
+    ftypes.append('mags')
 
 if not only_correlate:
     
@@ -164,11 +170,11 @@ for i in range(nf):
 
 print "Starting hdf5 file stuff"
 hdf5file = tables.openFile('pxcorr_out.h5', 'w')
-make_metadata( hdf5file, z_means, z_widths, ang_means, ang_widths, pop)
-noise_to_hdf5( hdf5file, pop, nobjs )
+make_metadata( hdf5file, z_means, z_widths, ang_means, ang_widths, mag_cuts, pops, ftypes)
+noise_to_hdf5( hdf5file, pops, ['counts','counts'], nobjs )
 for index in range(nf):
-    slopes_to_hdf5( hdf5file, slopes_filenames[index], index, pop )
-    nofz_to_hdf5( hdf5file, nofz_filenames[index], index, pop )
+    slopes_to_hdf5( hdf5file, slopes_filenames[index], index, pops[index] )
+    nofz_to_hdf5( hdf5file, nofz_filenames[index], index, pops[index] )
 
 
 
@@ -178,30 +184,28 @@ print "Adding correlations"
 hdf5file.createGroup('/', 'corr')
 
 corrobj = hdf5file.createArray('/corr', 'corr1', corr)
-corrobj.setAttr('ftype0', json.dumps('counts'))
-corrobj.setAttr('pop0', json.dumps('faint'))
-corrobj.setAttr('ftype1', json.dumps('counts'))
-corrobj.setAttr('pop1', json.dumps('faint'))
+for index in range(nf):
+    corrobj.setAttr('ftype' + str(index), json.dumps('counts'))
+    corrobj.setAttr('pop' + str(index), json.dumps(pops[index]))
 
 if( use_mags ):
     
-    corrobj = hdf5file.createArray('/corr', 'corr2', corrcm)
-    corrobj.setAttr('ftype0', json.dumps('counts'))
-    corrobj.setAttr('pop0', json.dumps('faint'))
-    corrobj.setAttr('ftype1', json.dumps('mags'))
-    corrobj.setAttr('pop1', json.dumps('faint'))
+    for index in range(nf):
+        corrobj = hdf5file.createArray('/corr', 'corr2', corrcm)
+        corrobj.setAttr('ftype' + str(index), json.dumps('counts'))
+        corrobj.setAttr('pop' + str(index), json.dumps(pops[index]))
+        corrobj.setAttr('ftype' + str(index), json.dumps('mags'))
+        corrobj.setAttr('pop' + str(index), json.dumps(pops[index]))
     
-    corrobj = hdf5file.createArray('/corr', 'corr3', corrmc)
-    corrobj.setAttr('ftype0', json.dumps('mags'))
-    corrobj.setAttr('pop0', json.dumps('faint'))
-    corrobj.setAttr('ftype1', json.dumps('counts'))
-    corrobj.setAttr('pop1', json.dumps('faint'))
+        corrobj = hdf5file.createArray('/corr', 'corr3', corrmc)
+        corrobj.setAttr('ftype' + str(index), json.dumps('mags'))
+        corrobj.setAttr('pop' + str(index), json.dumps(pops[index]))
+        corrobj.setAttr('ftype' + str(index), json.dumps('counts'))
+        corrobj.setAttr('pop' + str(index), json.dumps(pops[index]))
     
-    corrobj = hdf5file.createArray('/corr', 'corr4', corrmm)
-    corrobj.setAttr('ftype0', json.dumps('mags'))
-    corrobj.setAttr('pop0', json.dumps('faint'))
-    corrobj.setAttr('ftype1', json.dumps('mags'))
-    corrobj.setAttr('pop1', json.dumps('faint'))
+        corrobj = hdf5file.createArray('/corr', 'corr4', corrmm)
+        corrobj.setAttr('ftype' + str(index), json.dumps('mags'))
+        corrobj.setAttr('pop' + str(index), json.dumps(pops[index]))
 
 # add covariance to the file
 
