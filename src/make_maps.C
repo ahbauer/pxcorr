@@ -96,24 +96,24 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         }
 
         Healpix_Map<double> *inputmap = new Healpix_Map<double>(11, RING);
-	cerr << "made a new empty healpix map" << endl;
-        // read_Healpix_map_from_fits( catalog_filename, *inputmap );
-	fitshandle inp;
-	cerr << "declared fitshandle" << endl;
-	inp.open (catalog_filename);
-	cerr << "opened input file" << endl;
-	inp.goto_hdu (2);
-	cerr << "went to hdu 2" << endl;
-	// read_Healpix_map_from_fits( inp, *inputmap, 1 );
-	string ordering;
-	inp.get_key("ORDERING", ordering);
-	cerr << "ordering = " << ordering << endl;
-	arr<double> myarr;
-	cerr << "reading entire column" << endl;
-	inp.read_entire_column(1,myarr);
-	cerr << "read in the entire column!" << endl;
-	inputmap->Set(myarr, ordering=="RING" ? RING : NEST);
-	cerr << "read in the map from file" << endl;
+        cerr << "made a new empty healpix map" << endl;
+            // read_Healpix_map_from_fits( catalog_filename, *inputmap );
+        fitshandle inp;
+        cerr << "declared fitshandle" << endl;
+        inp.open (catalog_filename);
+        cerr << "opened input file" << endl;
+        inp.goto_hdu (2);
+        cerr << "went to hdu 2" << endl;
+        // read_Healpix_map_from_fits( inp, *inputmap, 1 );
+        string ordering;
+        inp.get_key("ORDERING", ordering);
+        cerr << "ordering = " << ordering << endl;
+        arr<double> myarr;
+        cerr << "reading entire column" << endl;
+        inp.read_entire_column(1,myarr);
+        cerr << "read in the entire column!" << endl;
+        inputmap->Set(myarr, ordering=="RING" ? RING : NEST);
+        cerr << "read in the map from file" << endl;
         if( inputmap->Scheme() == NEST )
             inputmap->swap_scheme();
         
@@ -417,8 +417,10 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     dcMask = new Partpix_Map2<int>(mask_order, *footprintMap);
     dcMask->fill(0);
     Partpix_Map2<int> *dmMask;
-    if( use_mags )
+    if( use_mags ){
         dmMask = new Partpix_Map2<int>(mask_order, *footprintMap);
+        dmMask->fill(0);
+    }
     for( unsigned int i=0; i<mask_pixels.size(); ++i ){
       if( ! (*footprintMap)[ footprintMap->ang2pix(mask_base.pix2ang(mask_pixels[i])) ] ){
           cerr << "Skipping mask pixel " << i << "!" << endl;
@@ -432,13 +434,16 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     
     // convert the mag mask to be the same resolution as the map
     if( use_mags ){
-        Partpix_Map2<int> *dmMask2 = new Partpix_Map2<int>( order, *footprintMap );
         if( order > dmMask->Order() ){
+            cerr << "upgrading mag mask to order " << order << endl;
+            Partpix_Map2<int> *dmMask2 = new Partpix_Map2<int>( order, *footprintMap );
             dmMask2->Import_upgrade(*dmMask, *footprintMap);
             delete(dmMask);
             dmMask = dmMask2;
         }
         else if( order < dmMask->Order() ){
+            cerr << "degrading mag mask to order " << order << endl;
+            Partpix_Map2<int> *dmMask2 = new Partpix_Map2<int>( order, *footprintMap );
             dmMask2->Import_degrade(*dmMask, *footprintMap);
             delete(dmMask);
             dmMask = dmMask2;
@@ -692,10 +697,13 @@ void write_map( Partpix_Map2<float> *dcMap, Partpix_Map2<int> *dcMask, string ou
     pix_mask[0] = dcMask->Order();
     data_mask[0] = RING;
     index = 1;
+    int nzeros = 0;
     for( int64 i1=0; i1<dcMask->Npartpix(); ++i1 ){
         int64 i = dcMask->highResPix(i1);
         pix_mask[index] = i;
         data_mask[index] = (*dcMask)[i];
+        if( data_mask[index] == 0 )
+            ++nzeros;
         ++index;
     }
     dimsf[0] = dcMask->Npartpix()+1;
@@ -707,7 +715,7 @@ void write_map( Partpix_Map2<float> *dcMap, Partpix_Map2<int> *dcMask, string ou
     H5::DataSet *dataset_mask2 = new H5::DataSet( file->createDataSet( datasetname2, datatype_mask, *dataspace_mask ) );
     dataset_mask1->write( pix_mask, H5::PredType::NATIVE_ULONG );
     dataset_mask2->write( data_mask, H5::PredType::NATIVE_ULONG );
-    cerr << "Wrote " << dcMask->Npartpix() << " pixels to the mask" << endl;
+    cerr << "Wrote " << dcMask->Npartpix() << " pixels to the mask, " << dcMask->Npartpix()-nzeros << " non-zero." << endl;
     
     delete dataspace_pix;
     delete dataspace_mask;

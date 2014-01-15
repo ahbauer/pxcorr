@@ -18,10 +18,8 @@ def make_metadata(f, z_mean, z_width, ang_mean, ang_width, mag_cuts, pops, ftype
     meta.setAttr("ang_mean", json.dumps(ang_mean))
     meta.setAttr('ang_width', json.dumps(ang_width))
     meta.setAttr('fourier', json.dumps(False))
-    meta.setAttr('pop', json.dumps(pops))
-    meta.setAttr('ftype', json.dumps(ftypes))
-
-    # TBD: this needs fixing upon agreement about len(z_mean) per pop
+    # meta.setAttr('pop', json.dumps(pops))
+    # meta.setAttr('ftype', json.dumps(ftypes))
 
     for i in range(len(pops)):
         f.createGroup('/meta', pops[i])
@@ -29,7 +27,8 @@ def make_metadata(f, z_mean, z_width, ang_mean, ang_width, mag_cuts, pops, ftype
         metapop = f.createArray(groupname, 'meta', np.ones(0))
         metapop.setAttr('z_mean', json.dumps(z_mean[i]))
         metapop.setAttr('z_width', json.dumps(z_width[i]))
-    
+        metapop.setAttr('mag_limit', json.dumps(mag_cuts[i]))
+        metapop.setAttr('ftype', json.dumps(ftypes[i]))
 
     
 def make_metadata3pt(f, z_mean, z_width, angles, r_12s, r_23s, pop):

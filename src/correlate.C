@@ -175,12 +175,13 @@ void read_hdf5map( string mapname, unsigned long **map_pix, float **map_data, un
 void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, int *nout ){
  
     bool OUTPUT_FITS = false;
+    
     cout << setiosflags(ios::fixed) << setprecision(16);
     cerr << setprecision(16);
     
     int min_footprint_order = 3;
     double pixel_multiple = 2.5;
-    double jk_threshold_frac = 0.8;
+    double jk_threshold_frac = 0.5;
     
     string mapname1( mapn1 );
     string mapname2( mapn2 );
@@ -364,9 +365,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, i
     cerr << "Imported from resolution " << mask1_order << " to " << order << endl;
 
     Partpix_Map2<int> *highzMask = new Partpix_Map2<int>(mask2_order, *footprintMap);
-    cerr << "declared highzmask with order " << mask2_order << endl;
     highzMask->fill(0);
-    cerr << "filled it" << endl;
     for( unsigned int i=0; i<mask2_pixels.size(); ++i ){
       if( ! (*footprintMap)[ footprintMap->ang2pix(mask2_base.pix2ang(mask2_pixels[i])) ] ){
           cerr << "Skipping high z mask pixel " << i << "!" << endl;
@@ -374,22 +373,20 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, i
       }
       (*highzMask)[mask2_pixels[i]] = 1;
     }
-    cerr << "done with the loop" << endl;
     mask2_pixels.clear();
-    cerr << "cleared" << endl;
     Partpix_Map2<int> *highzMatchedMask = new Partpix_Map2<int>(order, *footprintMap);
-    cerr << "high z sk has order " << order << endl;
+    // cerr << "high z mask has order " << order << endl;
     if( order > highzMask->Order() ){
         highzMatchedMask->Import_upgrade( *highzMask, *footprintMap );
-        cerr << "import upgraded" << endl;
+        // cerr << "import upgraded" << endl;
     }
     else if( order == highzMask->Order() ){
         highzMatchedMask->Import_nograde( *highzMask, *footprintMap );
-        cerr << "import nograded" << endl;
+        // cerr << "import nograded" << endl;
     }
     else{
         highzMatchedMask->Import_degrade( *highzMask, *footprintMap );
-        cerr << "import degraded" << endl;
+        // cerr << "import degraded" << endl;
     }
 
     if( OUTPUT_FITS ){
@@ -437,9 +434,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, i
         }
     }
 
-    cerr << "before deleting lowzMask" << endl;
     delete lowzMask;
-    cerr << "before deleting highzmask" << endl;
     delete highzMask;
 
 
@@ -645,6 +640,9 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, i
     // highzMap_orig.Import_nograde(highzMap, *footprintMap);
     // lowzMatchedMask_orig.Import_nograde(lowzMatchedMask, *footprintMap);
     // highzMatchedMask_orig.Import_nograde(highzMatchedMask, *footprintMap);
+
+    vector< vector<double> > sumij_injk;
+    vector< vector<double> > nij_injk;
     
     // for distance
     // # pragma omp parallel for schedule(dynamic, 1)
@@ -712,11 +710,11 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, i
         //vector<double> ni( jkpixels.size()+1, 0. );
         //vector<double> sumi( jkpixels.size()+1, 0. );
         vector<double> sumij( jkpixels.size()+1, 0. );
-        vector< vector<double> > sumij_injk( jkpixels.size()+1, vector<double>( jkpixels.size()+1, 0. ) );
+        sumij_injk = vector< vector<double> >( jkpixels.size()+1, vector<double>( jkpixels.size()+1, 0. ) );
         //vector<double> sumj( jkpixels.size()+1, 0. );
         //vector<double> nj( jkpixels.size()+1, 0. );
         vector<double> nij( jkpixels.size()+1, 0. );
-        vector< vector<double> > nij_injk( jkpixels.size()+1, vector<double>( jkpixels.size()+1, 0. ) );
+        nij_injk = vector< vector<double> >( jkpixels.size()+1, vector<double>( jkpixels.size()+1, 0. ) );
 
         //double sumdist = 0.0;
         //double ndist = 0.0;
@@ -993,12 +991,20 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, i
         // jk_file << "]" << endl;
         // jk_file.close();
         
-	cerr << "about to malloc return array" << endl;
+        string jk_filename = "jks" + suffix + ".dat";
+        ofstream jk_file(jk_filename.c_str());
+        jk_file << jackknifeMap.Order() << " RING" << endl;
+        for( unsigned int k=0; k<jkpixels.size(); ++k ){
+            jk_file << jkpixels[k] << " " << jkcorrs[r][k] << endl;
+        }
+        jk_file.close();
+        
+        cerr << "about to malloc return array" << endl;
 
         // return the results!
         double *output = (double *) malloc((jkcorrs[r].size()+1)*sizeof(double));
         output[0] = correlations[r];
-	cerr << "assigning the jk stuff" << endl;
+        cerr << "assigning the jk stuff" << endl;
         for( unsigned int i=1; i<jkcorrs[r].size()+1; ++i ){
             output[i] = jkcorrs[r][i-1];
         }

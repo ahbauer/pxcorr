@@ -353,7 +353,7 @@ def measure_slopes( mags, mag_maxz, mag_nzs, mag_cut, suffix, use_mags ):
 
 
 
-def slopes_to_hdf5( f, slopes_filename, index, pop ):
+def slopes_to_hdf5( f, slopes_filename, pop ):
 
     # save slopes: a table, for lots of redshift values.
     # does the group already exist?
@@ -384,7 +384,7 @@ def slopes_to_hdf5( f, slopes_filename, index, pop ):
 
 
 
-def nofz_to_hdf5( f, nofz_filename, index, pop ):
+def nofz_to_hdf5( f, nofz_filename_list, pop ):
     
     # photoz: a table
     # does the group already exist?
@@ -400,22 +400,24 @@ def nofz_to_hdf5( f, nofz_filename, index, pop ):
     row = photoz_table.row
     
     # read in the slopes from the file
-    infile = open( nofz_filename, 'r' )
-    for line in infile:
-        entries = line.split()
+    for nofz_filename in nofz_filename_list:
+        if not (nofz_filename is None or nofz_filename == 'None' or nofz_filename == 'none'):
+            infile = open( nofz_filename, 'r' )
+            for line in infile:
+                entries = line.split()
         
-        # First, assign the values to the Particle record
-        row['z_p']  = entries[0]
-        row['z_s'] = entries[1]
-        row['weight'] = entries[2]
-        row.append()
+                # First, assign the values to the Particle record
+                row['z_p']  = float(entries[0])
+                row['z_s'] = float(entries[1])
+                row['weight'] = float(entries[2])
+                row.append()
     
     photoz_table.flush()
     infile.close()
 
 
 
-def noise_to_hdf5( f, pops, ftypes, nobjs_array ):
+def noise_to_hdf5( f, pops, ftypes, index, nobjs_array ):
     # save noise info: an array of one value per redshift bin.
     # does the group already exist?
     try:
@@ -424,20 +426,20 @@ def noise_to_hdf5( f, pops, ftypes, nobjs_array ):
         f.createGroup('/', 'noise')
 
     noise_array = 1/nobjs_array # not sqrt?
-    noise = f.createArray('/noise', 'noise1', numpy.diag(noise_array))
+    noise = f.createArray('/noise', 'noise'+str(index), numpy.diag(noise_array))
 
     noise.setAttr('ftype0', json.dumps(ftypes[0]))
     noise.setAttr('ftype1', json.dumps(ftypes[1]))
-    for i in range(len(pops)):
-        noise.setAttr('pop'+str(i), json.dumps(pops[i]))
+    noise.setAttr('pop0', json.dumps(pops[0]))
+    noise.setAttr('pop1', json.dumps(pops[1]))
     
 
 
-def construct_inputs( suffix, catalog_filename, use_counts, use_mags, ang_means, ang_widths, nofz_filename, mask_filename, z_mean, z_width, mag_cut ):
+def construct_inputs( suffix, catalog_filename, ftypes, ang_means, ang_widths, nofz_filename, mask_filename, z_mean, z_width, mag_cut ):
     
     # do we want to figure out the N(z) from the catalog or a separate training set file?
     nofz_from_data = False
-    if nofz_filename == catalog_filename or nofz_filename is None or nofz_filename == 'None':
+    if nofz_filename[0] == catalog_filename or nofz_filename[0] is None or nofz_filename[0] == 'None':
         nofz_from_data = True
 
     subcat_filename = None
@@ -455,6 +457,7 @@ def construct_inputs( suffix, catalog_filename, use_counts, use_mags, ang_means,
             outfile = open( nofz_filename, 'w' )
             outfile.write( "0.0 0.0 1.0\n" )
             outfile.close()
+            nofz_filename = [nofz_filename]
             
         # make sure there exists a (dummy) slopes file to read in later
         slopes_filename = "slopes_" + suffix + ".ssv"
@@ -468,8 +471,14 @@ def construct_inputs( suffix, catalog_filename, use_counts, use_mags, ang_means,
         # these things are necessary for interpretation with martin erikson's modeling code.
         subcat_filename, nobj, slopes_filename, nofz_filename2 = parse_data( catalog_filename, mag_cut, suffix, z_mean, z_width, nofz_from_data, sparse=True )
         if nofz_from_data:
-            nofz_filename = nofz_filename2
+            nofz_filename = [nofz_filename2]
     
+    use_counts = False
+    if 'counts' in ftypes:
+        use_counts = True
+    use_mags = False
+    if 'mags' in ftypes:
+        use_mags = True
     make_maps.make_maps( subcat_filename, mask_filename, ang_means, ang_widths, use_counts, use_mags, suffix );
     print "Finished making map from %s" %subcat_filename
 
