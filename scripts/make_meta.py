@@ -30,6 +30,32 @@ def make_metadata(f, z_mean, z_width, ang_mean, ang_width, mag_cuts, pops, ftype
         metapop.setAttr('mag_limit', json.dumps(mag_cuts[i]))
         metapop.setAttr('ftype', json.dumps(ftypes[i]))
 
+def make_metadata_task(f, catalogs, ang_mean, ang_width):
+    
+    f.createGroup('/', 'meta')
+    meta = f.createArray('/meta', 'meta', np.ones(1))
+
+    meta.setAttr("ang_mean", json.dumps(ang_mean))
+    meta.setAttr('ang_width', json.dumps(ang_width))
+    meta.setAttr('fourier', json.dumps(False))
+    
+    for catalog in catalogs:
+        f.createGroup('/meta', catalog['pop'])
+        groupname = '/meta/' + catalog['pop']
+        metapop = f.createArray(groupname, 'meta', np.ones(1))
+        metapop.setAttr('ftype', json.dumps(catalog['ftype']))
+        z_means = []
+        z_widths = []
+        mag_cuts = []
+        ftypes = catalog['ftype']
+        for cut in catalog['cuts']:
+            z_means.append(cut.get('z_mean',0.01))
+            z_widths.append(cut.get('z_width',0.01))
+            mag_cuts.append(cut.get('mag',999))
+        metapop.setAttr('z_mean', json.dumps(z_means))
+        metapop.setAttr('z_width', json.dumps(z_widths))
+        metapop.setAttr('mag_limit', json.dumps(mag_cuts))
+        metapop.setAttr('ftype', json.dumps(ftypes))
     
 def make_metadata3pt(f, z_mean, z_width, angles, r_12s, r_23s, pop):
     # f = tables.openFile('metadata.hdf5', 'w')
