@@ -69,55 +69,81 @@ template<typename T> class Partpix_Map2: public Healpix_Base2
 
     Partpix_Map2( int highResOrder, const Healpix_Map<int>& resolutionMask )
       : Healpix_Base2 (highResOrder, resolutionMask.Scheme()) {
-        // make the mapping between high res pixels and array indices
-
-        // what high-resolution pixel numbers fall inside the mask?
-        // add those to the pixel_mapping hash: pixel_mapping[highrespix] = array_index
-        // where array_index is the index in arr<T> map
-
-        // how many high-res pixels will we need?
-        int n_lowres_pixels = 0;
-        for( int i=0; i<resolutionMask.Npix(); ++i ){
-            if( resolutionMask[i] == 1 )
-                ++n_lowres_pixels;
-        }
-        npartpix_ = int64(n_lowres_pixels*double(npix_)/double(resolutionMask.Npix()));
-
-        // initialize the arrays
-        partmap = arr<T>(npartpix_);
-        pixel_mapping_arraytohigh = vector<int64>(npartpix_);
-
-        // assign the mapping
-        int ring = 0;
-        if( resolutionMask.Scheme()==RING )
-            ring = 1;
-        int fact = nside_/resolutionMask.Nside();
-        xyf2pix from_xyf = (scheme_==RING) ?
-          &Healpix_Base2::xyf2ring : &Healpix_Base2::xyf2nest;
-        int64 array_index=0;
-        for(int m=0; m<resolutionMask.Npix(); ++m){
-            if( resolutionMask[m] == 0 )
-                continue;
-          int x,y,f;
-          if( ring )
-              resolutionMask.ring2xyf(m,x,y,f);
-          else
-              resolutionMask.nest2xyf(m,x,y,f);
-          int64 jmax = fact*(y+1);
-          int64 imax = fact*(x+1);
-          for (int64 j=fact*y; j<jmax; ++j)
-            for (int64 i=fact*x; i<imax; ++i){
-              pixel_mapping_arraytohigh[array_index] = (this->*from_xyf)(i,j,f);
-              ++array_index;
-            }
-        } // for m
-        planck_assert( array_index == npartpix_, "array index != npartpix_" );
-        sort_partmap( pixel_mapping_arraytohigh, partmap );
+          init_int_mask(highResOrder, resolutionMask);
     }
 
     // The same as before, since we don't want to make this a double template for resolutionMask too.
     Partpix_Map2( int highResOrder, const Healpix_Map<double>& resolutionMask )
       : Healpix_Base2 (highResOrder, resolutionMask.Scheme()) {
+          init_double_mask(highResOrder, resolutionMask);
+    }
+
+    // initialize from a Healpix map and a footprint
+    Partpix_Map2( const Healpix_Map<double>& HP_Map, const Healpix_Map<int>& resolutionMask )
+      : Healpix_Base2 (HP_Map.Order(), resolutionMask.Scheme()){
+        init_int_mask( HP_Map.Order(), resolutionMask );
+        for( int64 m=0; m<npartpix_; ++m ){
+            partmap[m] = HP_Map[pixel_mapping_arraytohigh[m]];
+        }
+    }
+    // initialize from a Healpix map and a footprint (double footprint)
+    Partpix_Map2( const Healpix_Map<double>& HP_Map, const Healpix_Map<double>& resolutionMask )
+      : Healpix_Base2 (HP_Map.Order(), resolutionMask.Scheme()){
+        init_double_mask( HP_Map.Order(), resolutionMask );
+        for( int64 m=0; m<npartpix_; ++m ){
+            partmap[m] = HP_Map[pixel_mapping_arraytohigh[m]];
+        }
+      }
+  
+
+      void init_int_mask(int highResOrder, const Healpix_Map<int>& resolutionMask){
+          // make the mapping between high res pixels and array indices
+
+          // what high-resolution pixel numbers fall inside the mask?
+          // add those to the pixel_mapping hash: pixel_mapping[highrespix] = array_index
+          // where array_index is the index in arr<T> map
+
+          // how many high-res pixels will we need?
+          int n_lowres_pixels = 0;
+          for( int i=0; i<resolutionMask.Npix(); ++i ){
+              if( resolutionMask[i] == 1 )
+                  ++n_lowres_pixels;
+          }
+          npartpix_ = int64(n_lowres_pixels*double(npix_)/double(resolutionMask.Npix()));
+
+          // initialize the arrays
+          partmap = arr<T>(npartpix_);
+          pixel_mapping_arraytohigh = vector<int64>(npartpix_);
+
+          // assign the mapping
+          int ring = 0;
+          if( resolutionMask.Scheme()==RING )
+              ring = 1;
+          int fact = nside_/resolutionMask.Nside();
+          xyf2pix from_xyf = (scheme_==RING) ?
+            &Healpix_Base2::xyf2ring : &Healpix_Base2::xyf2nest;
+          int64 array_index=0;
+          for(int m=0; m<resolutionMask.Npix(); ++m){
+              if( resolutionMask[m] == 0 )
+                  continue;
+            int x,y,f;
+            if( ring )
+                resolutionMask.ring2xyf(m,x,y,f);
+            else
+                resolutionMask.nest2xyf(m,x,y,f);
+            int64 jmax = fact*(y+1);
+            int64 imax = fact*(x+1);
+            for (int64 j=fact*y; j<jmax; ++j)
+              for (int64 i=fact*x; i<imax; ++i){
+                pixel_mapping_arraytohigh[array_index] = (this->*from_xyf)(i,j,f);
+                ++array_index;
+              }
+          } // for m
+          planck_assert( array_index == npartpix_, "array index != npartpix_" );
+          sort_partmap( pixel_mapping_arraytohigh, partmap );
+      }
+
+    void init_double_mask(int highResOrder, const Healpix_Map<double>& resolutionMask){
         // make the mapping between high res pixels and array indices
 
         // what high-resolution pixel numbers fall inside the mask?
@@ -169,8 +195,9 @@ template<typename T> class Partpix_Map2: public Healpix_Base2
             }
         } // for m
         planck_assert( array_index == npartpix_, "array index != npartpix_" );        
-        sort_partmap( pixel_mapping_arraytohigh, partmap );    
+        sort_partmap( pixel_mapping_arraytohigh, partmap );
     }
+
 
     void clear(){
         partmap.dealloc();

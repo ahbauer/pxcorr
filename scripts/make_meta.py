@@ -18,7 +18,7 @@ def make_metadata(f, z_mean, z_width, ang_mean, ang_width, mag_cuts, pops, ftype
     meta.setAttr("ang_mean", json.dumps(ang_mean))
     meta.setAttr('ang_width', json.dumps(ang_width))
     meta.setAttr('fourier', json.dumps(False))
-    # meta.setAttr('pop', json.dumps(pops))
+    meta.setAttr('pop', json.dumps(pops))
     # meta.setAttr('ftype', json.dumps(ftypes))
 
     for i in range(len(pops)):

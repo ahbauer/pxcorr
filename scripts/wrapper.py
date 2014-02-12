@@ -130,7 +130,7 @@ for i in range(nf):
                         print "Correlating %s and %s" %(name1, name2)
         
                         for r in range(nr):
-                            suffix = "." + str(i) + "z" + str(zi) + "c." + str(j) + "z" + str(zj) + "c." + str(r)
+                            suffix = "." + str(i) + "z" + str(zi) + fi_char + "." + str(j) + "z" + str(zj) + fj_char + "." + str(r)
                             print "Calling for r=%d" %r
                             result = correlate.correlate( name1, name2, suffix, r )
                             corrs_all[i][fi][j][fj][r,zi,zj] = result[0]
@@ -202,7 +202,15 @@ for i in range(nf):
                                         except AssertionError:
                                             print "Setting covariance to 0 for zi, zj, zk, zl, r1, r2: %d %d %d %d %d %d" %(zi, zj, zk, zl, r1, r2)
                                         
-                corrobj = hdf5file.createArray('/cov', 'cov' + str(corr_count), cov)
+                covobj = hdf5file.createArray('/cov', 'cov' + str(corr_count), cov)
+                covobj.setAttr('ftype0', json.dumps(ftypes[i][fi]))
+                covobj.setAttr('ftype1', json.dumps(ftypes[j][fj]))
+                covobj.setAttr('ftype2', json.dumps(ftypes[i][fi]))
+                covobj.setAttr('ftype3', json.dumps(ftypes[j][fj]))
+                covobj.setAttr('pop0', json.dumps(pops[i]))
+                covobj.setAttr('pop1', json.dumps(pops[j]))
+                covobj.setAttr('pop2', json.dumps(pops[i]))
+                covobj.setAttr('pop3', json.dumps(pops[j]))
                 
                 if( ftypes[i] == 'counts' and ftypes[j] == 'counts' ):
                     noise_to_hdf5( hdf5file, [pops[i],pops[j]], ['counts','counts'], corr_count, nobjs ) # only for counts autocorr for now...
