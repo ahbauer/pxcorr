@@ -315,8 +315,11 @@ def parse_data( filename, mag_cut, suffix, z_mean, z_width, add_nofz=True, spars
 
 def measure_slopes( mags, mag_maxz, mag_nzs, mag_cut, suffix, use_mags ):
 
+    delta_mag = 0.05
+
     # loop over z bins to calculate one slope per each
     slope_array = numpy.zeros(mag_nzs)
+    slope_m_array = numpy.zeros(mag_nzs)
     if not use_mags:
         print >> sys.stderr, "setting all alphas to zero!"
 
@@ -325,29 +328,35 @@ def measure_slopes( mags, mag_maxz, mag_nzs, mag_cut, suffix, use_mags ):
 
             # don't bother trying if there are very few objs
             if( len(mags[zbin_fine]) < 100 ):
-                slope_array[zbin_fine] = 0.
                 continue
 
-            magz = (zbin_fine+0.5)*mag_maxz/mag_nzs
+            # magz = (zbin_fine+0.5)*mag_maxz/mag_nzs
 
-            # kde!
+            # counts! kde!
             # NOTE: i'm setting alpha=0 for bins with no data!
             kde = gaussian_kde(mags[zbin_fine])
             y_kde1 = kde.evaluate(mag_cut)
-            y_kde2 = kde.evaluate(mag_cut+0.01)
+            y_kde2 = kde.evaluate(mag_cut+delta_mag)
             if( y_kde1 == 0 or y_kde2 == 0 ):
                 slope_kde = 0.4
             else:
-                slope_kde = (numpy.log10(y_kde2)-numpy.log10(y_kde1))/0.01
-
+                slope_kde = (numpy.log10(y_kde2)-numpy.log10(y_kde1))/delta_mag
             slope_array[zbin_fine] = 2.5*slope_kde - 1
-            print >> sys.stderr, "z bin %d at %f s = %f alpha = %f" %(zbin_fine, (zbin_fine+0.5)*mag_maxz/mag_nzs, slope_kde, slope_array[zbin_fine])
+
+            # mags!
+            mags1 = mags[zbin_fine][(mags < mag_cut)]
+            mags2 = mags[zbin_fine][(mags < mag_cut+delta_mag)]
+            # mags_new = mags[(mags>mag_cut) & (mags<mag_cut+delta_mag)]
+            print "means %f %f" %(numpy.mean(mags1), numpy.mean(mags2))
+            slope_m_array[zbin_fine] = -1.0857*(1.0-(numpy.mean(mags2)-numpy.mean(mags1))/delta_mag)
+
+            print >> sys.stderr, "z bin %d at %f s = %f alpha_c = %f alpha_m = %f" %(zbin_fine, (zbin_fine+0.5)*mag_maxz/mag_nzs, slope_kde, slope_array[zbin_fine], slope_m_array[zbin_fine])
 
     # write to output file, so the epilogue can read it in and save it to the hdf5 file.
     outfilename = "slopes_" + suffix + ".ssv"
     outfile = open( outfilename, 'w' )
-    for s, slope in enumerate(slope_array):
-        outfile.write( "{0:.4f} {0:.4f}\n".format((s+0.5)*mag_maxz/mag_nzs, slope) )
+    for s in range(len(slope_array)):
+        outfile.write( "{0:.4f} {0:.4f} {0:.4f}\n".format((s+0.5)*mag_maxz/mag_nzs, slope_array[s], slope_m_array[s]) )
     outfile.close()
     return outfilename
 
@@ -375,7 +384,7 @@ def slopes_to_hdf5( f, slopes_filename, pop ):
 
         row['z'] = float(entries[0])
         row['counts'] = float(entries[1])
-        row['mag'] = 0. # TODO!
+        row['mag'] = float(entries[2])
         row['size'] = 0. # TODO?
         row.append()
 

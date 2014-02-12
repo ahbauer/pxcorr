@@ -288,8 +288,8 @@ template<typename T> class Partpix_Map: public Healpix_Base
       int fact = nside_/orig.nside_;
       planck_assert (nside_==orig.nside_*fact,
         "the larger Nside must be a multiple of the smaller one");
-      pix2xyf to_xyf = (orig.scheme_==RING) ?
-        &Healpix_Base::ring2xyf : &Healpix_Base::nest2xyf;
+      // pix2xyf to_xyf = (orig.scheme_==RING) ?
+      //   &Healpix_Base::ring2xyf : &Healpix_Base::nest2xyf;
       xyf2pix from_xyf = (scheme_==RING) ?
         &Healpix_Base::xyf2ring : &Healpix_Base::xyf2nest;
       pix2xyf res_to_xyf = (resolutionMask.Scheme()==RING) ?
