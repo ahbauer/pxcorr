@@ -382,6 +382,7 @@ def slopes_to_hdf5( f, maps_list ):
             # we've already written the slopes for this population.  return!
             return
         
+        slopes_table.setAttr('pop', json.dumps(pop))
         row = slopes_table.row
         
         # read in the slopes from the file
@@ -417,7 +418,7 @@ def nofz_to_hdf5( f, maps_list ):
             # we've already written the nofz for this population.  return!
             return
         
-        # photoz_table.setAttr('pop', json.dumps(pop))
+        photoz_table.setAttr('pop', json.dumps(pop))
         row = photoz_table.row
     
         # read in the slopes from the file

@@ -39,7 +39,9 @@ def make_metadata_task(f, catalogs, ang_mean, ang_width):
     meta.setAttr('ang_width', json.dumps(ang_width))
     meta.setAttr('fourier', json.dumps(False))
     
+    pops = []
     for catalog in catalogs:
+        pops.append(catalog['pop'])
         f.createGroup('/meta', catalog['pop'])
         groupname = '/meta/' + catalog['pop']
         metapop = f.createArray(groupname, 'meta', np.ones(1))
@@ -56,6 +58,7 @@ def make_metadata_task(f, catalogs, ang_mean, ang_width):
         metapop.setAttr('z_width', json.dumps(z_widths))
         metapop.setAttr('mag_limit', json.dumps(mag_cuts))
         metapop.setAttr('ftype', json.dumps(ftypes))
+    meta.setAttr('pop', json.dumps(pops))
     
 def make_metadata3pt(f, z_mean, z_width, angles, r_12s, r_23s, pop):
     # f = tables.openFile('metadata.hdf5', 'w')
