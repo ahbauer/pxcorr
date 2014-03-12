@@ -303,7 +303,7 @@ def parse_data( filename, mag_cut, suffix, z_mean, z_width, add_nofz=True, spars
         
         # write to output file, so the epilogue can read it in and save it to the hdf5 file.
         outfile = open( nofz_filename, 'w' )
-        for s, slope in enumerate(slope_array):
+        for i in range(n_sparse):
             outfile.write( "{0:.4f} {0:.4f} 1.0\n".format(z_phot[i], z_spec[i]) )
         outfile.close()
     
