@@ -13,15 +13,17 @@ sys.path.append("/Users/bauer/software/pxcorr/src/")
 import make_maps
 
 class photoz_entry(tables.IsDescription):
-    z_s = tables.Float64Col(dflt=0.0, pos=0) 
-    z_p = tables.Float64Col(dflt=0.0, pos=1)
-    weight = tables.Float64Col(dflt=0.0, pos=2)
+    zbin = tables.Int32Col(dflt=0, pos=0)
+    z_s = tables.Float64Col(dflt=0.0, pos=1) 
+    z_p = tables.Float64Col(dflt=0.0, pos=2)
+    weight = tables.Float64Col(dflt=0.0, pos=3)
 
 class slopes_entry(tables.IsDescription):
-    z = tables.Float64Col(dflt=0.0, pos=0) 
-    counts = tables.Float64Col(dflt=0.0, pos=1)
-    mag = tables.Float64Col(dflt=0.0, pos=1)
-    size = tables.Float64Col(dflt=0.0, pos=1)
+    zbin = tables.Int32Col(dflt=0, pos=0) 
+    z = tables.Float64Col(dflt=0.0, pos=1) 
+    counts = tables.Float64Col(dflt=0.0, pos=2)
+    mag = tables.Float64Col(dflt=0.0, pos=3)
+    size = tables.Float64Col(dflt=0.0, pos=4)
 
 
 
@@ -211,7 +213,7 @@ def parse_data( filename, mag_cut, suffix, z_mean, z_width, add_nofz=True, spars
     # arrays for output later
     z_phot = []
     z_spec = []
-
+    
     # what kind of binning do we want for the slopes?
     mag_nzs = 100
     mag_maxz = 2.0
@@ -309,7 +311,7 @@ def parse_data( filename, mag_cut, suffix, z_mean, z_width, add_nofz=True, spars
     # measure slopes of the number counts, etc.
     slopes_filename = measure_slopes( mags, mag_maxz, mag_nzs, mag_cut, suffix, use_mags )
     
-    return outfilename, nsample, slopes_filename, nofz_filename
+    return outfilename, slopes_filename, nofz_filename
 
 
 
@@ -362,89 +364,82 @@ def measure_slopes( mags, mag_maxz, mag_nzs, mag_cut, suffix, use_mags ):
 
 
 
-def slopes_to_hdf5( f, slopes_filename, pop ):
-
-    # save slopes: a table, for lots of redshift values.
-    # does the group already exist?
+def slopes_to_hdf5( f, maps_list ):
+    
     try:
         g = f.getNode('/', 'slopes', 'Group')
     except tables.exceptions.NoSuchNodeError:
         f.createGroup('/', 'slopes')
-    tablename = pop
-    slopes_table = f.createTable('/slopes', tablename, slopes_entry)
-    slopes_table.setAttr('ftype', json.dumps('counts'))
-    slopes_table.setAttr('pop', json.dumps(pop))
-    row = slopes_table.row
-
-
-    # read in the slopes from the file
-    infile = open( slopes_filename, 'r' )
-    for line in infile:
-        entries = line.split()
-
-        row['z'] = float(entries[0])
-        row['counts'] = float(entries[1])
-        row['mag'] = float(entries[2])
-        row['size'] = 0. # TODO?
-        row.append()
-
-    infile.close()
+    
+    slope_info = dict()
+    for map1 in maps_list:
+        slope_info[map1['pop']] = { 'zbin': map1['cut_index'], 'filename': map1['slope_path'] }
+        
+    for pop in slope_info.keys():
+        try:
+            slopes_table = f.createTable('/slopes', pop, slopes_entry)
+        except tables.exceptions.NodeError:
+            # we've already written the slopes for this population.  return!
+            return
+        
+        row = slopes_table.row
+        
+        # read in the slopes from the file
+        infile = open( slope_info[pop]['filename'], 'r' )
+        for line in infile:
+            entries = line.split()
+            row['zbin'] = slope_info[pop]['zbin']
+            row['z'] = float(entries[0])
+            row['counts'] = float(entries[1])
+            row['mag'] = float(entries[2])
+            row['size'] = 0. # TODO?
+            row.append()
+        infile.close()
+    
     slopes_table.flush()
 
 
-
-def nofz_to_hdf5( f, nofz_filename_list, pop ):
+def nofz_to_hdf5( f, maps_list ):
     
-    # photoz: a table
-    # does the group already exist?
     try:
         g = f.getNode('/', 'photoz', 'Group')
     except tables.exceptions.NoSuchNodeError:
         f.createGroup('/', 'photoz')
-    # catalogname = 'catalog' + str(index)
-    # f.createGroup('/photoz', catalogname)
-    # catalogname = '/photoz/' + catalogname
-    photoz_table = f.createTable('/photoz', pop, photoz_entry)
-    photoz_table.setAttr('pop', json.dumps(pop))
-    row = photoz_table.row
     
-    # read in the slopes from the file
-    for nofz_filename in nofz_filename_list:
+    nofz_info = dict()
+    for map1 in maps_list:
+        nofz_info[map1['pop']] = { 'zbin': map1['cut_index'], 'filename': map1['nofz_path'] }
+        
+    for pop in nofz_info.keys():
+        try:
+            photoz_table = f.createTable('/photoz', pop, photoz_entry)
+        except tables.exceptions.NodeError:
+            # we've already written the nofz for this population.  return!
+            return
+        
+        # photoz_table.setAttr('pop', json.dumps(pop))
+        row = photoz_table.row
+    
+        # read in the slopes from the file
+        nofz_filename = nofz_info[pop]['filename']
         if not (nofz_filename is None or nofz_filename == 'None' or nofz_filename == 'none'):
             infile = open( nofz_filename, 'r' )
             for line in infile:
                 entries = line.split()
-        
                 # First, assign the values to the Particle record
+                row['zbin'] = nofz_info[pop]['zbin']
                 row['z_p']  = float(entries[0])
                 row['z_s'] = float(entries[1])
                 row['weight'] = float(entries[2])
                 row.append()
+            infile.close()
     
     photoz_table.flush()
-    infile.close()
-
-
-
-def noise_to_hdf5( f, pops, ftypes, index, nobjs_array ):
-    # save noise info: an array of one value per redshift bin.
-    # does the group already exist?
-    try:
-        g = f.getNode('/', 'noise', 'Group')
-    except tables.exceptions.NoSuchNodeError:
-        f.createGroup('/', 'noise')
-
-    noise_array = 1/nobjs_array # not sqrt?
-    noise = f.createArray('/noise', 'noise'+str(index), numpy.diag(noise_array))
-
-    noise.setAttr('ftype0', json.dumps(ftypes[0]))
-    noise.setAttr('ftype1', json.dumps(ftypes[1]))
-    noise.setAttr('pop0', json.dumps(pops[0]))
-    noise.setAttr('pop1', json.dumps(pops[1]))
+    
     
 
 
-def construct_inputs( suffix, catalog_filename, ftypes, ang_means, ang_widths, nofz_filename, mask_filename, z_mean, z_width, mag_cut ):
+def construct_inputs( suffix, catalog_filename, ftypes, ang_means, ang_widths, nofz_filename, mask_filename, z_mean, z_width, zbin, mag_cut, pop ):
     
     # do we want to figure out the N(z) from the catalog or a separate training set file?
     nofz_from_data = False
@@ -472,13 +467,13 @@ def construct_inputs( suffix, catalog_filename, ftypes, ang_means, ang_widths, n
         slopes_filename = "slopes_" + suffix + ".ssv"
         # write to output file, so the epilogue can read it in and save it to the hdf5 file.
         outfile = open( slopes_filename, 'w' )
-        outfile.write( "0.0 0.0\n" )
+        outfile.write( "0.0 0.0 0.0\n" )
         outfile.close()
                 
     else:
         # parse the catalog: construct N(z) data, calculate slope, etc.
         # these things are necessary for interpretation with martin erikson's modeling code.
-        subcat_filename, nobj, slopes_filename, nofz_filename2 = parse_data( catalog_filename, mag_cut, suffix, z_mean, z_width, nofz_from_data, sparse=True )
+        subcat_filename, slopes_filename, nofz_filename2 = parse_data( catalog_filename, mag_cut, suffix, z_mean, z_width, nofz_from_data, sparse=True )
         if nofz_from_data:
             nofz_filename = [nofz_filename2]
     
@@ -488,10 +483,10 @@ def construct_inputs( suffix, catalog_filename, ftypes, ang_means, ang_widths, n
     use_mags = False
     if 'mags' in ftypes:
         use_mags = True
-    make_maps.make_maps( subcat_filename, mask_filename, ang_means, ang_widths, use_counts, use_mags, suffix );
+    make_maps.make_maps( subcat_filename, mask_filename, ang_means, ang_widths, use_counts, use_mags, suffix, pop, zbin );
     print "Finished making map from %s" %subcat_filename
 
-    return nobj, slopes_filename, nofz_filename
+    return slopes_filename, nofz_filename
 
 
 def main():

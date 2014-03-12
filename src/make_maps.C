@@ -38,11 +38,18 @@ using namespace H5;
 
 using namespace std;
 
-void write_map( Partpix_Map2<float> *dcMap, Partpix_Map2<int> *dcMask, string outfilename, string ftype, float *ang_means_c, float *ang_widths_c, int n_ang_bins );
+template<class T>
+string string_ize( const T& val ){
+  ostringstream s;
+  s << val;
+  return s.str();
+}
+
+void write_map( Partpix_Map2<float> *dcMap, Partpix_Map2<int> *dcMask, string outfilename, string ftype, float *ang_means_c, float *ang_widths_c, int n_ang_bins, char *pop, int zbin, int64 nobj );
 
 void read_mask( string mask_filename, vector<int>& mask_pixels, Healpix_Base2& mask_base );
 
-void make_maps( const char *catalog_filename_c, const char *mask_filename_c, float *ang_means_c, int n_ang_bins0, float *ang_widths_c, int n_ang_bins, bool use_counts, bool use_mags, char *suffix_c ){
+void make_maps( const char *catalog_filename_c, const char *mask_filename_c, float *ang_means_c, int n_ang_bins0, float *ang_widths_c, int n_ang_bins, bool use_counts, bool use_mags, char *suffix_c, char *pop, int zbin ){
 
     //int n_ang_bins = ang_means.size();
     double pixel_multiple = 2.5;
@@ -85,6 +92,8 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     vector<int> mask_pixels;
     Healpix_Base2 mask_base;
     Partpix_Map2<int> *dcMask;
+    int64 nobj_c = 0;
+    int64 nobj_m = 0;
     
     if( catalog_filename.rfind(".fits") != string::npos ){
         
@@ -266,30 +275,30 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         }
         
     
-        // now turn the counts map into a delta map
-        double mean_counts = 0.0;
-        double n_pix = 0.0;
-        for( int64 i1=0; i1<dcMap->Npartpix(); ++i1 ){
-            int64 i = dcMap->highResPix(i1);
-            int64 maskpix = dcMask->ang2pix(dcMap->pix2ang(i));
-            if( (*dcMask)[maskpix] > 0.5 ){
-                mean_counts += (*dcMap)[i];
-                n_pix += 1.0;
-            }
-        }
-        if( n_pix == 0.0 ){
-            cerr << "No unmasked pixels??" << endl;
-            throw exception();
-        }
-        mean_counts /= n_pix;
-        if( mean_counts == 0. ){
-            cerr << "No counts in the unmasked part of the map??" << endl;
-            throw exception();
-        }
-        for( int64 i1=0; i1<dcMap->Npartpix(); ++i1 ){
-            int64 i = dcMap->highResPix(i1);
-            (*dcMap)[i] = (*dcMap)[i]/mean_counts - 1.0;
-        }
+        // // ???  now turn the counts map into a delta map ????
+        // double mean_counts = 0.0;
+        // double n_pix = 0.0;
+        // for( int64 i1=0; i1<dcMap->Npartpix(); ++i1 ){
+        //     int64 i = dcMap->highResPix(i1);
+        //     int64 maskpix = dcMask->ang2pix(dcMap->pix2ang(i));
+        //     if( (*dcMask)[maskpix] > 0.5 ){
+        //         mean_counts += (*dcMap)[i];
+        //         n_pix += 1.0;
+        //     }
+        // }
+        // if( n_pix == 0.0 ){
+        //     cerr << "No unmasked pixels??" << endl;
+        //     throw exception();
+        // }
+        // mean_counts /= n_pix;
+        // if( mean_counts == 0. ){
+        //     cerr << "No counts in the unmasked part of the map??" << endl;
+        //     throw exception();
+        // }
+        // for( int64 i1=0; i1<dcMap->Npartpix(); ++i1 ){
+        //     int64 i = dcMap->highResPix(i1);
+        //     (*dcMap)[i] = (*dcMap)[i]/mean_counts - 1.0;
+        // }
     
         // now make sure the file is the resolution necessary for the smallest angular bin
         // i realize that this is moot if the input res is lower, but it will keep the code from crashing.
@@ -317,7 +326,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         // and write out the map
         string outfilename = "dc_map" + suffix + ".h5";
         string ftype = "counts";
-        write_map( dcMap, dcMask, outfilename, ftype, ang_means_c, ang_widths_c, n_ang_bins );
+        write_map( dcMap, dcMask, outfilename, ftype, ang_means_c, ang_widths_c, n_ang_bins, pop, zbin, nobj_c );
     
         cerr << "Wrote map to file" << endl;
         delete dcMap;
@@ -473,7 +482,6 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     dcMap->fill(0.);
     Partpix_Map2<float> *dmMap;
     double mean_mag = 0.;
-    int n_mags = 0;
     if( use_mags ){
         dmMap = new Partpix_Map2<float>(order, *footprintMap);
         dmMap->fill(0.);
@@ -486,12 +494,13 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
             continue;
         int64 pixnum = dcMap->ang2pix( pointings[p] );
         (*dcMap)[pixnum] += 1.0;
+        ++nobj_c;
         if( use_mags ){
             int64 maskpix = dmMask->ang2pix(dmMap->pix2ang(pixnum));
             if( (*dmMask)[maskpix] > 0.5 ){
                 (*dmMap)[pixnum] += mags[p];
                 mean_mag += mags[p];
-                n_mags++;
+                ++nobj_m;
             }
         }
     }
@@ -499,7 +508,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     // now make the delta_mag mask for pixels with counts=0
     // mask out the pixels that don't have any mag info.
     if( use_mags ){
-        mean_mag /= n_mags;
+        mean_mag /= nobj_m;
         for( int i1=0; i1<dmMap->Npartpix(); ++i1 ){
             int i = dmMap->highResPix(i1);
             if( (*dcMap)[i] > 0. ){
@@ -541,7 +550,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     if( use_counts ){
         string outfilename = "dc_map" + suffix + ".h5";
         string ftype = "counts";
-        write_map( dcMap, dcMask, outfilename, ftype, ang_means_c, ang_widths_c, n_ang_bins );
+        write_map( dcMap, dcMask, outfilename, ftype, ang_means_c, ang_widths_c, n_ang_bins, pop, zbin, nobj_c );
         
         cerr << "Wrote delta counts map to file" << endl;
         delete dcMap;
@@ -550,7 +559,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     if( use_mags ){
         string outfilename = "dm_map" + suffix + ".h5";
         string ftype = "mag";
-        write_map( dmMap, dmMask, outfilename, ftype, ang_means_c, ang_widths_c, n_ang_bins );
+        write_map( dmMap, dmMask, outfilename, ftype, ang_means_c, ang_widths_c, n_ang_bins, pop, zbin, nobj_m );
         
         cerr << "Wrote delta mag map to file" << endl;
         delete dmMask;
@@ -630,7 +639,7 @@ void read_mask( string mask_filename, vector<int>& mask_pixels, Healpix_Base2& m
 
 
 
-void write_map( Partpix_Map2<float> *dcMap, Partpix_Map2<int> *dcMask, string outfilename, string ftype, float *ang_means_c, float *ang_widths_c, int n_ang_bins ){
+void write_map( Partpix_Map2<float> *dcMap, Partpix_Map2<int> *dcMask, string outfilename, string ftype, float *ang_means_c, float *ang_widths_c, int n_ang_bins, char *pop, int zbin, int64 nobj ){
     
     // write out the maps (hdf5)
     cerr << "writing " << outfilename << endl;
@@ -794,13 +803,43 @@ void write_map( Partpix_Map2<float> *dcMap, Partpix_Map2<int> *dcMask, string ou
     // Create new dataspace for attribute
     H5::DataSpace attr4_dataspace = H5::DataSpace( H5S_SCALAR );
     // Create new string datatype for attribute
-    strdatatype = H5::StrType( H5::PredType::C_S1, 11 ); // of length 256 characters    
+    strdatatype = H5::StrType( H5::PredType::C_S1, ftype.size()+1 ); // of length 256 characters    
     // Set up write buffer for attribute
-    string ftype2 = "[\"" + ftype + "\"]";
-    const H5std_string ftype_buf( ftype2.c_str() );
+    // string ftype2 = "[\"" + ftype + "\"]";
+    const H5std_string ftype_buf( ftype );
     // Create attribute and write to it
     H5::Attribute ftype_attr = metadataset->createAttribute("ftype", strdatatype, attr4_dataspace);
     ftype_attr.write(strdatatype, ftype_buf);
+
+    // Create new dataspace for attribute
+    attr4_dataspace = H5::DataSpace( H5S_SCALAR );
+    // Create new string datatype for attribute
+    // Set up write buffer for attribute
+    string pop2(string_ize(pop));
+    // pop2.append("[\'");
+    // pop2.append(string_ize(pop));
+    // pop2.append("\']");
+    const H5std_string pop_buf( pop2 );
+    // Create attribute and write to it
+    strdatatype = H5::StrType( H5::PredType::C_S1, pop2.size()+1 ); // of length 256 characters    
+    ftype_attr = metadataset->createAttribute("pop", strdatatype, attr4_dataspace);
+    ftype_attr.write(strdatatype, pop_buf);
+
+    // Create new dataspace for attribute
+    attr4_dataspace = H5::DataSpace( H5S_SCALAR );
+    // Create new string datatype for attribute
+    H5::IntType int_type(H5::PredType::NATIVE_INT);
+    // strdatatype = H5::StrType( H5::PredType::C_S1, 256 ); // of length 256 characters    
+    // Set up write buffer for attribute
+    // string zbin2 = "[\'" + string_ize(zbin) + "\']";
+    // const H5std_string zbin_buf( zbin2 );
+    // Create attribute and write to it
+    ftype_attr = metadataset->createAttribute("zbin", int_type, attr4_dataspace);
+    ftype_attr.write(int_type, &zbin);
+    
+    attr4_dataspace = H5::DataSpace( H5S_SCALAR );
+    ftype_attr = metadataset->createAttribute("nobj", datatype_pix, attr4_dataspace);
+    ftype_attr.write(datatype_pix, &nobj);
 
     delete metadataspace;
     delete metadataset;
@@ -934,7 +973,8 @@ int main (int argc, char **argv){
     }
 
     char suffix[4] = "ahb";
-    make_maps( catalog_filename.c_str(), mask_filename.c_str(), ang_means_c, ang_means.size(), ang_widths_c, ang_means.size(), use_counts, use_mags, suffix );
+    char pop[6] = "faint";
+    make_maps( catalog_filename.c_str(), mask_filename.c_str(), ang_means_c, ang_means.size(), ang_widths_c, ang_means.size(), use_counts, use_mags, suffix, pop, 0 );
     
     return 0;
     

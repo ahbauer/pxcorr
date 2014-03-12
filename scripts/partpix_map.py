@@ -17,6 +17,7 @@ import sys
 import json
 import os
 import numpy as np
+import tables
 
 class Partpix_Map:
     def __init__(self, o=None, s=0):
@@ -87,7 +88,7 @@ class Partpix_Map:
             err_msg = "Problem understanding scheme {0}".format(s)
             raise Exception, err_msg
         self.npartpix = len(filelines)
-        self.pixel_mapping_arraytohigh = np.zeros(self.npartpix, dtype='int')
+        self.pixel_mapping_arraytohigh = np.zeros(self.npartpix, dtype='int64')
         self.partmap = np.zeros(self.npartpix, dtype='float')
         c = 0
         for line in filelines:
@@ -96,4 +97,29 @@ class Partpix_Map:
             self.partmap[c] = float(v)
             c += 1
         
+        
+    def read_from_hdf5table( self, table ):
+        
+        assert isinstance(table, tables.table.Table), "This is not an hdf5 table!"
+        colset = set(table.cols._v_colnames)
+        assert set(['pixel', 'value']).issubset(colset), msg_cols
+        
+        ps = table.read(field='pixel')
+        vs = table.read(field='value')
+        
+        if len(ps) != len(vs):
+            print "Error, hdf5 partpix map table has a different number of pixels from values (%d vs. %d)" %(len(ps), len(vs))
+            
+        obj_attrs = getattr(table, 'attrs')
+        self.order = getattr(obj_attrs, 'order')
+        self.scheme = getattr(obj_attrs, 'scheme')
+        self.npartpix = len(ps)
+        
+        self.pixel_mapping_arraytohigh = np.zeros(self.npartpix, dtype='int64')
+        self.partmap = np.zeros(self.npartpix, dtype='float')
+        for i in range(self.npartpix):
+            self.pixel_mapping_arraytohigh[i] = ps[i]
+            self.partmap[i] = vs[i]
+    
+    
         

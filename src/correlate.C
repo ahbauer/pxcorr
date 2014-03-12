@@ -31,7 +31,20 @@ using namespace H5;
 
 #define USE_WEIGHTS 0
 
-void read_hdf5map( string mapname, unsigned long **map_pix, float **map_data, unsigned long &npix, vector<unsigned long>& mask_pixel_list, int& mask_order, vector<float>& r_mids, vector<float>& r_wids ){
+typedef struct jk_struct{
+  int64 pixel;
+  float value;
+} jk_struct;
+
+
+template<class T>
+string string_ize( const T& val ){
+  ostringstream s;
+  s << val;
+  return s.str();
+}
+
+void read_hdf5map( string mapname, unsigned long **map_pix, float **map_data, unsigned long &npix, vector<unsigned long>& mask_pixel_list, int& mask_order, vector<float>& r_mids, vector<float>& r_wids, int& zbin, string& ftype, string& pop, int64& nobj ){
     
     
     H5File file1( mapname, H5F_ACC_RDONLY );
@@ -166,13 +179,45 @@ void read_hdf5map( string mapname, unsigned long **map_pix, float **map_data, un
     }
     free(u_mean);
     free(u_width);
-
+    
+    attr = dataSet.openAttribute("zbin");
+    attrsize = attr.getStorageSize();
+    //dataType = StrType(PredType::C_S1, attrsize);
+    //char *zbin_char = (char*) malloc(attrsize);
+    //attr.read( dataType, zbin_char );
+    //zbin = string(zbin_char);
+    H5::IntType int_type(H5::PredType::NATIVE_INT);
+    attr.read( int_type, &zbin );
+    cerr << "zbin: " << zbin << endl;
+    
+    attr = dataSet.openAttribute("nobj");
+    attrsize = attr.getStorageSize();
+    H5::IntType int64_type(H5::PredType::NATIVE_ULONG);
+    attr.read( int64_type, &nobj );
+    cerr << "nobj: " << nobj << endl;
+    
+    attr = dataSet.openAttribute("ftype");
+    attrsize = attr.getStorageSize();
+    dataType = StrType(PredType::C_S1, attrsize);
+    char *ftype_char = (char*) malloc(attrsize);
+    attr.read( dataType, ftype_char );
+    ftype = string(ftype_char);
+    cerr << "ftype: " << ftype << endl;
+    
+    attr = dataSet.openAttribute("pop");
+    attrsize = attr.getStorageSize();
+    dataType = StrType(PredType::C_S1, attrsize);
+    char *pop_char = (char*) malloc(attrsize);
+    attr.read( dataType, pop_char );
+    pop = string(pop_char);
+    cerr << "pop: " << pop << endl;
+    
     cerr << "Finished reading in the map" << endl;
     
     return;
 }
 
-void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, int *nout ){
+void correlate( char* mapn1, char* mapn2, int r, char* outfilename ){
  
     bool OUTPUT_FITS = false;
     
@@ -185,9 +230,8 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, i
     
     string mapname1( mapn1 );
     string mapname2( mapn2 );
-    string suffix( sfx );
 
-    cerr << "Correlating " << mapname1 << " x " << mapname2 << " rbin " << r << " with suffix " << suffix << endl;
+    cerr << "Correlating " << mapname1 << " x " << mapname2 << " rbin " << r << endl;
     
     bool single_rbin = true;
     if( r < 0 ){
@@ -217,10 +261,13 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, i
     float *map1_data;
     unsigned long npix1;
     int mask1_order;
-
-    read_hdf5map( mapname1, &map1_pix, &map1_data, npix1, mask1_pixels, mask1_order, r_mids, r_wids );
+    int zbin1_attr;
+    string ftype1_attr;
+    string pop1_attr;
+    int64 nobj1_attr;
+    read_hdf5map( mapname1, &map1_pix, &map1_data, npix1, mask1_pixels, mask1_order, r_mids, r_wids, zbin1_attr, ftype1_attr, pop1_attr, nobj1_attr );
     
-    cerr << "returned from reading the map" << endl;
+    cerr << "returned from reading map 1, zbin1_attr = " << zbin1_attr << endl;
     
     int map1_order = int(map1_pix[0]);
 
@@ -242,8 +289,14 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, i
     
     vector<float> r_mids2;
     vector<float> r_wids2;
-    read_hdf5map( mapname2, &map2_pix, &map2_data, npix2, mask2_pixels, mask2_order, r_mids2, r_wids2 );
-    
+    int zbin2_attr;
+    string ftype2_attr;
+    string pop2_attr;
+    int64 nobj2_attr;
+    read_hdf5map( mapname2, &map2_pix, &map2_data, npix2, mask2_pixels, mask2_order, r_mids2, r_wids2, zbin2_attr, ftype2_attr, pop2_attr, nobj2_attr );
+
+    cerr << "returned from reading map 1, zbin2_attr = " << zbin2_attr << endl;
+
     int map2_order = map2_pix[0];
     int map2_ordering = map2_data[0];
     
@@ -920,7 +973,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, i
         corr_line << "]";
         jk_line << "]";
         err_line << "]";
-        string corr_filename = "corr" + suffix;
+        string corr_filename( "corr" );
         ofstream corr_file(corr_filename.c_str());
         corr_file << "[" << corr_line.str() << ", " << jk_line.str() << ", " << err_line.str() << "]" << endl;
         corr_file.close();
@@ -947,7 +1000,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, i
           }
         }
 
-        string cov_filename = "cov" + suffix;
+        string cov_filename = "cov";
         ofstream cov_file(cov_filename.c_str());
         cov_file << "[";
         for( unsigned int k=0; k<r_lows.size(); ++k ){
@@ -965,51 +1018,185 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, i
         cov_file << "]" << endl;
         cov_file.close();
         
-        // this is just a placeholder
-        double *output = (double *) malloc((1)*sizeof(double));
-        output[0] = -999.;
-        *outarray = output;
-        *nout = 1;
 
     } // if not single_rbin
     
-    // write out the whole jackknife set
+    // write out an hdf file
     else{
-        // // write the results
-        // string corr_filename = "corr" + suffix;
-        // ofstream corr_file(corr_filename.c_str());
-        // corr_file << "[" << correlations[r] << ", " << jk_means[r] << ", " << sqrt(jk_variance[r]) << "]" << endl;
-        // corr_file.close();
-        // 
-        // // write the jackknifes
-        // string jk_filename = "jks" + suffix;
-        // ofstream jk_file(jk_filename.c_str());
-        // jk_file << "[" << jkcorrs[r][0];
-        // for( unsigned int k=1; k<jkcorrs[r].size(); ++k ){
-        //     jk_file << ", " << jkcorrs[r][k];
-        // }
-        // jk_file << "]" << endl;
-        // jk_file.close();
         
-        string jk_filename = "jks" + suffix + ".dat";
-        ofstream jk_file(jk_filename.c_str());
-        jk_file << jackknifeMap.Order() << " RING" << endl;
-        for( unsigned int k=0; k<jkpixels.size(); ++k ){
-            jk_file << jkpixels[k] << " " << jkcorrs[r][k] << endl;
+        H5::H5File *file = new H5::H5File( outfilename, H5F_ACC_TRUNC ); // clobber!
+        
+        // save the correlation function result
+        H5::Group* corr_group = new H5::Group( file->createGroup( "/corr" ));
+        H5::PredType datatype_results( H5::PredType::NATIVE_FLOAT );
+        hsize_t dimsf[1];
+        dimsf[0] = 1;
+        int rank = 1;
+        float *data = new float[1];
+        data[0] = correlations[r];
+        H5::DataSpace *dataspace1 = new H5::DataSpace( rank, dimsf );
+        string datasetname1 = "/corr/corr0";
+        H5::DataSet *dataset1 = new H5::DataSet( file->createDataSet( datasetname1, datatype_results, *dataspace1 ) );
+        dataset1->write( data, H5::PredType::NATIVE_FLOAT );
+        delete[](data);
+        delete dataspace1;
+        delete dataset1;
+        
+        // save the jackknife array in a table
+        H5::Group* jk_group = new H5::Group( file->createGroup( "/JK" ));
+        jk_struct *jk_data = new jk_struct[jkpixels.size()];
+        for( unsigned int k=0; k<jkpixels.size();++k ){
+            jk_data[k].pixel = jkpixels[k];
+            jk_data[k].value = jkcorrs[r][k];
         }
-        jk_file.close();
         
-        cerr << "about to malloc return array" << endl;
+        CompType mtype1( sizeof(jk_struct) );
+        const H5std_string MEMBER1( "pixel" );
+        const H5std_string MEMBER2( "value" );
+        mtype1.insertMember( MEMBER1, HOFFSET(jk_struct, pixel), H5::PredType::NATIVE_ULONG);
+        mtype1.insertMember( MEMBER2, HOFFSET(jk_struct, value), H5::PredType::NATIVE_FLOAT);
+        
+        dimsf[0] = jkpixels.size();
+        H5::DataSpace *dataspace2 = new H5::DataSpace( rank, dimsf );
+        string datasetname2 = "/JK/JK0";
+        H5::DataSet *dataset2 = new H5::DataSet( file->createDataSet( datasetname2, mtype1, *dataspace2 ) );
+        dataset2->write( jk_data, mtype1 );
+        
+        // Create new dataspace for attribute
+        H5::DataSpace attr1_dataspace = H5::DataSpace( H5S_SCALAR );
+        // Create new datatype for attribute
+        // H5::PredType datatype_int( H5::PredType::NATIVE_INT );
+        H5::IntType int_type(H5::PredType::NATIVE_INT);
+        // Set up write buffer for attribute
+        // Create attribute and write to it
+        H5::Attribute order_attr = dataset2->createAttribute("order", int_type, attr1_dataspace);
+        order_attr.write(int_type, &jk_order);
+        
+        // Create new dataspace for attribute
+        H5::DataSpace attr2_dataspace = H5::DataSpace( H5S_SCALAR );
+        // Set up write buffer for attribute
+        int scheme = 0;
+        // Create attribute and write to it
+        H5::Attribute scheme_attr = dataset2->createAttribute("scheme", int_type, attr2_dataspace);
+        scheme_attr.write(int_type, &scheme);
+        
+        delete[](jk_data);
+        delete dataspace2;
+        delete dataset2;
+        
+        // save metadata
+        H5::Group *metagroup = new H5::Group( file->createGroup( "/meta" ) );
+        H5::PredType metadatatype( H5::PredType::NATIVE_CHAR );
+        dimsf[0] = 1;
+        H5::DataSpace *metadataspace = new H5::DataSpace( rank, dimsf );
+        H5::DataSet *metadataset = new H5::DataSet( file->createDataSet( "/meta/meta", metadatatype, *metadataspace ) );
+        
+        // Create new dataspace for attribute
+        H5::DataSpace attr3_dataspace = H5::DataSpace( H5S_SCALAR );
+        // Create new string datatype for attribute
+        H5::StrType strdatatype = H5::StrType( H5::PredType::C_S1, 6 ); // of length 256 characters
+        // Set up write buffer for attribute
+        const H5std_string fourier_buf( "false" );
+        // Create attribute and write to it
+        H5::Attribute fourier_attr = metadataset->createAttribute("fourier", strdatatype, attr3_dataspace);
+        fourier_attr.write(strdatatype, fourier_buf);
+        
+        
+        // Create new dataspace for attribute
+        H5::DataSpace attr4_dataspace = H5::DataSpace( H5S_SCALAR );
+        // Create new string datatype for attribute
+        strdatatype = H5::StrType( H5::PredType::C_S1, ftype1_attr.size()+1 ); // of length 256 characters    
+        // Set up write buffer for attribute
+        // string ftype_string = "[\"" + ftype1 + "\"]";
+        const H5std_string ftype0_buf( ftype1_attr );
+        // Create attribute and write to it
+        H5::Attribute ftype0_attr = metadataset->createAttribute("ftype0", strdatatype, attr4_dataspace);
+        ftype0_attr.write(strdatatype, ftype0_buf);
+        
+        // Create new dataspace for attribute
+        attr4_dataspace = H5::DataSpace( H5S_SCALAR );
+        // Create new string datatype for attribute
+        strdatatype = H5::StrType( H5::PredType::C_S1, ftype2_attr.size()+1 ); // of length 256 characters    
+        // Set up write buffer for attribute
+        // ftype_string = "[\"" + ftype2 + "\"]";
+        const H5std_string ftype1_buf( ftype2_attr );
+        // Create attribute and write to it
+        H5::Attribute ftype1_attr = metadataset->createAttribute("ftype1", strdatatype, attr4_dataspace);
+        ftype1_attr.write(strdatatype, ftype1_buf);
 
-        // return the results!
-        double *output = (double *) malloc((jkcorrs[r].size()+1)*sizeof(double));
-        output[0] = correlations[r];
-        cerr << "assigning the jk stuff" << endl;
-        for( unsigned int i=1; i<jkcorrs[r].size()+1; ++i ){
-            output[i] = jkcorrs[r][i-1];
-        }
-        *outarray = output;
-        *nout = jkcorrs[r].size()+1;
+        // Create new dataspace for attribute
+        attr4_dataspace = H5::DataSpace( H5S_SCALAR );
+        // Create new string datatype for attribute
+        strdatatype = H5::StrType( H5::PredType::C_S1, pop1_attr.size()+1 ); // of length 256 characters    
+        // Set up write buffer for attribute
+        // string pop_string = "[\"" + string_ize(pop1) + "\"]";
+        const H5std_string pop0_buf( pop1_attr );
+        // Create attribute and write to it
+        H5::Attribute pop_attr = metadataset->createAttribute("pop0", strdatatype, attr4_dataspace);
+        pop_attr.write(strdatatype, pop0_buf);
+        
+        // Create new dataspace for attribute
+        attr4_dataspace = H5::DataSpace( H5S_SCALAR );
+        // Create new string datatype for attribute
+        strdatatype = H5::StrType( H5::PredType::C_S1, pop2_attr.size()+1 ); // of length 256 characters    
+        // Set up write buffer for attribute
+        // pop_string = "[\"" + string_ize(pop2) + "\"]";
+        const H5std_string pop1_buf( pop2_attr );
+        // Create attribute and write to it
+        pop_attr = metadataset->createAttribute("pop1", strdatatype, attr4_dataspace);
+        pop_attr.write(strdatatype, pop1_buf);
+
+        // // Create new dataspace for attribute
+        // attr4_dataspace = H5::DataSpace( H5S_SCALAR );
+        // // Create new string datatype for attribute
+        // strdatatype = H5::StrType( H5::PredType::C_S1, 256 ); // of length 256 characters    
+        // // Set up write buffer for attribute
+        // const H5std_string zbin0_buf( zbin1_attr );
+        // // Create attribute and write to it
+        // H5::Attribute zbin_attr = metadataset->createAttribute("zbin0", strdatatype, attr4_dataspace);
+        // zbin_attr.write(strdatatype, zbin0_buf);
+        // 
+        // // Create new dataspace for attribute
+        // attr4_dataspace = H5::DataSpace( H5S_SCALAR );
+        // // Create new string datatype for attribute
+        // strdatatype = H5::StrType( H5::PredType::C_S1, 256 ); // of length 256 characters    
+        // // Set up write buffer for attribute
+        // const H5std_string zbin1_buf( zbin2_attr );
+        // // Create attribute and write to it
+        // zbin_attr = metadataset->createAttribute("zbin1", strdatatype, attr4_dataspace);
+        // zbin_attr.write(strdatatype, zbin1_buf);
+        
+        
+        // Create new dataspace for attribute
+        attr4_dataspace = H5::DataSpace( H5S_SCALAR );
+        H5::Attribute zbin_attr = metadataset->createAttribute("zbin0", int_type, attr4_dataspace);
+        zbin_attr.write(int_type, &zbin1_attr);
+        
+        // Create new dataspace for attribute
+        attr4_dataspace = H5::DataSpace( H5S_SCALAR );
+        zbin_attr = metadataset->createAttribute("zbin1", int_type, attr4_dataspace);
+        zbin_attr.write(int_type, &zbin2_attr);
+
+        // Create new dataspace for attribute
+        H5::IntType int64_type(H5::PredType::NATIVE_ULONG);
+        attr4_dataspace = H5::DataSpace( H5S_SCALAR );
+        zbin_attr = metadataset->createAttribute("nobj0", int64_type, attr4_dataspace);
+        zbin_attr.write(int64_type, &nobj1_attr);
+        
+        // Create new dataspace for attribute
+        attr4_dataspace = H5::DataSpace( H5S_SCALAR );
+        zbin_attr = metadataset->createAttribute("nobj1", int64_type, attr4_dataspace);
+        zbin_attr.write(int64_type, &nobj2_attr);
+        cerr << "done with metadata" << endl;
+        
+        delete metadataspace;
+        delete metadataset;
+        
+        delete corr_group;
+        delete jk_group;
+        delete metagroup;
+        delete file;
+        
     }
     
     return;
@@ -1020,7 +1207,7 @@ void correlate( char* mapn1, char* mapn2, char* sfx, int r, double **outarray, i
 int main (int argc, char **argv){
     
     if( argc != 4 && argc != 5 ){
-        cerr << "Usage: correlate map1 map2 suffix (radial bin)" << endl;
+        cerr << "Usage: correlate map1 map2 (radial bin)" << endl;
         cerr << "       where the maps are hdf5 files produced by make_maps, that each have a map and a mask." << endl;
         return 1;
     }
@@ -1030,14 +1217,9 @@ int main (int argc, char **argv){
         r = atoi(argv[4]);
     }
     
-    // these are placeholders for swig return lists
-    double *outvec;
-    int size = 1;
+    char outfilename[128] = "correlation.h5";
+    correlate( argv[1], argv[2], r, outfilename );
     
-    correlate( argv[1], argv[2], argv[3], r, &outvec, &size );
-    
-    free( outvec );
-
     return 0;
     
 }
