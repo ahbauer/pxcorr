@@ -336,24 +336,26 @@ def measure_slopes( mags, mag_maxz, mag_nzs, mag_cut, suffix, use_mags ):
 
             # counts! kde!
             # NOTE: i'm setting alpha=0 for bins with no data!
+            nm = len(mags[zbin_fine])
             kde = gaussian_kde(mags[zbin_fine])
-            y_kde1 = kde.evaluate(mag_cut)
-            y_kde2 = kde.evaluate(mag_cut+delta_mag)
+            y_kde1 = nm*kde.integrate_box_1d(numpy.min(mags[zbin_fine]), mag_cut) #kde.evaluate(mag_cut)
+            y_kde2 = nm*kde.integrate_box_1d(numpy.min(mags[zbin_fine]), mag_cut+delta_mag) #kde.evaluate(mag_cut+delta_mag)
             if( y_kde1 == 0 or y_kde2 == 0 ):
                 slope_kde = 0.4
             else:
                 slope_kde = (numpy.log10(y_kde2)-numpy.log10(y_kde1))/delta_mag
             slope_array[zbin_fine] = 2.5*slope_kde - 1
-
+            
             # mags!
-            mags1 = mags[zbin_fine][(mags < mag_cut)]
-            mags2 = mags[zbin_fine][(mags < mag_cut+delta_mag)]
-            # mags_new = mags[(mags>mag_cut) & (mags<mag_cut+delta_mag)]
-            print "means %f %f" %(numpy.mean(mags1), numpy.mean(mags2))
+            mag_array = numpy.array(mags[zbin_fine])
+            mags1 = mag_array[(mag_array < mag_cut)]
+            mags2 = mag_array[(mag_array < mag_cut+delta_mag)]
             slope_m_array[zbin_fine] = -1.0857*(1.0-(numpy.mean(mags2)-numpy.mean(mags1))/delta_mag)
 
             print >> sys.stderr, "z bin %d at %f s = %f alpha_c = %f alpha_m = %f" %(zbin_fine, (zbin_fine+0.5)*mag_maxz/mag_nzs, slope_kde, slope_array[zbin_fine], slope_m_array[zbin_fine])
 
+    assert len(slope_array), 'Error parse_sample.py:measure_slopes slope_array has length zero!'
+    
     # write to output file, so the epilogue can read it in and save it to the hdf5 file.
     outfilename = "slopes_" + suffix + ".ssv"
     outfile = open( outfilename, 'w' )
@@ -407,13 +409,18 @@ def nofz_to_hdf5( f, maps_list ):
     except tables.exceptions.NoSuchNodeError:
         f.createGroup('/', 'photoz')
     
+    try:
+        g = f.getNode('/photoz', 'catalog', 'Group')
+    except tables.exceptions.NoSuchNodeError:
+        f.createGroup('/photoz', 'catalog')
+            
     nofz_info = dict()
     for map1 in maps_list:
         nofz_info[map1['pop']] = { 'zbin': map1['cut_index'], 'filename': map1['nofz_path'] }
         
     for pop in nofz_info.keys():
         try:
-            photoz_table = f.createTable('/photoz', pop, photoz_entry)
+            photoz_table = f.createTable('/photoz/catalog', pop, photoz_entry)
         except tables.exceptions.NodeError:
             # we've already written the nofz for this population.  return!
             return

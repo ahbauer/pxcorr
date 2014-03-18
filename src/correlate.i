@@ -5,7 +5,7 @@
 
 %{
 #define SWIG_FILE_WITH_INIT
-extern void correlate( char* mapn1, char* mapn2, int r, char* outfilename );
+extern void correlate( char* mapn1, char* mapn2, int r, int jk_order, bool degrade_maps, char* outfilename );
 %}
 
 %exception {
@@ -25,4 +25,4 @@ extern void correlate( char* mapn1, char* mapn2, int r, char* outfilename );
 import_array();
 %}
 
-extern void correlate( char* mapn1, char* mapn2, int r, char* outfilename );
+extern void correlate( char* mapn1, char* mapn2, int r, int jk_order, bool degrade_maps, char* outfilename );

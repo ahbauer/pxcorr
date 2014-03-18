@@ -26,15 +26,44 @@ class Partpix_Map:
         self.partmap = None
         self.pixel_mapping_arraytohigh = None
         self.npartpix = 0
+        self.npix = 0
+    
+    def update(self):
+        self.npartpix = len(self.partmap)
+        nside = int(2.0**self.order)
+        self.npix = int(12*nside*nside)
+        indices = np.argsort(self.pixel_mapping_arraytohigh)
+        self.pixel_mapping_arraytohigh = self.pixel_mapping_arraytohigh[indices]
+        self.partmap = self.partmap[indices]
         
     def Npartpix(self):
         return self.npartpix
+    
+    def Npix(self):
+        return self.npix
+        
+    def Nside(self):
+        return int(2.0**self.order)
+    
+    def __getitem__(self, i):
+        indices = np.searchsorted(self.pixel_mapping_arraytohigh,i)
+        print "i = "
+        print i
+        print "indices ="
+        print indices
+        return self.partmap[indices]
         
     def mean(self):
         if self.partmap is None:
             err_msg = "Trying to take the mean of an undefined Partpix_Map"
             raise Exception, err_msg
         return np.mean(self.partmap)
+        
+    def sum(self):
+        if self.partmap is None:
+            err_msg = "Trying to take the sum of an undefined Partpix_Map"
+            raise Exception, err_msg
+        return np.sum(self.partmap)
         
     def intersection( self, map2 ):
         
@@ -69,17 +98,29 @@ class Partpix_Map:
         outmap2.pixel_mapping_arraytohigh = np.array(pix)
         outmap1.partmap = np.array(partmap1)
         outmap2.partmap = np.array(partmap2)
-        outmap1.npartpix = len(partmap1)
-        outmap2.npartpix = len(partmap2)
+        
+        outmap1.update()
+        outmap2.update()
         
         return outmap1, outmap2
         
-        
+    def bool( self, cutoff=0.5 ):
+        if self.npartpix == 0:
+            return
+        for i in range(self.npartpix):
+            if self.partmap[i] >= cutoff:
+                self.partmap[i] = 1.0
+            else:
+                self.partmap[i] = 0.0
+    
+    
     def read_from_ascii( self, filename ):
         file = open(filename, 'r')
         filelines = file.readlines()
         (o, s) = filelines.pop(0).split()
         self.order = int(o)
+        nside = int(2.0**self.order)
+        self.npix = int(12*nside*nside)
         if s == 'RING' or s == 0:
             self.scheme = 0
         elif s == 'NEST' or s == 1:
@@ -96,7 +137,7 @@ class Partpix_Map:
             self.pixel_mapping_arraytohigh[c] = int(p)
             self.partmap[c] = float(v)
             c += 1
-        
+        self.update()
         
     def read_from_hdf5table( self, table ):
         
@@ -120,6 +161,36 @@ class Partpix_Map:
         for i in range(self.npartpix):
             self.pixel_mapping_arraytohigh[i] = ps[i]
             self.partmap[i] = vs[i]
+        self.update()
     
+def read_from_hdf5file( map_filename, read_map=True, read_mask=True ):
     
+    mapfile = tables.openFile(map_filename)
+    map1 = None
+    mask1 = None
+    if read_mask:
+        mask1 = Partpix_Map()
+        mask_pixels = mapfile.getNode('/data/', 'mask_pixels')
+        mask1.pixel_mapping_arraytohigh = mask_pixels.read() # a numpy array
+        # this is sloppy;  the order & scheme should be metadata, not the first values in the array.
+        mask1.order = mask1.pixel_mapping_arraytohigh[0]
+        mask1.pixel_mapping_arraytohigh = np.delete(mask1.pixel_mapping_arraytohigh, 0) 
+        mask_data = mapfile.getNode('/data/', 'mask_values')
+        mask1.partmap = mask_data.read()
+        mask1.scheme = mask1.partmap[0]
+        mask1.partmap = np.delete(mask1.partmap, 0)
+        mask1.update()
+    if read_map:
+        map1 = Partpix_Map()
+        map_pixels = mapfile.getNode('/data/', 'pixels')
+        map1.pixel_mapping_arraytohigh = map_pixels.read() # a numpy array
+        map1.order = map1.pixel_mapping_arraytohigh[0]
+        map1.pixel_mapping_arraytohigh = np.delete(map1.pixel_mapping_arraytohigh, 0)
+        map_data = mapfile.getNode('/data/', 'values')
+        map1.partmap = map_data.read()
+        map1.scheme = map1.partmap[0]
+        map1.partmap = np.delete(map1.partmap, 0)
+        map1.update()
+    return map1, mask1
+
         

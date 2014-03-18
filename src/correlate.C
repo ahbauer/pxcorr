@@ -217,7 +217,7 @@ void read_hdf5map( string mapname, unsigned long **map_pix, float **map_data, un
     return;
 }
 
-void correlate( char* mapn1, char* mapn2, int r, char* outfilename ){
+void correlate( char* mapn1, char* mapn2, int r, int jk_order, bool degrade_maps, char* outfilename ){
  
     bool OUTPUT_FITS = false;
     
@@ -539,15 +539,12 @@ void correlate( char* mapn1, char* mapn2, int r, char* outfilename ){
         myfits.close();
     }
 
-    // figure out the jackknife regions using the mask pixels
-    // we want >=50 regions, bigger than the max radial bin.
-    // insist on 90% completeness within each jackknife pixel.
-    int jk_order = footprintMap->Order();
+
+    // use the jk_order given by the parent_correlate task
     vector<int> jkpixels;
     Partpix_Map2<int> *jackknifeMap1 = new Partpix_Map2<int>(jk_order, *footprintMap);
     jackknifeMap1->fill(0);
-    double pixel_size = sqrt(41253./jackknifeMap1->Npix());
-    while( pixel_size > r_highs[r_highs.size()-1] ){
+    
       if( order < jackknifeMap1->Order() ){ // this is unlikely
           Partpix_Map2<int> *mask1 = new Partpix_Map2<int>(jk_order, *footprintMap);
           mask1->Import_upgrade(*lowzMatchedMask, *footprintMap);
@@ -560,17 +557,6 @@ void correlate( char* mapn1, char* mapn2, int r, char* outfilename ){
                   jkpixels.push_back(i);
               }
           }
-          if( jkpixels.size() >= 50 )
-              break;
-          else{
-              cerr << "Jackknife order " << jk_order << " has only " << jkpixels.size() << " good pixels." << endl;
-              jkpixels.clear();
-              ++jk_order;
-              delete jackknifeMap1;
-              jackknifeMap1 = new Partpix_Map2<int>(jk_order, *footprintMap);
-              jackknifeMap1->fill(0.);
-              pixel_size = sqrt(41253./jackknifeMap1->Npix());
-          }
           delete mask1;
           delete mask2;
       }
@@ -581,17 +567,6 @@ void correlate( char* mapn1, char* mapn2, int r, char* outfilename ){
                   (*jackknifeMap1)[i]++;
                   jkpixels.push_back(i);
               }
-          }
-          if( jkpixels.size() >= 50 )
-              break;
-          else{
-              cerr << "Jackknife order " << jk_order << " has only " << jkpixels.size() << " good pixels." << endl;
-              jkpixels.clear();
-              ++jk_order;
-              delete jackknifeMap1;
-              jackknifeMap1 = new Partpix_Map2<int>(jk_order, *footprintMap);
-              jackknifeMap1->fill(0);
-              pixel_size = sqrt(41253./jackknifeMap1->Npix());
           }
       }
       else{ // data are higher resolution than the jackknife map
@@ -617,34 +592,10 @@ void correlate( char* mapn1, char* mapn2, int r, char* outfilename ){
                   jkpixels.push_back(i);
               }
           }
-          if( jkpixels.size() >= 50 ){
-              if( OUTPUT_FITS ){
-                  system( "rm jackknife.fits" );
-                  fitshandle myfits = fitshandle();
-                  myfits.create("jackknife.fits");
-                  Healpix_Map<int> jkmap = jackknifeMap1->to_Healpix( 0 );
-                  write_Healpix_map_to_fits(myfits, jkmap, PLANCK_FLOAT64);
-                  myfits.close();
-              }
-              break;
-          }
-          else{
-              cerr << "Jackknife order " << jk_order << " has only " << jkpixels.size() << " good pixels." << endl;
-              jkpixels.clear();
-              ++jk_order;
-              delete jackknifeMap1;
-              jackknifeMap1 = new Partpix_Map2<int>(jk_order, *footprintMap);
-              jackknifeMap1->fill(0);
-              pixel_size = sqrt(41253./jackknifeMap1->Npix());
-          }
       }
-    }
     delete jackknifeMap1;
-    
-    if( pixel_size < r_highs[r_highs.size()-1] ){
-      cerr << "Can not find a jackknife resolution with >50 regions and pixel size <" << 180/3.1415926*r_highs[r_highs.size()-1] << " degrees" << endl;
-      throw exception();
-    }
+
+
     Healpix_Base jackknifeMap( jk_order, RING );
     cerr << "Constructed a jackknife map with order " << jk_order << ", "  << jkpixels.size() << " good pixels" << endl;
 
@@ -685,15 +636,6 @@ void correlate( char* mapn1, char* mapn2, int r, char* outfilename ){
     Partpix_Map2<float> *highzMap_orig = highzMap;
     Partpix_Map2<int> *lowzMatchedMask_orig = lowzMatchedMask;
     Partpix_Map2<int> *highzMatchedMask_orig = highzMatchedMask;
-    // lowzMap_orig = Partpix_Map2<double>(order, *footprintMap);
-    // highzMap_orig = Partpix_Map2<double>(order, *footprintMap);
-    // lowzMatchedMask_orig = Partpix_Map2<int>(order, *footprintMap);
-    // highzMatchedMask_orig = Partpix_Map2<int>(order, *footprintMap);
-    // lowzMap_orig.Import_nograde(lowzMap, *footprintMap);
-    // highzMap_orig.Import_nograde(highzMap, *footprintMap);
-    // lowzMatchedMask_orig.Import_nograde(lowzMatchedMask, *footprintMap);
-    // highzMatchedMask_orig.Import_nograde(highzMatchedMask, *footprintMap);
-
     vector< vector<double> > sumij_injk;
     vector< vector<double> > nij_injk;
     
@@ -719,7 +661,13 @@ void correlate( char* mapn1, char* mapn2, int r, char* outfilename ){
           ++order;
         }
         cerr << "order " << order << "... ";
-        if( order < lowzMap_orig->Order() && order > jackknifeMap.Order() ){
+        if( (! degrade_maps) || order == lowzMap_orig->Order() ){
+            lowzMap = lowzMap_orig;
+            highzMap = highzMap_orig;
+            lowzMatchedMask = lowzMatchedMask_orig;
+            highzMatchedMask = highzMatchedMask_orig;
+        }
+        else if( order < lowzMap_orig->Order() && order > jackknifeMap.Order() ){
             lowzMap = new Partpix_Map2<float>(order, *footprintMap);
             highzMap = new Partpix_Map2<float>(order, *footprintMap);
             lowzMatchedMask = new Partpix_Map2<int>(order, *footprintMap);
@@ -739,20 +687,6 @@ void correlate( char* mapn1, char* mapn2, int r, char* outfilename ){
             lowzMatchedMask->Import_degrade(*lowzMatchedMask_orig, *footprintMap);
             highzMatchedMask->Import_degrade(*highzMatchedMask_orig, *footprintMap);
         }
-        else if( order == lowzMap_orig->Order() ){
-            // lowzMap = Partpix_Map2<double>(order, *footprintMap);
-            // highzMap = Partpix_Map2<double>(order, *footprintMap);
-            // lowzMatchedMask = Partpix_Map2<int>(order, *footprintMap);
-            // highzMatchedMask = Partpix_Map2<int>(order, *footprintMap);
-            // lowzMap.Import_nograde(lowzMap_orig, *footprintMap);
-            // highzMap.Import_nograde(highzMap_orig, *footprintMap);
-            // lowzMatchedMask.Import_nograde(lowzMatchedMask_orig, *footprintMap);
-            // highzMatchedMask.Import_nograde(highzMatchedMask_orig, *footprintMap);
-            lowzMap = lowzMap_orig;
-            highzMap = highzMap_orig;
-            lowzMatchedMask = lowzMatchedMask_orig;
-            highzMatchedMask = highzMatchedMask_orig;
-        }
         else{
             cerr << "This combination of orders is not supported!  lowzMap.Order() = " << lowzMap->Order() << ", order = " << order << ", jackknifeMap.Order() = " << jackknifeMap.Order() << endl;
             throw exception();
@@ -760,17 +694,10 @@ void correlate( char* mapn1, char* mapn2, int r, char* outfilename ){
         order = lowzMap->Order();
         cerr << "done!" << endl;
 
-        //vector<double> ni( jkpixels.size()+1, 0. );
-        //vector<double> sumi( jkpixels.size()+1, 0. );
         vector<double> sumij( jkpixels.size()+1, 0. );
         sumij_injk = vector< vector<double> >( jkpixels.size()+1, vector<double>( jkpixels.size()+1, 0. ) );
-        //vector<double> sumj( jkpixels.size()+1, 0. );
-        //vector<double> nj( jkpixels.size()+1, 0. );
         vector<double> nij( jkpixels.size()+1, 0. );
         nij_injk = vector< vector<double> >( jkpixels.size()+1, vector<double>( jkpixels.size()+1, 0. ) );
-
-        //double sumdist = 0.0;
-        //double ndist = 0.0;
 
         // for pixel in high_res map
         for( int64 i1=0; i1<lowzMap->Npartpix(); ++i1 ){
@@ -1218,7 +1145,7 @@ int main (int argc, char **argv){
     }
     
     char outfilename[128] = "correlation.h5";
-    correlate( argv[1], argv[2], r, outfilename );
+    correlate( argv[1], argv[2], r, 3, true, outfilename );
     
     return 0;
     
