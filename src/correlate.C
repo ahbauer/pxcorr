@@ -295,7 +295,7 @@ void correlate( char* mapn1, char* mapn2, int r, int jk_order, bool degrade_maps
     int64 nobj2_attr;
     read_hdf5map( mapname2, &map2_pix, &map2_data, npix2, mask2_pixels, mask2_order, r_mids2, r_wids2, zbin2_attr, ftype2_attr, pop2_attr, nobj2_attr );
 
-    cerr << "returned from reading map 1, zbin2_attr = " << zbin2_attr << endl;
+    cerr << "returned from reading map 2, zbin2_attr = " << zbin2_attr << endl;
 
     int map2_order = map2_pix[0];
     int map2_ordering = map2_data[0];
@@ -372,6 +372,9 @@ void correlate( char* mapn1, char* mapn2, int r, int jk_order, bool degrade_maps
     // so, go back to the last footprint order.
     --footprint_order;
     delete footprintMap;
+    // make sure that this order is not bigger than the jackknife order!
+    if( footprint_order > jk_order )
+        footprint_order = jk_order;
     footprintMap = new Healpix_Map<int>(footprint_order, RING);
     footprintMap->fill(0);
     for( unsigned int i=0; i<mask1_pixels.size(); ++i ){
@@ -537,12 +540,19 @@ void correlate( char* mapn1, char* mapn2, int r, int jk_order, bool degrade_maps
         myfits.create("highzMap.fits");
         write_Healpix_map_to_fits(myfits, highzHMap, PLANCK_FLOAT64);
         myfits.close();
+        system( "rm footprint.fits" );
+        myfits = fitshandle();
+        myfits.create("footprint.fits");
+        write_Healpix_map_to_fits(myfits, *footprintMap, PLANCK_FLOAT64);
+        myfits.close();
     }
 
 
     // use the jk_order given by the parent_correlate task
     vector<int> jkpixels;
+    cerr << "Creating jackknife Partpix map, order " << jk_order << "... ";
     Partpix_Map2<int> *jackknifeMap1 = new Partpix_Map2<int>(jk_order, *footprintMap);
+    cerr << "Done!" << endl;
     jackknifeMap1->fill(0);
     
       if( order < jackknifeMap1->Order() ){ // this is unlikely
