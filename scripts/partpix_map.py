@@ -198,6 +198,56 @@ def read_from_hdf5file( map_filename, read_map=True, read_mask=True ):
     return map1, mask1
 
 
+code_degrade_nests="""
+using namespace std;
+
+short ctab[0x100];
+short utab[0x100];
+
+for (int m=0; m<0x100; ++m){
+  ctab[m] = short(
+       (m&0x1 )       | ((m&0x2 ) << 7) | ((m&0x4 ) >> 1) | ((m&0x8 ) << 6)
+    | ((m&0x10) >> 2) | ((m&0x20) << 5) | ((m&0x40) >> 3) | ((m&0x80) << 4));
+  utab[m] = short(
+       (m&0x1 )       | ((m&0x2 ) << 1) | ((m&0x4 ) << 2) | ((m&0x8 ) << 3)
+    | ((m&0x10) << 4) | ((m&0x20) << 5) | ((m&0x40) << 6) | ((m&0x80) << 7));
+}
+  
+
+int num_pixels = n_p;
+for( unsigned int ppp=0; ppp<num_pixels; ppp++ ){
+    
+    int pix = pixs[ppp];
+    int ix, iy, face_num;
+    int npface_;
+    
+    int nside_in  = 1<<order_in;
+    int nside_out  = 1<<order_out;
+    npface_ = nside_in*nside_in;
+    
+  face_num = pix>>(2*order_in);
+  pix &= (npface_-1);
+  int raw = (pix&0x5555) | ((pix&0x55550000)>>15);
+  ix = ctab[raw&0xff] | (ctab[raw>>8]<<4);
+  pix >>= 1;
+  raw = (pix&0x5555) | ((pix&0x55550000)>>15);
+  iy = ctab[raw&0xff] | (ctab[raw>>8]<<4);
+
+
+  // degrade
+  float fact=nside_in/nside_out;
+  ix = int(ix/fact);
+  iy = int(iy/fact);
+  
+  
+  pixs[ppp] = (face_num<<(2*order_out)) +
+      (utab[ix&0xff] | (utab[ix>>8]<<16)
+    | (utab[iy&0xff]<<1) | (utab[iy>>8]<<17));
+
+}
+
+"""
+
 code_degrade_rings = """
 using namespace std;
 
@@ -354,8 +404,6 @@ else // South Polar cap
 
 def degrade( map_in, order_out ):
     
-    assert map_in.scheme == 0, "Error, partpix_map:degrade only defined for scheme=0, not {0}".format(map_in.scheme)
-    
     pixs = list(map_in.pixel_mapping_arraytohigh.copy())
     order_in = int(map_in.order)
     order_out = int(order_out)
@@ -363,7 +411,10 @@ def degrade( map_in, order_out ):
     new_pixs = list(np.zeros(n_p))
     args = ['pixs', 'n_p', 'order_in', 'order_out'],
     # print "before: %d %d %d %d" %(len(pixs), pixs[0], pixs[1], pixs[-1])
-    weave.inline(code_degrade_rings, *args, type_converters=converters.blitz)
+    if map_in.scheme == 0:
+        weave.inline(code_degrade_rings, *args, type_converters=converters.blitz)
+    else:
+        weave.inline(code_degrade_nests, *args, type_converters=converters.blitz)
     # print "after: %d %d %d %d" %(len(pixs), pixs[0], pixs[1], pixs[-1])
     lrpixs = pixs
     

@@ -654,14 +654,19 @@ void correlate( char* mapn1, char* mapn2, int r, int jk_order, bool degrade_maps
         // this is assuming that the bins are never decreasing in width with increasing radius!!
         cerr << "Changing the map orders from " << lowzMap_orig->Order() << " to ";
         order = 1;
-        while(1){
-          float pixel_size = sqrt(41253./(12.0*pow(pow(2.0, order), 2.0)));
-          if( pixel_multiple*pixel_size < 57.3*(r_high-r_low) )  // this 0.85 is a bit arbitrary
-              break;
-          ++order;
+        if( degrade_maps ){
+            while(1){
+              float pixel_size = sqrt(41253./(12.0*pow(pow(2.0, order), 2.0)));
+              if( pixel_multiple*pixel_size < 57.3*(r_high-r_low) )  // this 0.85 is a bit arbitrary
+                  break;
+              ++order;
+            }
+        }
+        else{
+            order = lowzMap_orig->Order();
         }
         cerr << "order " << order << "... ";
-        if( (! degrade_maps) || order == lowzMap_orig->Order() ){
+        if( order == lowzMap_orig->Order() ){
             lowzMap = lowzMap_orig;
             highzMap = highzMap_orig;
             lowzMatchedMask = lowzMatchedMask_orig;

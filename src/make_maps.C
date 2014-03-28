@@ -105,24 +105,17 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         }
 
         Healpix_Map<double> *inputmap = new Healpix_Map<double>(11, RING);
-        cerr << "made a new empty healpix map" << endl;
             // read_Healpix_map_from_fits( catalog_filename, *inputmap );
         fitshandle inp;
-        cerr << "declared fitshandle" << endl;
         inp.open (catalog_filename);
-        cerr << "opened input file" << endl;
         inp.goto_hdu (2);
-        cerr << "went to hdu 2" << endl;
         // read_Healpix_map_from_fits( inp, *inputmap, 1 );
         string ordering;
         inp.get_key("ORDERING", ordering);
         cerr << "ordering = " << ordering << endl;
         arr<double> myarr;
-        cerr << "reading entire column" << endl;
         inp.read_entire_column(1,myarr);
-        cerr << "read in the entire column!" << endl;
         inputmap->Set(myarr, ordering=="RING" ? RING : NEST);
-        cerr << "read in the map from file" << endl;
         if( inputmap->Scheme() == NEST )
             inputmap->swap_scheme();
         
@@ -338,8 +331,209 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     } // if healpix map input
     
     
-    
+    else if( catalog_filename.rfind(".dat") != string::npos ){
+        
+        cerr << "make_maps: Found a Partpix map as input!" << endl;
 
+        if( ! (use_counts == true && use_mags == false) ){
+            cerr << "make_maps: Partpix input, but not use_counts=1 and use_mags=0... this doesn't make sense." << endl;
+            throw exception();
+        }
+        
+        
+        // read in the ascii partpix file
+        FILE * file = fopen( catalog_filename.c_str(), "r" );
+        if( file == NULL ){
+            cerr << "Problem opening " << catalog_filename << endl;
+            throw exception();
+        }
+        char line[2048];
+        fgets( line, 2048, file ); // the header line
+        int map_scheme, map_order;
+        int num = sscanf(line, "%d %d", &map_scheme, &map_order );
+        if( num != 2 ){
+            cerr << "make_maps.C: Error reading input partpix file, first line = " << line << endl;
+            throw exception();
+        }
+        vector<int64> pixelmapping;
+        vector<float> partmap;
+        while( fgets( line, 2048, file ) ){
+            int64 pix;
+            float val;
+            int num = sscanf(line, "%ld %f", &pix, &val );
+            if( num != 2 ){
+                cerr << "make_maps.C: Error reading input partpix file, data line " << line << endl;
+                throw exception();
+            }
+            pixelmapping.push_back(pix);
+            partmap.push_back(val);
+        }
+
+        vector<int64> mask_pixelmapping;
+        vector<float> mask_partmap;
+        int mask_order, mask_scheme;
+        
+        // if there's no extra mask, use all the non-zero partpix pixel as the good area.
+        if( mask_filename == "None" || mask_filename == "none" || mask_filename == "NONE" || mask_filename == "null" || mask_filename == "NULL" ){
+            mask_pixelmapping = pixelmapping;
+            mask_partmap = partmap;
+            mask_order = map_order;
+            mask_scheme = map_scheme;
+        }
+        
+        // otherwise, let's use the provided mask.
+        else{
+            if( catalog_filename.rfind(".dat") == string::npos ){
+                cerr << "make_maps: if you provide a mask for an input Partpix map, the mask must also be in Partpix!  Sorry." << endl;
+                throw exception();
+            }
+            
+            file = fopen( mask_filename.c_str(), "r" );
+            if( file == NULL ){
+                cerr << "Problem opening mask " << mask_filename << endl;
+                throw exception();
+            }
+            fgets( line, 2048, file ); // the header line
+            num = sscanf(line, "%d %d", &mask_scheme, &mask_order );
+            if( num != 2 ){
+                cerr << "make_maps.C: Error reading input partpix mask, first line = " << line << endl;
+                throw exception();
+            }
+            while( fgets( line, 2048, file ) ){
+                int64 pix;
+                float val;
+                int num = sscanf(line, "%ld %f", &pix, &val );
+                if( num != 2 ){
+                    cerr << "make_maps.C: Error reading input partpix mask, data line " << line << endl;
+                    throw exception();
+                }
+                mask_pixelmapping.push_back(pix);
+                mask_partmap.push_back(val);
+            }
+        }
+        Healpix_Base2 map_base;
+        if( map_scheme == 0 )
+            map_base = Healpix_Base2( map_order, RING );
+        else
+            map_base = Healpix_Base2( map_order, NEST );
+        
+        // make a footprint map
+        Healpix_Base2 mask_base;
+        if( mask_scheme == 0 )
+            mask_base = Healpix_Base2( mask_order, RING );
+        else
+            mask_base = Healpix_Base2( mask_order, NEST );
+        int footprint_order = min_footprint_order;
+        double footprint_area = 50000.;
+        Healpix_Map<int> *footprintMap = new Healpix_Map<int>(1, RING);
+        while(footprint_order <= map_order ){
+            delete footprintMap;
+            footprintMap = new Healpix_Map<int>(footprint_order, RING);
+            footprintMap->fill(0);
+            for( unsigned int i=0; i<mask_pixelmapping.size(); ++i ){
+                if( mask_partmap[i] != 0. && mask_partmap[i] != Healpix_undef && ! isnan(mask_partmap[i]) )
+                (*footprintMap)[ footprintMap->ang2pix(mask_base.pix2ang(i)) ] = 1;
+            }
+            double footprint_area_new = 0.;
+            for( int i=0; i<footprintMap->Npix(); ++i ){
+              if( (*footprintMap)[i] == 1 )
+                  footprint_area_new += 1.0;
+            }
+            footprint_area_new *= (41253./footprintMap->Npix());
+            if( footprint_area_new <= 0.8*footprint_area ){
+                footprint_area = footprint_area_new;
+                cerr << "Footprint order " << footprint_order << " uses area " << footprint_area << " sq degrees... trying the next order." << endl;
+                ++footprint_order;
+            }
+            else{
+                break;
+            }
+        }
+        // the previous footprint order was fine.
+        // we want this to be small because it's also the minimum jackknife order.
+        // so, go back to the last footprint order.
+        --footprint_order;
+        delete footprintMap;
+        footprintMap = new Healpix_Map<int>(footprint_order, RING);
+        footprintMap->fill(0);
+        for( unsigned int i=0; i<mask_pixelmapping.size(); ++i ){
+            (*footprintMap)[ footprintMap->ang2pix(mask_base.pix2ang(i)) ] = 1;
+        }
+        cerr << "Using footprint order " << footprintMap->Order() << " with " << footprint_area << " sq degrees." << endl;
+    
+        // Now fill in the mask
+        dcMask = new Partpix_Map2<int>(mask_order, *footprintMap);
+        dcMask->fill(0);
+        for( unsigned int i=0; i<mask_pixelmapping.size(); ++i ){
+            if( mask_partmap[i] != 0. && mask_partmap[i] != Healpix_undef && ! isnan(mask_partmap[i]) ){
+                (*dcMask)[i] = 1;
+            }
+        }
+        cerr << "Finished filling in the mas" << endl;
+        
+        
+        // now make the input into a partpix map
+        Partpix_Map2<float> *dcMap = new Partpix_Map2<float>(map_order, *footprintMap);
+        dcMap->fill(0.);
+        for( unsigned int i=0; i<pixelmapping.size(); ++i ){
+            if( partmap[i] != 0. && partmap[i] != Healpix_undef && ! isnan(partmap[i]) ){
+                if( (*footprintMap)[ footprintMap->ang2pix(map_base.pix2ang(i)) ] )
+                    (*dcMap)[i] = partmap[i];
+            }
+        }
+        
+        
+        // make sure that the map is the same resolution as the mask
+        // this is a little weird?
+        if( dcMap->Order() > dcMask->Order() ){
+            Partpix_Map2<float> *dcMap2 = new Partpix_Map2<float>(mask_order, *footprintMap);
+            dcMap2->Import_degrade(*dcMap, *footprintMap);
+            delete dcMap;
+            dcMap = dcMap2;
+        }
+        else if( dcMap->Order() < dcMask->Order() ){
+            Partpix_Map2<float> *dcMap2 = new Partpix_Map2<float>(mask_order, *footprintMap);
+            dcMap2->Import_upgrade(*dcMap, *footprintMap);
+            delete dcMap;
+            dcMap = dcMap2;
+        }
+        
+        // now make sure the file is the resolution necessary for the smallest angular bin
+        // i realize that this is moot if the input res is lower, but it will keep the code from crashing.
+        if( order > dcMap->Order() ){
+            Partpix_Map2<float> *dcMap2 = new Partpix_Map2<float>(order, *footprintMap);
+            Partpix_Map2<int> *dcMask2 = new Partpix_Map2<int>(order, *footprintMap);
+            dcMap2->Import_upgrade(*dcMap, *footprintMap);
+            dcMask2->Import_upgrade(*dcMask, *footprintMap);
+            delete dcMap;
+            delete dcMask;
+            dcMap = dcMap2;
+            dcMask = dcMask2;
+        }
+        else if( order < dcMap->Order() ){
+            Partpix_Map2<float> *dcMap2 = new Partpix_Map2<float>(order, *footprintMap);
+            Partpix_Map2<int> *dcMask2 = new Partpix_Map2<int>(order, *footprintMap);
+            dcMap2->Import_degrade(*dcMap, *footprintMap);
+            dcMask2->Import_degrade(*dcMask, *footprintMap);
+            delete dcMap;
+            delete dcMask;
+            dcMap = dcMap2;
+            dcMask = dcMask2;
+        }
+    
+        // and write out the map
+        string outfilename = "dc_map" + suffix + ".h5";
+        string ftype = "counts";
+        write_map( dcMap, dcMask, outfilename, ftype, ang_means_c, ang_widths_c, n_ang_bins, pop, zbin, nobj_c );
+    
+        cerr << "Wrote map to file" << endl;
+        delete dcMap;
+        delete dcMask;
+        
+        // we're done!
+        return;
+        
+    } // if Partpix input
     
     // read in the galaxy catalog
     FILE * file = fopen( catalog_filename.c_str(), "rb" );
@@ -492,15 +686,18 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         int fppix = footprintMap->ang2pix(pointings[p]);
         if( (*footprintMap)[fppix] < 0.5 )
             continue;
-        int64 pixnum = dcMap->ang2pix( pointings[p] );
-        (*dcMap)[pixnum] += 1.0;
-        ++nobj_c;
-        if( use_mags ){
-            int64 maskpix = dmMask->ang2pix(dmMap->pix2ang(pixnum));
-            if( (*dmMask)[maskpix] > 0.5 ){
-                (*dmMap)[pixnum] += mags[p];
-                mean_mag += mags[p];
-                ++nobj_m;
+        int64 maskpix = dcMask->ang2pix(pointings[p]);
+        if( (*dcMask)[maskpix] > 0.5 ){
+            int64 pixnum = dcMap->ang2pix( pointings[p] );
+            (*dcMap)[pixnum] += 1.0;
+            ++nobj_c;
+            if( use_mags ){
+                maskpix = dmMask->ang2pix(dmMap->pix2ang(pixnum));
+                if( (*dmMask)[maskpix] > 0.5 ){
+                    (*dmMap)[pixnum] += mags[p];
+                    mean_mag += mags[p];
+                    ++nobj_m;
+                }
             }
         }
     }
