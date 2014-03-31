@@ -398,8 +398,8 @@ def slopes_to_hdf5( f, maps_list ):
             row['size'] = 0. # TODO?
             row.append()
         infile.close()
-    
-    slopes_table.flush()
+        
+        slopes_table.flush()
 
 
 def nofz_to_hdf5( f, maps_list ):
@@ -427,7 +427,7 @@ def nofz_to_hdf5( f, maps_list ):
         
         photoz_table.setAttr('pop', json.dumps(pop))
         row = photoz_table.row
-    
+        
         # read in the slopes from the file
         nofz_filename = nofz_info[pop]['filename']
         if not (nofz_filename is None or nofz_filename == 'None' or nofz_filename == 'none'):
@@ -441,8 +441,8 @@ def nofz_to_hdf5( f, maps_list ):
                 row['weight'] = float(entries[2])
                 row.append()
             infile.close()
-    
-    photoz_table.flush()
+        
+        photoz_table.flush()
     
     
 
