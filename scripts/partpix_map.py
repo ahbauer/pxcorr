@@ -112,7 +112,6 @@ class Partpix_Map:
             else:
                 self.partmap[i] = 0.0
     
-    
     def read_from_ascii( self, filename ):
         file = open(filename, 'r')
         filelines = file.readlines()
@@ -195,6 +194,7 @@ def read_from_hdf5file( map_filename, read_map=True, read_mask=True ):
         map1.scheme = map1.partmap[0]
         map1.partmap = np.delete(map1.partmap, 0)
         map1.update()
+    mapfile.close()
     return map1, mask1
 
 
