@@ -53,10 +53,12 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
 
     //int n_ang_bins = ang_means.size();
     double pixel_multiple = 2.5;
-
-    cerr << "some sizes: " << sizeof(hsize_t) << " " << sizeof(int) << " " << sizeof(int64) << " " << sizeof(float) << " " << sizeof(double) << endl;
-    cerr << H5::PredType::NATIVE_ULONG.getSize() << " " << H5::PredType::NATIVE_LLONG.getSize() << " " << H5::PredType::NATIVE_FLOAT.getSize() << endl;
-
+    double map_size_limit = 0.8; // GB
+    
+    int ulong_size = sizeof(unsigned long); //(H5::PredType::NATIVE_ULONG);
+    int float_size = sizeof(float); //(H5::PredType::NATIVE_FLOAT);
+    cerr << "ulong size=" << ulong_size << ", float size=" << float_size << endl;
+    
     cerr << setprecision(16);
     
     if( !( use_counts || use_mags) ){
@@ -104,15 +106,17 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
             throw exception();
         }
 
-        Healpix_Map<double> *inputmap = new Healpix_Map<double>(11, RING);
-            // read_Healpix_map_from_fits( catalog_filename, *inputmap );
+        // read_Healpix_map_from_fits( catalog_filename, *inputmap );
         fitshandle inp;
         inp.open (catalog_filename);
         inp.goto_hdu (2);
         // read_Healpix_map_from_fits( inp, *inputmap, 1 );
         string ordering;
         inp.get_key("ORDERING", ordering);
-        cerr << "ordering = " << ordering << endl;
+        int64 nside = inp.get_key<int>("NSIDE");
+        int input_order = log2(nside);
+        cerr << "order = " << order << ", ordering = " << ordering << endl;
+        Healpix_Map<double> *inputmap = new Healpix_Map<double>(input_order, RING);
         arr<double> myarr;
         inp.read_entire_column(1,myarr);
         inputmap->Set(myarr, ordering=="RING" ? RING : NEST);
@@ -156,21 +160,35 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
             delete footprintMap;
             footprintMap = new Healpix_Map<int>(footprint_order, RING);
             footprintMap->fill(0);
+            unsigned int n_fppix = 0;
             for( int i=0; i<inputmap->Npix(); ++i ){
                 (*footprintMap)[ footprintMap->ang2pix(inputmap->pix2ang(i)) ] = 1;
+                ++n_fppix;
             }
             cerr << "Using footprint order " << footprintMap->Order() << " with " << footprint_area << " sq degrees." << endl;
-        
+            
             // Now fill in the mask
             dcMask = new Partpix_Map2<int>(inputmap->Order(), *footprintMap);
             dcMask->fill(0);
+            int64 n_maskpix = 0;
             for( int i=0; i<inputmap->Npix(); ++i ){
                 if( (*inputmap)[i] != 0. && (*inputmap)[i] != Healpix_undef && ! isnan((*inputmap)[i]) ){
                     (*dcMask)[i] = 1;
+                    ++n_maskpix;
                 }
             }
             cerr << "Finished filling in the mask from the Healpix input itself" << endl;
             
+            // if the map will be bigger than map_size_limit (=0.8) GB complain
+            // this is a rough check to try to keep the correlation function jobs <2GB at PIC
+            int n_highrespix = n_maskpix*pow(2.0,order)*pow(2.0,order)/(pow(2.0,inputmap->Order())*pow(2.0,inputmap->Order()));
+            float expected_mapsize = ( (ulong_size + float_size)*n_highrespix + 2*ulong_size*n_maskpix )/1000000.;
+            cerr << "Your map will be about " << expected_mapsize << " MB" << endl;
+            if(  expected_mapsize > map_size_limit*1000 ){
+                cerr << "Your map will be too big: " << expected_mapsize << " MB." << endl;
+                cerr << "Please run with a larger angular bin size or a smaller area.  Sorry... blame PIC!" << endl;
+                throw exception();
+            }
         } // if there's no mask to go with the healpix map
         
         else{
@@ -218,24 +236,44 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
             delete footprintMap;
             footprintMap = new Healpix_Map<int>(footprint_order, RING);
             footprintMap->fill(0);
+            int n_fppix=0;
             for( unsigned int i=0; i<mask_pixels.size(); ++i ){
                 (*footprintMap)[ footprintMap->ang2pix(mask_base.pix2ang(mask_pixels[i])) ] = 1;
+                ++n_fppix;
             }
             cerr << "Using footprint order " << footprintMap->Order() << " with " << footprint_area << " sq degrees." << endl;
+            
+            // if the map will be bigger than map_size_limit (=0.8) GB complain
+            // this is a rough check to try to keep the correlation function jobs <2GB at PIC
+            // int n_highrespix = n_fppix*pow(2.0,order)*pow(2.0,order)/(pow(2.0,footprint_order)*pow(2.0,footprint_order));
             
             // fill in the Partpix mask(s)
             dcMask = new Partpix_Map2<int>(mask_order, *footprintMap);
             dcMask->fill(0);
+            int64 n_maskpix = 0;
             for( unsigned int i=0; i<mask_pixels.size(); ++i ){
               if( ! (*footprintMap)[ footprintMap->ang2pix(mask_base.pix2ang(mask_pixels[i])) ] ){
                   cerr << "Skipping mask pixel " << i << "!" << endl;
                   continue;
               }
               (*dcMask)[mask_pixels[i]] = 1;
+              ++n_maskpix;
             }
             mask_pixels.clear();
-
+            
             cerr << "Finished filling in the supplied mask" << endl;
+            
+            
+            // if the map will be bigger than map_size_limit (=0.8) GB complain
+            // this is a rough check to try to keep the correlation function jobs <2GB at PIC
+            int n_highrespix = n_maskpix*pow(2.0,order)*pow(2.0,order)/(pow(2.0,dcMask->Order())*pow(2.0,dcMask->Order()));
+            float expected_mapsize = ( (ulong_size + float_size)*n_highrespix + 2*ulong_size*n_maskpix )/1000000.;
+            cerr << "Your map will be about " << expected_mapsize << " MB" << endl;
+            if(  expected_mapsize > map_size_limit*1000 ){
+                cerr << "Your map will be too big: " << expected_mapsize << " MB." << endl;
+                cerr << "Please run with a larger angular bin size or a smaller area.  Sorry... blame PIC!" << endl;
+                throw exception();
+            }
             
         } // if there is a mask to go with the healpix map
         
@@ -456,21 +494,35 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         delete footprintMap;
         footprintMap = new Healpix_Map<int>(footprint_order, RING);
         footprintMap->fill(0);
+        int n_fppix=0;
         for( unsigned int i=0; i<mask_pixelmapping.size(); ++i ){
             (*footprintMap)[ footprintMap->ang2pix(mask_base.pix2ang(i)) ] = 1;
+            ++n_fppix;
         }
         cerr << "Using footprint order " << footprintMap->Order() << " with " << footprint_area << " sq degrees." << endl;
-    
+        
+        
         // Now fill in the mask
         dcMask = new Partpix_Map2<int>(mask_order, *footprintMap);
         dcMask->fill(0);
+        int64 n_highrespix = 0;
         for( unsigned int i=0; i<mask_pixelmapping.size(); ++i ){
             if( mask_partmap[i] != 0. && mask_partmap[i] != Healpix_undef && ! isnan(mask_partmap[i]) ){
                 (*dcMask)[i] = 1;
+                ++n_highrespix;
             }
         }
         cerr << "Finished filling in the mas" << endl;
         
+        // if the map will be bigger than map_size_limit (=0.8) GB complain
+        // this is a rough check to try to keep the correlation function jobs <2GB at PIC
+        //int n_highrespix = n_fppix*pow(2.0,order)*pow(2.0,order)/(pow(2.0,footprint_order)*pow(2.0,footprint_order));
+        float expected_mapsize = (3*ulong_size + float_size)*n_highrespix/1000000.;
+        if( expected_mapsize > map_size_limit*1000 ){
+            cerr << "Your map will be too big: " << expected_mapsize << " MB." << endl;
+            cerr << "Please run with a larger angular bin size or a smaller area.  Sorry... blame PIC!" << endl;
+            throw exception();
+        }
         
         // now make the input into a partpix map
         Partpix_Map2<float> *dcMap = new Partpix_Map2<float>(map_order, *footprintMap);
@@ -574,6 +626,16 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     mask_order = mask_base.Order();
     cerr << "Finished with the mask: " << mask_pixels.size() << " good pixels with order " << mask_order << endl;
     
+    // check the size of the map
+    int64 n_highrespix = mask_pixels.size()*pow(2.0,order)*pow(2.0,order)/(pow(2.0,mask_order)*pow(2.0,mask_order));
+    float expected_mapsize = ( (ulong_size + float_size)*n_highrespix + 2*ulong_size*mask_pixels.size() )/1000000.;
+    cerr << "Expected map size = " << expected_mapsize << " MB" << endl;
+    if( expected_mapsize > map_size_limit*1000 ){
+        cerr << "Your map will be too big: " << expected_mapsize << " MB." << endl;
+        cerr << "Please run with a larger angular bin size or a smaller area.  Sorry... blame PIC!" << endl;
+        throw exception();
+    }
+    
     // from the masks, determine the best possible healpix footprint
     // requirements: must cover all of the mask area
     // must cover <80% of the area covered by the next lowest resolution
@@ -616,6 +678,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     }
     cerr << "Using footprint order " << footprintMap->Order() << " with " << footprint_area << " sq degrees." << endl;
 
+    
     // fill in the Partpix mask(s)
     dcMask = new Partpix_Map2<int>(mask_order, *footprintMap);
     dcMask->fill(0);
