@@ -160,10 +160,8 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
             delete footprintMap;
             footprintMap = new Healpix_Map<int>(footprint_order, RING);
             footprintMap->fill(0);
-            unsigned int n_fppix = 0;
             for( int i=0; i<inputmap->Npix(); ++i ){
                 (*footprintMap)[ footprintMap->ang2pix(inputmap->pix2ang(i)) ] = 1;
-                ++n_fppix;
             }
             cerr << "Using footprint order " << footprintMap->Order() << " with " << footprint_area << " sq degrees." << endl;
             
@@ -181,7 +179,13 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
             
             // if the map will be bigger than map_size_limit (=0.8) GB complain
             // this is a rough check to try to keep the correlation function jobs <2GB at PIC
-            int n_highrespix = n_maskpix*pow(2.0,order)*pow(2.0,order)/(pow(2.0,inputmap->Order())*pow(2.0,inputmap->Order()));
+            // int n_highrespix = n_maskpix*pow(2.0,order)*pow(2.0,order)/(pow(2.0,dcMask->Order())*pow(2.0,dcMask->Order()));
+            // float expected_mapsize = ( (ulong_size + float_size)*n_highrespix + 2*ulong_size*n_maskpix )/1000000.;
+            unsigned int n_fppix = 0;
+            for( int i=0; i<footprintMap->Npix(); ++i )
+                if( (*footprintMap)[i] == 1 )
+                    ++n_fppix;
+            int n_highrespix = n_fppix*pow(2.0,order)*pow(2.0,order)/(pow(2.0,footprintMap->Order())*pow(2.0,footprintMap->Order()));
             float expected_mapsize = ( (ulong_size + float_size)*n_highrespix + 2*ulong_size*n_maskpix )/1000000.;
             cerr << "Your map will be about " << expected_mapsize << " MB" << endl;
             if(  expected_mapsize > map_size_limit*1000 ){
@@ -236,10 +240,8 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
             delete footprintMap;
             footprintMap = new Healpix_Map<int>(footprint_order, RING);
             footprintMap->fill(0);
-            int n_fppix=0;
             for( unsigned int i=0; i<mask_pixels.size(); ++i ){
                 (*footprintMap)[ footprintMap->ang2pix(mask_base.pix2ang(mask_pixels[i])) ] = 1;
-                ++n_fppix;
             }
             cerr << "Using footprint order " << footprintMap->Order() << " with " << footprint_area << " sq degrees." << endl;
             
@@ -266,7 +268,13 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
             
             // if the map will be bigger than map_size_limit (=0.8) GB complain
             // this is a rough check to try to keep the correlation function jobs <2GB at PIC
-            int n_highrespix = n_maskpix*pow(2.0,order)*pow(2.0,order)/(pow(2.0,dcMask->Order())*pow(2.0,dcMask->Order()));
+            // int n_highrespix = n_maskpix*pow(2.0,order)*pow(2.0,order)/(pow(2.0,dcMask->Order())*pow(2.0,dcMask->Order()));
+            // float expected_mapsize = ( (ulong_size + float_size)*n_highrespix + 2*ulong_size*n_maskpix )/1000000.;
+            unsigned int n_fppix = 0;
+            for( int i=0; i<footprintMap->Npix(); ++i )
+                if( (*footprintMap)[i] == 1 )
+                    ++n_fppix;
+            int n_highrespix = n_fppix*pow(2.0,order)*pow(2.0,order)/(pow(2.0,footprintMap->Order())*pow(2.0,footprintMap->Order()));
             float expected_mapsize = ( (ulong_size + float_size)*n_highrespix + 2*ulong_size*n_maskpix )/1000000.;
             cerr << "Your map will be about " << expected_mapsize << " MB" << endl;
             if(  expected_mapsize > map_size_limit*1000 ){
@@ -282,9 +290,12 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         Partpix_Map2<float> *dcMap = new Partpix_Map2<float>(inputmap->Order(), *footprintMap);
         dcMap->fill(0.);
         for( int i=0; i<inputmap->Npix(); ++i ){
-            if( (*inputmap)[i] != 0. && (*inputmap)[i] != Healpix_undef && ! isnan((*inputmap)[i]) ){
-                if( (*footprintMap)[ footprintMap->ang2pix(inputmap->pix2ang(i)) ] )
-                    (*dcMap)[i] = (*inputmap)[i];
+            if( (*inputmap)[i] != Healpix_undef && ! isnan((*inputmap)[i]) ){
+                if( (*footprintMap)[ footprintMap->ang2pix(inputmap->pix2ang(i)) ] ){
+                    if( (*dcMask)[ dcMask->ang2pix(inputmap->pix2ang(i)) ] ){
+                        (*dcMap)[i] = (*inputmap)[i];
+                    }
+                }
             }
         }
         // free the memory
@@ -494,10 +505,8 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         delete footprintMap;
         footprintMap = new Healpix_Map<int>(footprint_order, RING);
         footprintMap->fill(0);
-        int n_fppix=0;
         for( unsigned int i=0; i<mask_pixelmapping.size(); ++i ){
             (*footprintMap)[ footprintMap->ang2pix(mask_base.pix2ang(i)) ] = 1;
-            ++n_fppix;
         }
         cerr << "Using footprint order " << footprintMap->Order() << " with " << footprint_area << " sq degrees." << endl;
         
@@ -505,20 +514,25 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         // Now fill in the mask
         dcMask = new Partpix_Map2<int>(mask_order, *footprintMap);
         dcMask->fill(0);
-        int64 n_highrespix = 0;
         for( unsigned int i=0; i<mask_pixelmapping.size(); ++i ){
             if( mask_partmap[i] != 0. && mask_partmap[i] != Healpix_undef && ! isnan(mask_partmap[i]) ){
                 (*dcMask)[i] = 1;
-                ++n_highrespix;
             }
         }
         cerr << "Finished filling in the mas" << endl;
         
         // if the map will be bigger than map_size_limit (=0.8) GB complain
         // this is a rough check to try to keep the correlation function jobs <2GB at PIC
-        //int n_highrespix = n_fppix*pow(2.0,order)*pow(2.0,order)/(pow(2.0,footprint_order)*pow(2.0,footprint_order));
-        float expected_mapsize = (3*ulong_size + float_size)*n_highrespix/1000000.;
-        if( expected_mapsize > map_size_limit*1000 ){
+        // int n_highrespix = n_maskpix*pow(2.0,order)*pow(2.0,order)/(pow(2.0,dcMask->Order())*pow(2.0,dcMask->Order()));
+        // float expected_mapsize = ( (ulong_size + float_size)*n_highrespix + 2*ulong_size*n_maskpix )/1000000.;
+        unsigned int n_fppix = 0;
+        for( int i=0; i<footprintMap->Npix(); ++i )
+            if( (*footprintMap)[i] == 1 )
+                ++n_fppix;
+        int n_highrespix = n_fppix*pow(2.0,order)*pow(2.0,order)/(pow(2.0,footprintMap->Order())*pow(2.0,footprintMap->Order()));
+        float expected_mapsize = ( (3*ulong_size + float_size)*n_highrespix)/1000000.;
+        cerr << "Your map will be about " << expected_mapsize << " MB" << endl;
+        if(  expected_mapsize > map_size_limit*1000 ){
             cerr << "Your map will be too big: " << expected_mapsize << " MB." << endl;
             cerr << "Please run with a larger angular bin size or a smaller area.  Sorry... blame PIC!" << endl;
             throw exception();
@@ -627,7 +641,13 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     cerr << "Finished with the mask: " << mask_pixels.size() << " good pixels with order " << mask_order << endl;
     
     // check the size of the map
-    int64 n_highrespix = mask_pixels.size()*pow(2.0,order)*pow(2.0,order)/(pow(2.0,mask_order)*pow(2.0,mask_order));
+    //int64 n_highrespix = mask_pixels.size()*pow(2.0,order)*pow(2.0,order)/(pow(2.0,mask_order)*pow(2.0,mask_order));
+    // float expected_mapsize = ( (ulong_size + float_size)*n_highrespix + 2*ulong_size*mask_pixels.size() )/1000000.;
+    unsigned int n_fppix = 0;
+    for( int i=0; i<footprintMap->Npix(); ++i )
+        if( (*footprintMap)[i] == 1 )
+            ++n_fppix;
+    int n_highrespix = n_fppix*pow(2.0,order)*pow(2.0,order)/(pow(2.0,footprintMap->Order())*pow(2.0,footprintMap->Order()));
     float expected_mapsize = ( (ulong_size + float_size)*n_highrespix + 2*ulong_size*mask_pixels.size() )/1000000.;
     cerr << "Expected map size = " << expected_mapsize << " MB" << endl;
     if( expected_mapsize > map_size_limit*1000 ){
