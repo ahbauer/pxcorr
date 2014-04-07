@@ -640,22 +640,6 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     mask_order = mask_base.Order();
     cerr << "Finished with the mask: " << mask_pixels.size() << " good pixels with order " << mask_order << endl;
     
-    // check the size of the map
-    //int64 n_highrespix = mask_pixels.size()*pow(2.0,order)*pow(2.0,order)/(pow(2.0,mask_order)*pow(2.0,mask_order));
-    // float expected_mapsize = ( (ulong_size + float_size)*n_highrespix + 2*ulong_size*mask_pixels.size() )/1000000.;
-    unsigned int n_fppix = 0;
-    for( int i=0; i<footprintMap->Npix(); ++i )
-        if( (*footprintMap)[i] == 1 )
-            ++n_fppix;
-    int n_highrespix = n_fppix*pow(2.0,order)*pow(2.0,order)/(pow(2.0,footprintMap->Order())*pow(2.0,footprintMap->Order()));
-    float expected_mapsize = ( (ulong_size + float_size)*n_highrespix + 2*ulong_size*mask_pixels.size() )/1000000.;
-    cerr << "Expected map size = " << expected_mapsize << " MB" << endl;
-    if( expected_mapsize > map_size_limit*1000 ){
-        cerr << "Your map will be too big: " << expected_mapsize << " MB." << endl;
-        cerr << "Please run with a larger angular bin size or a smaller area.  Sorry... blame PIC!" << endl;
-        throw exception();
-    }
-    
     // from the masks, determine the best possible healpix footprint
     // requirements: must cover all of the mask area
     // must cover <80% of the area covered by the next lowest resolution
@@ -698,6 +682,23 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     }
     cerr << "Using footprint order " << footprintMap->Order() << " with " << footprint_area << " sq degrees." << endl;
 
+
+    // check the size of the map
+    //int64 n_highrespix = mask_pixels.size()*pow(2.0,order)*pow(2.0,order)/(pow(2.0,mask_order)*pow(2.0,mask_order));
+    // float expected_mapsize = ( (ulong_size + float_size)*n_highrespix + 2*ulong_size*mask_pixels.size() )/1000000.;
+    unsigned int n_fppix = 0;
+    for( int i=0; i<footprintMap->Npix(); ++i )
+        if( (*footprintMap)[i] == 1 )
+            ++n_fppix;
+    int n_highrespix = n_fppix*pow(2.0,order)*pow(2.0,order)/(pow(2.0,footprintMap->Order())*pow(2.0,footprintMap->Order()));
+    float expected_mapsize = ( (ulong_size + float_size)*n_highrespix + 2*ulong_size*mask_pixels.size() )/1000000.;
+    cerr << "Expected map size = " << expected_mapsize << " MB" << endl;
+    if( expected_mapsize > map_size_limit*1000 ){
+        cerr << "Your map will be too big: " << expected_mapsize << " MB." << endl;
+        cerr << "Please run with a larger angular bin size or a smaller area.  Sorry... blame PIC!" << endl;
+        throw exception();
+    }
+    
     
     // fill in the Partpix mask(s)
     dcMask = new Partpix_Map2<int>(mask_order, *footprintMap);
