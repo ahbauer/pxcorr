@@ -21,6 +21,11 @@ import tables
 from scipy import weave
 from scipy.weave import converters
 
+class partpix_entry(tables.IsDescription):
+    pixel = tables.Int32Col(dflt=0, pos=0)
+    value = tables.Float32Col(dflt=0.0, pos=1)
+
+
 class Partpix_Map:
     def __init__(self, o=None, s=0):
         self.order = o
@@ -160,6 +165,18 @@ class Partpix_Map:
             self.pixel_mapping_arraytohigh[i] = ps[i]
             self.partmap[i] = vs[i]
         self.update()
+    
+    def write_to_pytable( self, table ):
+        
+        assert isinstance(table, tables.table.Table), "This is not an hdf5 table!"
+        table.setAttr('order', self.order)
+        table.setAttr('scheme', self.scheme)
+        row = table.row
+        for i in range(self.npartpix):
+            row['pixel']  = self.pixel_mapping_arraytohigh[i]
+            row['value'] = self.partmap[i]
+            row.append()
+        table.flush()
     
     def to_healpix(self):
         healpix_map = np.zeros(self.npix)
