@@ -147,7 +147,7 @@ class pkg_read(object):
         """    
 
         cov = dict((u, {}) for u in meta['u_mean'])
-        for cov_name, covObj in self.h5file.getNode('/', 'cov')._v_children.iteritems():
+        for cov_name, covObj in self.h5file.getNode('/', 'cov')._v_children.items():
             
             y = lambda x: h5getattr(covObj, x)
             A = ((y('ftype0'), y('pop0')), (y('ftype1'), y('pop1')), \

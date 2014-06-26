@@ -13,6 +13,8 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
+from scipy import linalg
+from scipy import optimize
 import sys
 sys.path.append("~/software/python/pausci")
 from sci.lib.libh5attr import h5getattr, h5setattr
@@ -20,6 +22,37 @@ import partpix_map
 
 test_plots = False
 galaxy_string = 'gold'
+fit_theory = True
+
+def fit_bias_real(corr, cov, theory_bias1):
+    
+    lu_results = linalg.lu_factor(cov)
+    result = optimize.fmin( fit_bias_real_guts, x0=1.0, args=(corr,lu_results,theory_bias1) )
+    b = result[0]
+    chi2 = fit_bias_real_guts( b, corr, lu_results, theory_bias1 )
+    ndf =  len(corr)-1
+    print "%f %f %d" %(b, chi2, ndf)
+    
+    # the error is when the chi2 goes up by 1
+    eb_high = 0.
+    for eb_high in np.arange(0.01,10.0,0.01):
+        chi2_high = fit_bias_real_guts( b+eb_high, corr, lu_results, theory_bias1 )
+        if chi2_high > chi2+1:
+            break
+    eb_low = 0.
+    for eb_low in np.arange(0.01,10.0,0.01):
+        chi2_low = fit_bias_real_guts( b-eb_low, corr, lu_results, theory_bias1 )
+        if chi2_low > chi2+1:
+            break
+    
+    return b, eb_low, eb_high, chi2, ndf
+
+
+def fit_bias_real_guts(bias, corr, lu_results, theory_bias1):
+    corr_minus_theory = corr - theory_bias1*bias*bias
+    x = linalg.lu_solve(lu_results, corr_minus_theory)
+    chi2 = np.sum(corr_minus_theory*x)
+    return chi2
 
 def main():
     filename = sys.argv[1]
@@ -221,6 +254,9 @@ def main():
         sys_cross_matrix.append([])
         systematic_pops.append([])
     for systematic in systematics_pops:
+        
+        print "Starting systematic {0}".format(systematic)
+        
         # print systematic
         A_cross1 = (('counts',systematic),('counts',galaxy_pop))
         A_cross2 = (('counts',galaxy_pop),('counts',systematic))
@@ -294,11 +330,15 @@ def main():
             
             # another metric that doesn't depend on a well-conditioned covariance:
             # is any point 2sigma away from zero?
+            
+            ###### SIGNIFICANT? ######
             significant = False
             for i,u in enumerate(us):
                 if chi2 > 1.0:
                 # if abs(correction[i]) > 1.*np.sqrt(correction_cov[i,i]): # and abs(requirement[i])>0.33:
+                # if systematic == 'fwhm_i' or systematic == 'desdmpz_error' or systematic == 'depth_mask_delta':
                     significant = True
+            ##########################
             
             # if it's significant, add its contribution to the galaxy correction calculation
             if significant:
@@ -495,10 +535,15 @@ def main():
         ylab = 'w(theta)'
         ax0 = fig.add_subplot(1,1,1, xlim=[umin,umax], ylim=[1.e-5,0.1],xlabel=xlab, ylabel=ylab, title=ttl)
         vals = autocorr_vals[zbin,:]
+        # print "z results:".format(z)
+        # print us
         pos_indices = vals>=0.
         neg_indices = np.logical_not(pos_indices)
         us_pos = us[pos_indices]
         us_neg = us[neg_indices]
+        # print "uncorrected:"
+        # print autocorr_vals[zbin,:]
+        # print autocorr_errors[zbin,:]
         vals_pos = autocorr_vals[zbin,:][pos_indices]
         vals_neg = autocorr_vals[zbin,:][neg_indices]
         errs_pos = autocorr_errors[zbin,:][pos_indices]
@@ -517,12 +562,8 @@ def main():
         ax0.errorbar(us_pos,vals_pos,yerr=errs_pos,fmt='.',color='red')
         if not pos_indices.all():
             ax0.errorbar(us_neg,-1.*vals_neg,yerr=errs_neg,fmt='.',color='magenta')
-        print "z results:".format(z)
-        print galaxy_corrected
-        print corrected_errs
-        ax0.set_xscale('log')
-        ax0.set_yscale('log', nonposy='clip')
-        pp.savefig()
+        # print "corrected:"
+        # print np.transpose([us, galaxy_corrected, corrected_errs])
         
         # fig = plt.figure()
         # ttl = 'galaxy autocorr z {0} with real correction, jk mean'.format(z)
@@ -534,6 +575,35 @@ def main():
         # ax0.set_xscale('log')
         # ax0.set_yscale('log', nonposy='clip')
         # pp.savefig()
+    
+        if fit_theory:
+            zstrings = ['0p5','0p7','0p9']
+            theory_file = open('/Users/bauer/surveys/DES/sva1/lss_cats/gold/theory/wtheta_N' + str(zbin+1) + '-DESiauto22.5_z' + zstrings[zbin] + '.dat')
+            theory = np.loadtxt(theory_file,unpack=True)
+            # print theory 
+            theory_ws = np.array(np.interp( us, theory[0], theory[2], right=0. ))
+            valid_indices = np.sum(us<theory[0][-1])
+            print "valid indices: {0}".format(valid_indices)
+            # print theory_ws
+            bias, bias_error_low, bias_error_high, chi2, ndf = fit_bias_real( galaxy_corrected[0:valid_indices], corrected_cov[0:valid_indices,0:valid_indices], theory_ws[0:valid_indices] )
+            print "bias = {0:3.2f} + {1:3.2f} - {2:3.2f}, {3}/{4} chi2/ndf".format(bias, bias_error_high, bias_error_low, chi2, ndf)
+            # plot it on the plot
+            ax0.plot(us[0:valid_indices],theory_ws[0:valid_indices]*bias*bias, label='bias={0:3.2f}+/-{1:3.2f}, chi2/ndf={2:4.1f}/{3}'.format(bias,0.5*(bias_error_low+bias_error_high),chi2,ndf))
+            low_bias2 = bias - bias_error_low
+            low_bias2 *= low_bias2
+            high_bias2 = bias + bias_error_high
+            high_bias2 *= high_bias2
+            theory_ws_low = low_bias2*theory_ws
+            theory_ws_high = high_bias2*theory_ws
+            print us
+            print theory_ws_low
+            print theory_ws_high
+            ax0.fill_between( us[0:valid_indices], theory_ws_low[0:valid_indices], theory_ws_high[0:valid_indices], alpha=0.2 )
+            ax0.legend()
+
+        ax0.set_xscale('log')
+        ax0.set_yscale('log', nonposy='clip')
+        pp.savefig()
     
     pp.close()
     h5file.close()
