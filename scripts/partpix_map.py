@@ -120,7 +120,7 @@ class Partpix_Map:
     def read_from_ascii( self, filename ):
         file = open(filename, 'r')
         filelines = file.readlines()
-        (o, s) = filelines.pop(0).split()
+        (s, o) = filelines.pop(0).split()
         self.order = int(o)
         nside = int(2.0**self.order)
         self.npix = int(12*nside*nside)
@@ -182,6 +182,14 @@ class Partpix_Map:
         healpix_map = np.zeros(self.npix)
         healpix_map[self.pixel_mapping_arraytohigh] = self.partmap
         return healpix_map
+    
+    def from_healpix(self, hmap ):
+        nside = np.sqrt(len(hmap)/12.)
+        nside = int(np.floor(nside))
+        self.order = np.log2(nside)
+        self.pixel_mapping_arraytohigh = np.arange(len(hmap))[(hmap != 0.) & (hmap > -1.e10)] # [i for i in range(len(hmap)) if (hmap[i] != 0. and hmap[i] > -1.e10)]
+        self.partmap = hmap[(hmap != 0.) & (hmap > -1.e10)]
+        self.update()
         
 def read_from_hdf5file( map_filename, read_map=True, read_mask=True ):
     
@@ -450,5 +458,22 @@ def degrade( map_in, order_out ):
     
     # hpmap = map_out.to_healpix()
     # healpy.fitsfunc.write_map("temp.fits",hpmap)
-    
+     
     return map_out
+
+# def upgrade( map_in, order_out ):
+#     
+#     assert map_in.scheme == 0, "partpix_mapupgrade error: only implemented for RING"
+#     
+#     weave.inline(code_upgrade_rings, *args, type_converters=converters.blitz)
+#     
+#     fact = int(2.0**order_out)/map_in.Nside();
+#     for m0 in range(map_in.Npartpix()):
+#         m = map_in.pixel_mapping_arraytohigh[m0]
+#         x,y,f = ring_to_xyf(m)
+#         for j in range(fact*y,fact*(y+1),1):
+#             for i in range(fact*x,fact*(x+1),1):
+#                 p = xyf_to_ring(i,j,f)
+#                 map_out[p] = map_in.partmap[m0]
+      
+      
