@@ -329,30 +329,41 @@ def measure_slopes( mags, mag_maxz, mag_nzs, mag_cut, suffix, use_mags ):
         for zbin_fine in range(mag_nzs):
 
             # don't bother trying if there are very few objs
-            if( len(mags[zbin_fine]) < 100 ):
+            nm = len(mags[zbin_fine])
+            if( nm < 100 ):
                 continue
-
+            mag_array = numpy.array(mags[zbin_fine])
+            minmag = numpy.min(mag_array)
+            # print magarray
             # magz = (zbin_fine+0.5)*mag_maxz/mag_nzs
 
             # counts! kde!
             # NOTE: i'm setting alpha=0 for bins with no data!
-            nm = len(mags[zbin_fine])
-            kde = gaussian_kde(mags[zbin_fine])
-            y_kde1 = nm*kde.integrate_box_1d(numpy.min(mags[zbin_fine]), mag_cut) #kde.evaluate(mag_cut)
-            y_kde2 = nm*kde.integrate_box_1d(numpy.min(mags[zbin_fine]), mag_cut+delta_mag) #kde.evaluate(mag_cut+delta_mag)
-            if( y_kde1 == 0 or y_kde2 == 0 ):
-                slope_kde = 0.4
-            else:
-                slope_kde = (numpy.log10(y_kde2)-numpy.log10(y_kde1))/delta_mag
-            slope_array[zbin_fine] = 2.5*slope_kde - 1
+            # kde = gaussian_kde(mag_array)
+            # y_kde1 = nm*kde.integrate_box_1d(minmag, mag_cut) #kde.evaluate(mag_cut)
+            # y_kde2 = nm*kde.integrate_box_1d(minmag, mag_cut+delta_mag) #kde.evaluate(mag_cut+delta_mag)
+            # if( y_kde1 == 0 or y_kde2 == 0 ):
+            #     slope_kde = 0.4
+            # else:
+            #     slope_kde = (numpy.log10(y_kde2)-numpy.log10(y_kde1))/delta_mag
+            # slope_array[zbin_fine] = 2.5*slope_kde - 1
+            
             
             # mags!
-            mag_array = numpy.array(mags[zbin_fine])
             mags1 = mag_array[(mag_array < mag_cut)]
             mags2 = mag_array[(mag_array < mag_cut+delta_mag)]
             slope_m_array[zbin_fine] = -1.0857*(1.0-(numpy.mean(mags2)-numpy.mean(mags1))/delta_mag)
+            
+            # no kde?
+            n1 = len(mags1)
+            n2 = len(mags2)
+            slope_counts = 0.4
+            if n1> 0 and n2 > 0:
+                slope_counts = (numpy.log10(n2)-numpy.log10(n1))/delta_mag
+            slope_array[zbin_fine] = 2.5*slope_counts - 1
 
-            print >> sys.stderr, "z bin %d at %f s = %f alpha_c = %f alpha_m = %f" %(zbin_fine, (zbin_fine+0.5)*mag_maxz/mag_nzs, slope_kde, slope_array[zbin_fine], slope_m_array[zbin_fine])
+            # print >> sys.stderr, "z bin %d at %f s = %f alpha_c = %f alpha_m = %f" %(zbin_fine, (zbin_fine+0.5)*mag_maxz/mag_nzs, slope_kde, slope_array[zbin_fine], slope_m_array[zbin_fine])
+            print >> sys.stderr, "z bin %d at %f s = %f alpha_c = %f alpha_m = %f" %(zbin_fine, (zbin_fine+0.5)*mag_maxz/mag_nzs, slope_counts, slope_array[zbin_fine], slope_m_array[zbin_fine])
 
     assert len(slope_array), 'Error parse_sample.py:measure_slopes slope_array has length zero!'
     
