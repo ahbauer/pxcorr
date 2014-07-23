@@ -16,8 +16,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 from scipy import linalg
 from scipy import optimize
 import sys
-sys.path.append("~/software/python/pausci")
-from sci.lib.libh5attr import h5getattr, h5setattr
+from lib_mbe import h5getattr, h5setattr
 import partpix_map
 
 test_plots = False
@@ -335,7 +334,7 @@ def main():
             significant = False
             for i,u in enumerate(us):
                 if chi2 > 1.0:
-                # if abs(correction[i]) > 1.*np.sqrt(correction_cov[i,i]): # and abs(requirement[i])>0.33:
+                # if abs(correction[i]) > 2.*np.sqrt(correction_cov[i,i]): # and abs(requirement[i])>0.33:
                 # if systematic == 'fwhm_i' or systematic == 'desdmpz_error' or systematic == 'depth_mask_delta':
                     significant = True
             ##########################
@@ -577,30 +576,39 @@ def main():
         # pp.savefig()
     
         if fit_theory:
-            zstrings = ['0p5','0p7','0p9']
-            theory_file = open('/Users/bauer/surveys/DES/sva1/lss_cats/gold/theory/wtheta_N' + str(zbin+1) + '-DESiauto22.5_z' + zstrings[zbin] + '.dat')
-            theory = np.loadtxt(theory_file,unpack=True)
-            # print theory 
-            theory_ws = np.array(np.interp( us, theory[0], theory[2], right=0. ))
-            valid_indices = np.sum(us<theory[0][-1])
-            print "valid indices: {0}".format(valid_indices)
-            # print theory_ws
-            bias, bias_error_low, bias_error_high, chi2, ndf = fit_bias_real( galaxy_corrected[0:valid_indices], corrected_cov[0:valid_indices,0:valid_indices], theory_ws[0:valid_indices] )
-            print "bias = {0:3.2f} + {1:3.2f} - {2:3.2f}, {3}/{4} chi2/ndf".format(bias, bias_error_high, bias_error_low, chi2, ndf)
-            # plot it on the plot
-            ax0.plot(us[0:valid_indices],theory_ws[0:valid_indices]*bias*bias, label='bias={0:3.2f}+/-{1:3.2f}, chi2/ndf={2:4.1f}/{3}'.format(bias,0.5*(bias_error_low+bias_error_high),chi2,ndf))
-            low_bias2 = bias - bias_error_low
-            low_bias2 *= low_bias2
-            high_bias2 = bias + bias_error_high
-            high_bias2 *= high_bias2
-            theory_ws_low = low_bias2*theory_ws
-            theory_ws_high = high_bias2*theory_ws
-            print us
-            print theory_ws_low
-            print theory_ws_high
-            ax0.fill_between( us[0:valid_indices], theory_ws_low[0:valid_indices], theory_ws_high[0:valid_indices], alpha=0.2 )
-            ax0.legend()
-
+            zstrings = {0.3:'0p3', 0.5:'0p5', 0.7:'0p7', 0.9:'0p9', 1.1:'1p1'}
+            zindices = {0.3: '0', 0.5:'1', 0.7:'2', 0.9:'3', 1.1:'4'}
+            min_index = 1
+            if z not in zstrings.keys():
+                print "Warning, no theory for redshift {0}".format(z)
+            else:
+                theory_filename = '/Users/bauer/surveys/DES/sva1/lss_cats/gold/theory/wtheta_N' + zindices[z] + '-DESiauto22.5_z' + zstrings[z] + '.dat'
+                theory_file = open(theory_filename)
+                if os.path.isfile(theory_filename):
+                    theory = np.loadtxt(theory_file,unpack=True)
+                    # print theory 
+                    theory_ws = np.array(np.interp( us, theory[0], theory[2], right=0. ))
+                    valid_indices = np.sum(us<theory[0][-1])
+                    print "valid indices: {0}".format(valid_indices)
+                    # print theory_ws
+                    bias, bias_error_low, bias_error_high, chi2, ndf = fit_bias_real( galaxy_corrected[min_index:valid_indices], corrected_cov[min_index:valid_indices,min_index:valid_indices], theory_ws[min_index:valid_indices] )
+                    print "bias = {0:3.2f} + {1:3.2f} - {2:3.2f}, {3}/{4} chi2/ndf".format(bias, bias_error_high, bias_error_low, chi2, ndf)
+                    # plot it on the plot
+                    ax0.plot(us[min_index:valid_indices],theory_ws[min_index:valid_indices]*bias*bias, label='bias={0:3.2f}+/-{1:3.2f}, chi2/ndf={2:4.1f}/{3}'.format(bias,0.5*(bias_error_low+bias_error_high),chi2,ndf))
+                    low_bias2 = bias - bias_error_low
+                    low_bias2 *= low_bias2
+                    high_bias2 = bias + bias_error_high
+                    high_bias2 *= high_bias2
+                    theory_ws_low = low_bias2*theory_ws
+                    theory_ws_high = high_bias2*theory_ws
+                    print us
+                    print theory_ws_low
+                    print theory_ws_high
+                    ax0.fill_between( us[min_index:valid_indices], theory_ws_low[min_index:valid_indices], theory_ws_high[min_index:valid_indices], alpha=0.2 )
+                    ax0.legend()
+                else:
+                    print "Warning, file expected but not found for redshift {0}".format(z)
+                
         ax0.set_xscale('log')
         ax0.set_yscale('log', nonposy='clip')
         pp.savefig()

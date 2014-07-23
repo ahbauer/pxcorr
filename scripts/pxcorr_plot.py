@@ -14,8 +14,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import sys
-sys.path.append("~/software/python/pausci")
-from sci.lib.libh5attr import h5getattr, h5setattr
+from lib_mbe import h5getattr, h5setattr
 
 class pkg_read(object): 
     def __init__(self, file_name, root= '/', only_open=False):
