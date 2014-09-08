@@ -257,7 +257,8 @@ def parse_data( filename, mag_cut, suffix, z_mean, z_width, add_nofz=True, spars
         
         
         # are we in the correlation z bin?
-        if( photz <= z_edges[0] or photz >= z_edges[-1] ):
+        # include the lower bin limit, and not the upper.
+        if( photz < z_edges[0] or photz >= z_edges[-1] ):
             continue
         
         # keep the info for the slopes even if outside the mag bin ranges
