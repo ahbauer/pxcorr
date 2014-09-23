@@ -432,7 +432,7 @@ def main():
     print "reading filename %s" %filename
     pkg = pkg_read(filename)
     pkg.plot()
-    pkg.print_simple()
+    # pkg.print_simple()
 
 
 if __name__ == '__main__':

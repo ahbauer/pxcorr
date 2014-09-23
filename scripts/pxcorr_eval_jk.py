@@ -56,14 +56,20 @@ def main():
         
         meta[pop_name] = metapop
     
+    u_index = 0
     if len(meta['u_mean']) > 1:
         print "There's more than one angular bin, but we'll just look at the first one."
+        print " JUST KIDDING, the 9th one!"
+        u_index = 8
     
     # read in the covariance matrices
+    # # print h5file.getNode('/', 'cov')._v_children.keys()
+    # cov_children = h5file.getNode('/', 'cov')._v_children
+    # for cov_name, covObj in cov_children.items():  # WEIRD fails if you do iteritems
     cov = dict((u, {}) for u in meta['u_mean'])
-    # print h5file.getNode('/', 'cov')._v_children.keys()
-    cov_children = h5file.getNode('/', 'cov')._v_children
-    for cov_name, covObj in cov_children.items():  # WEIRD fails if you do iteritems
+    cov_grp = h5file.getNode('/', 'cov')
+    for cov_name, covObj in cov_grp._v_children.iteritems():
+        
         # print cov_name
 
         y = lambda x: h5getattr(covObj, x)
@@ -135,8 +141,9 @@ def main():
             
         for zbin in range(meta[y('pop0')]['nbins']):
             fig = plt.figure()
-            ax0 = fig.add_subplot(1,1,1, title='Jackknives, zbin {0} (Corr = {1:4.3e} +/- {2:4.3e})'.format(zbin, corr[u_dict[0]][A][:][zbin][zbin], np.sqrt(cov[u_dict[0]][A+A][0][zbin][zbin][zbin][zbin])), xlabel='correlation at 0.2 degrees')
-            plt.hist(jks[u_dict[0]][A][0][zbin][zbin].partmap, bins=50)
+            ax0 = fig.add_subplot(1,1,1, title='Jackknives, pop {0} zbin {1} (Corr = {2:4.3e} +/- {3:4.3e})'.format(y('pop0'), zbin, corr[u_dict[u_index]][A][:][zbin][zbin], np.sqrt(cov[u_dict[u_index]][A+A][u_index][zbin][zbin][zbin][zbin])), xlabel='correlation at 1 degree')
+            plt.hist(jks[u_dict[u_index]][A][u_index][zbin][zbin].partmap, bins=50)
+            plt.axvline(corr[u_dict[u_index]][A][:][zbin][zbin], color='b', linestyle='dashed', linewidth=2)
             pp.savefig()
             # thetas, phis = healpy.pixelfunc.pix2ang(jks[u_dict[0]][A][0][zbin][zbin].Nside(), jks[u_dict[0]][A][0][zbin][zbin].pixel_mapping_arraytohigh)
             # ras = phis*180./3.1415926
@@ -148,10 +155,10 @@ def main():
             
             
             plt.clf()
-            hpmap = np.zeros(jks[u_dict[0]][A][0][zbin][zbin].Npix())
-            for i in range(jks[u_dict[0]][A][0][zbin][zbin].Npartpix()):
-                hpmap[jks[u_dict[0]][A][0][zbin][zbin].pixel_mapping_arraytohigh[i]] = jks[u_dict[0]][A][0][zbin][zbin].partmap[i]
-            minval = np.min(jks[u_dict[0]][A][0][zbin][zbin].partmap)
+            hpmap = np.zeros(jks[u_dict[u_index]][A][u_index][zbin][zbin].Npix())
+            for i in range(jks[u_dict[u_index]][A][u_index][zbin][zbin].Npartpix()):
+                hpmap[jks[u_dict[u_index]][A][u_index][zbin][zbin].pixel_mapping_arraytohigh[i]] = jks[u_dict[u_index]][A][u_index][zbin][zbin].partmap[i]
+            minval = np.min(jks[u_dict[u_index]][A][u_index][zbin][zbin].partmap)
             healpy.visufunc.cartview(hpmap,lonra=[60,90],latra=[-62,-42],min=minval,flip='geo')
             pp.savefig()
         

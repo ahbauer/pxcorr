@@ -22,35 +22,48 @@ import partpix_map
 test_plots = False
 galaxy_string = 'gold'
 fit_theory = True
+ignore_systematic_cross = False
 
 def fit_bias_real(corr, cov, theory_bias1):
     
-    lu_results = linalg.lu_factor(cov)
-    result = optimize.fmin( fit_bias_real_guts, x0=1.0, args=(corr,lu_results,theory_bias1) )
+    # lu_results = linalg.lu_factor(cov)
+    # result = optimize.fmin( fit_bias_real_guts, x0=1.0, args=(corr,lu_results,theory_bias1) )
+    cov_inv = linalg.inv(cov)
+    for i in range(len(corr)):
+        for j in range(len(corr)):
+            print '{0} {1} {2}'.format(i,j,cov_inv[i,j])
+    result = optimize.fmin( fit_bias_real_guts, x0=1.0, args=(corr,cov_inv,theory_bias1) )
     b = result[0]
-    chi2 = fit_bias_real_guts( b, corr, lu_results, theory_bias1 )
+    # chi2 = fit_bias_real_guts( b, corr, lu_results, theory_bias1 )
+    chi2 = fit_bias_real_guts( b, corr, cov_inv, theory_bias1 )
     ndf =  len(corr)-1
     print "%f %f %d" %(b, chi2, ndf)
     
     # the error is when the chi2 goes up by 1
     eb_high = 0.
     for eb_high in np.arange(0.01,10.0,0.01):
-        chi2_high = fit_bias_real_guts( b+eb_high, corr, lu_results, theory_bias1 )
+        # chi2_high = fit_bias_real_guts( b+eb_high, corr, lu_results, theory_bias1 )
+        chi2_high = fit_bias_real_guts( b+eb_high, corr, cov_inv, theory_bias1 )
         if chi2_high > chi2+1:
             break
     eb_low = 0.
     for eb_low in np.arange(0.01,10.0,0.01):
-        chi2_low = fit_bias_real_guts( b-eb_low, corr, lu_results, theory_bias1 )
+        # chi2_low = fit_bias_real_guts( b-eb_low, corr, lu_results, theory_bias1 )
+        chi2_low = fit_bias_real_guts( b-eb_low, corr, cov_inv, theory_bias1 )
         if chi2_low > chi2+1:
             break
     
     return b, eb_low, eb_high, chi2, ndf
 
 
-def fit_bias_real_guts(bias, corr, lu_results, theory_bias1):
+# def fit_bias_real_guts(bias, corr, lu_results, theory_bias1):
+def fit_bias_real_guts(bias, corr, cov_inv, theory_bias1):
     corr_minus_theory = corr - theory_bias1*bias*bias
-    x = linalg.lu_solve(lu_results, corr_minus_theory)
-    chi2 = np.sum(corr_minus_theory*x)
+    # x = linalg.lu_solve(lu_results, corr_minus_theory)
+    # chi2 = np.sum(corr_minus_theory*x)
+    
+    chi2 = np.dot(corr_minus_theory,np.dot(cov_inv,corr_minus_theory))
+    
     return chi2
 
 def main():
@@ -58,6 +71,7 @@ def main():
     print "Reading filename %s" %filename
     h5file = tables.openFile(filename)
     
+    do_sys = False
     
     # read in the metadata
     meta = {}
@@ -100,8 +114,14 @@ def main():
     # and the jackknife samples
     corr = dict((u, {}) for u in meta['u_mean'])
     corr_grp = h5file.getNode('/', 'corr')
-    jks = dict((u, {}) for u in meta['u_mean'])
-    jk_group = h5file.getNode('/', 'jk')
+    jks = None
+    jk_group = None
+    
+    
+    if do_sys:
+        jks = dict((u, {}) for u in meta['u_mean'])
+        jk_group = h5file.getNode('/', 'jk')
+        
     for corr_name, corrObj in corr_grp._v_children.iteritems():
 
         y = lambda x: h5getattr(corrObj, x)
@@ -118,33 +138,34 @@ def main():
         u_dict = dict()
         for i,u in enumerate(meta['u_mean']):
             corr[u][A] = corrArray[i]
-            jks[u][A] = dict()
-            u_dict[i] = u
+            if do_sys:
+                jks[u][A] = dict()
+                u_dict[i] = u
     
         # read in the jackknife info
         msg = 'Correlation array name does not start with corr...'
         assert corr_name[0:4] == 'corr', msg
         corr_num = corr_name[4:]
-        jk_subgroupname = 'jk' + corr_num
-        jk_subgroup = h5file.getNode('/jk/', jk_subgroupname)
-        for jk_name, jkTable in jk_subgroup._v_children.iteritems():
-            jk_partpix = partpix_map.Partpix_Map()
-            i = int(jkTable._f_getAttr('ang_index'))
-            z0 = int(jkTable._f_getAttr('zbin0'))
-            z1 = int(jkTable._f_getAttr('zbin1'))
-            jk_partpix.read_from_hdf5table(jkTable)
-            if i not in jks[u_dict[i]][A]:
-                jks[u_dict[i]][A][i] = dict()
-            if z0 not in jks[u_dict[i]][A][i]:
-                jks[u_dict[i]][A][i][z0] = dict()
-            jks[u_dict[i]][A][i][z0][z1] = jk_partpix
+        if do_sys:
+            jk_subgroupname = 'jk' + corr_num
+            jk_subgroup = h5file.getNode('/jk/', jk_subgroupname)
+            for jk_name, jkTable in jk_subgroup._v_children.iteritems():
+                jk_partpix = partpix_map.Partpix_Map()
+                i = int(jkTable._f_getAttr('ang_index'))
+                z0 = int(jkTable._f_getAttr('zbin0'))
+                z1 = int(jkTable._f_getAttr('zbin1'))
+                jk_partpix.read_from_hdf5table(jkTable)
+                if i not in jks[u_dict[i]][A]:
+                    jks[u_dict[i]][A][i] = dict()
+                if z0 not in jks[u_dict[i]][A][i]:
+                    jks[u_dict[i]][A][i][z0] = dict()
+                jks[u_dict[i]][A][i][z0][z1] = jk_partpix
         
     
     # read in the covariance matrices
     cov = dict((u, {}) for u in meta['u_mean'])
-    # print h5file.getNode('/', 'cov')._v_children.keys()
-    cov_children = h5file.getNode('/', 'cov')._v_children
-    for cov_name, covObj in cov_children.items():  # WEIRD fails if you do iteritems
+    cov_grp = h5file.getNode('/', 'cov')
+    for cov_name, covObj in cov_grp._v_children.iteritems():
         # print cov_name
         
         y = lambda x: h5getattr(covObj, x)
@@ -219,8 +240,9 @@ def main():
     if n_galpops != 1:
         raise AssertionError, "%d populations found with the galaxy string %s" %(n_galpops, galaxy_string)
     
-    print "Systematics populations found:"
-    print systematics_pops
+    if do_sys:
+        print "Systematics populations found:"
+        print systematics_pops
     
     # now, find the galaxy counts autocorrelation errors
     A = (('counts',galaxy_pop),('counts',galaxy_pop))
@@ -242,6 +264,13 @@ def main():
         umin = 0.003
     umax = us[-1] + (us[-1]-us[-2])
     
+    # let's print out the autocorr covariance while we're at it
+    for zbin in range(nzbins):
+        outfile = open('cov_z' + str(zbin), 'w')
+        for i1,u1 in enumerate(us):
+            for i2,u2 in enumerate(us):
+                outfile.write('{0} {1} {2}\n'.format(i1,i2,cov[u1][AA][i2][zbin][zbin][zbin][zbin]))
+    
     # for each systematic, calculate the cross^2 over the auto
     sys_auto_matrix = []
     sys_cross_matrix = []
@@ -253,9 +282,9 @@ def main():
         sys_cross_matrix.append([])
         systematic_pops.append([])
     for systematic in systematics_pops:
-        
+    
         print "Starting systematic {0}".format(systematic)
-        
+    
         # print systematic
         A_cross1 = (('counts',systematic),('counts',galaxy_pop))
         A_cross2 = (('counts',galaxy_pop),('counts',systematic))
@@ -274,16 +303,16 @@ def main():
                 except KeyError, IndexError:
                     crosscorr_sys[zbin,i] = corr[u][A_cross2][:][zbin][0]
                     crosscorr_err[zbin,i] = np.sqrt(cov[u][A_cross2+A_cross2][i][zbin][0][zbin][0])
-        
+    
         fig = plt.figure()
         for zbin in range(nzbins):
             z = meta[galaxy_pop]['z_mean'][zbin]
-            
+        
             correction = (crosscorr_sys[zbin,:]*crosscorr_sys[zbin,:])/autocorr_sys
             correction_cov = np.zeros((len(us),len(us)))
             requirement = correction/autocorr_errors[zbin,:]
             requirement_error = np.zeros(len(requirement))
-            
+        
             # let's calculate the errors on the requirement!
             # as we don't have errors on the autocorr_errors, we'll really calculate the errors on the correction.
             jk_array = []
@@ -307,7 +336,7 @@ def main():
                     ecorr += (jk_array[i][p]-jk_mean)*(jk_array[i][p]-jk_mean)
                 ecorr = (float(jk_autosys_intersection.npartpix-1.0))/float(jk_autosys_intersection.npartpix) * ecorr
                 requirement_error[i] = np.sqrt(ecorr)/autocorr_errors[zbin,i]
-            
+        
             # do the whole covariance matrix
             for i,u in enumerate(us):
                 imean = np.mean(jk_array[i])
@@ -318,7 +347,7 @@ def main():
                     for p in range(len(jk_array[i])):
                         correction_cov[i,j] += (jk_array[i][p]-imean)*(jk_array[j][p]-jmean)
                     correction_cov[i,j] *= (float(len(jk_array[i])-1.0))/float(len(jk_array[i]))
-            
+        
             # calculate chi2 difference from zero
             cov_inv = np.linalg.inv(correction_cov)
             chi2 = 0.
@@ -326,10 +355,10 @@ def main():
                 for j,v in enumerate(us):
                     chi2 += correction[i]*cov_inv[i,j]*correction[j]
             chi2 /= len(us)
-            
+        
             # another metric that doesn't depend on a well-conditioned covariance:
             # is any point 2sigma away from zero?
-            
+        
             ###### SIGNIFICANT? ######
             significant = False
             for i,u in enumerate(us):
@@ -338,13 +367,14 @@ def main():
                 # if systematic == 'fwhm_i' or systematic == 'desdmpz_error' or systematic == 'depth_mask_delta':
                     significant = True
             ##########################
-            
+        
             # if it's significant, add its contribution to the galaxy correction calculation
             if significant:
                 sys_auto_matrix[zbin].append(autocorr_sys)
                 sys_cross_matrix[zbin].append(crosscorr_sys[zbin,:])
                 significant_jkmaps[zbin].append((jk_autosys_intersection, jk_cross_intersection))
                 systematic_pops[zbin].append(systematic)
+                
             ttl = 'galaxy autocorr z {0}: {1}'.format(z, significant)
             ylab = 'w(theta)'
             wmin = min(autocorr_vals[zbin,:]-autocorr_errors[zbin,:]-correction)
@@ -361,7 +391,7 @@ def main():
             ax0.plot(us,autocorr_vals[zbin,:]-correction,'--',color='green')
             ax0.set_xscale('log')
             ax0.set_yscale('log', nonposy='clip')
-            
+        
             ttl = '{0} autocorr'.format(systematic)
             ylab = 'w(theta)'
             wmin = min(autocorr_sys[:]) - max(autocorr_sys_err[:])
@@ -373,7 +403,7 @@ def main():
             ax0 = fig.add_subplot(2,2,2, xlim=[umin,umax], ylim=[wmin,wmax], xlabel=xlab, ylabel=ylab, title=ttl)
             ax0.errorbar(us,autocorr_sys,yerr=autocorr_sys_err,fmt='.-')
             ax0.set_xscale('log')
-            
+        
             ttl = 'gal-{0} crosscorr z {1}'.format(systematic, z)
             ylab = 'w(theta)'
             wmin = min(crosscorr_sys[zbin,:])-max(crosscorr_err[zbin,:])
@@ -385,7 +415,7 @@ def main():
             ax0 = fig.add_subplot(2,2,3, xlim=[umin,umax], ylim=[wmin,wmax], xlabel=xlab, ylabel=ylab, title=ttl)
             ax0.errorbar(us,crosscorr_sys[zbin,:],yerr=crosscorr_err[zbin,:],fmt='.-')
             ax0.set_xscale('log')
-            
+        
             ttl = '{0} req., gal z {1}, chi2 {2:.2f}'.format(systematic, z, chi2)
             ylab= "correction/error"
             wmin = min(requirement)
@@ -397,136 +427,148 @@ def main():
             ax0 = fig.add_subplot(2,2,4, xlim=[umin,umax], ylim=[wmin,wmax], xlabel=xlab, ylabel=ylab, title=ttl)
             ax0.errorbar(us,requirement,yerr=requirement_error,fmt='.-')
             ax0.set_xscale('log')
-            
+        
             fig.tight_layout()
             pp.savefig()
             plt.clf()
-            
-            # for i,u in enumerate(us):
-            #     print "%f %f %f %f %f" %(correction[i], autocorr_errors[zbin,i], autocorr_vals[zbin,i], crosscorr_sys[zbin,i], autocorr_sys[i])
-    
+        
+        # for i,u in enumerate(us):
+        #     print "%f %f %f %f %f" %(correction[i], autocorr_errors[zbin,i], autocorr_vals[zbin,i], crosscorr_sys[zbin,i], autocorr_sys[i])
+
     # ok, now calculate the total correction to the galaxy autocorrelation
     alphas = []
     for zbin in range(nzbins):
-        z = meta[galaxy_pop]['z_mean'][zbin]
-        corrected_cov = np.zeros((len(us),len(us)))
-        print "zbin {0}: {1} significant systematics used: {2}".format(zbin,len(systematic_pops[zbin]), systematic_pops[zbin])
-        # crap, we need to solve this for each angular bin!
-        alphas_per_angle = []
-        for i,u in enumerate(us):
-            sys_auto_matrix2 = np.zeros((len(sys_auto_matrix[zbin]),len(sys_auto_matrix[zbin])))
-            sys_cross_vector2 = np.zeros(len(sys_auto_matrix[zbin]))
-            for s1 in range(len(sys_auto_matrix[zbin])):
-                for s2 in range(len(sys_auto_matrix[zbin])):
-                    A_auto1 = (('counts',systematic_pops[zbin][s1]),('counts',systematic_pops[zbin][s2]))
-                    A_auto2 = (('counts',systematic_pops[zbin][s2]),('counts',systematic_pops[zbin][s1]))
-                    A_cross1 = (('counts',systematic_pops[zbin][s2]),('counts',galaxy_pop))
-                    A_cross2 = (('counts',galaxy_pop),('counts',systematic_pops[zbin][s2]))
-                    try:
-                        sys_auto_matrix2[s1,s2] = corr[u][A_auto1][:][0][0]
-                    except KeyError, IndexError:
-                        sys_auto_matrix2[s1,s2] = corr[u][A_auto2][:][0][0]
-                    try:
-                        sys_cross_vector2[s2] = corr[u][A_cross1][:][0][zbin]
-                    except KeyError, IndexError:
-                        sys_cross_vector2[s2] = corr[u][A_cross2][:][zbin][0]
-            result = np.linalg.solve(sys_auto_matrix2, sys_cross_vector2)
-            # print "sys_auto: {0}".format(sys_auto_matrix2)
-            # print "sys_cross: {0}".format(sys_cross_vector2)
-            alphas_per_angle.append(result)
-        alphas_per_angle = np.vstack(alphas_per_angle)
-        # print "alphas_per_angle: {0}".format(alphas_per_angle)
-        alphas.append(np.median(alphas_per_angle,axis=1))
-        # print "total alphas for zbin {0}: {1}".format(zbin,alphas[zbin])
-        
-        # now apply the correction for each jackknife subsample
-        jk_corrected = []
-        jk_corrected_means = np.zeros(len(us))
         galaxy_corrected = np.zeros(len(us))
-        A_auto = (('counts',galaxy_pop),('counts',galaxy_pop))
-        for i,u in enumerate(us):
-            jk_corrected.append([])
-            jkGalAutoMap = jks[u][A_auto][i][zbin][zbin]
-            for k in range(jkGalAutoMap.npartpix):
+        corrected_errs = np.zeros(len(us))
+        corrected_cov = np.zeros((len(us),len(us)))
+        z = meta[galaxy_pop]['z_mean'][zbin]
+        if do_sys:
+            print "zbin {0}: {1} significant systematics used: {2}".format(zbin,len(systematic_pops[zbin]), systematic_pops[zbin])
+            # crap, we need to solve this for each angular bin!
+            alphas_per_angle = []
+            for i,u in enumerate(us):
+                sys_auto_matrix2 = np.zeros((len(sys_auto_matrix[zbin]),len(sys_auto_matrix[zbin])))
+                sys_cross_vector2 = np.zeros(len(sys_auto_matrix[zbin]))
+                for s1 in range(len(sys_auto_matrix[zbin])):
+                    for s2 in range(len(sys_auto_matrix[zbin])):
+                        A_auto1 = (('counts',systematic_pops[zbin][s1]),('counts',systematic_pops[zbin][s2]))
+                        A_auto2 = (('counts',systematic_pops[zbin][s2]),('counts',systematic_pops[zbin][s1]))
+                        A_cross1 = (('counts',systematic_pops[zbin][s2]),('counts',galaxy_pop))
+                        A_cross2 = (('counts',galaxy_pop),('counts',systematic_pops[zbin][s2]))
+                        try:
+                            sys_auto_matrix2[s1,s2] = corr[u][A_auto1][:][0][0]
+                        except KeyError, IndexError:
+                            sys_auto_matrix2[s1,s2] = corr[u][A_auto2][:][0][0]
+                        try:
+                            sys_cross_vector2[s2] = corr[u][A_cross1][:][0][zbin]
+                        except KeyError, IndexError:
+                            sys_cross_vector2[s2] = corr[u][A_cross2][:][zbin][0]
+                result = np.linalg.solve(sys_auto_matrix2, sys_cross_vector2)
+                # print "sys_auto: {0}".format(sys_auto_matrix2)
+                # print "sys_cross: {0}".format(sys_cross_vector2)
+                alphas_per_angle.append(result)
+            alphas_per_angle = np.vstack(alphas_per_angle)
+            # print "alphas_per_angle: {0}".format(alphas_per_angle)
+            alphas.append(np.median(alphas_per_angle,axis=1))
+            # print "total alphas for zbin {0}: {1}".format(zbin,alphas[zbin])
+
+            # now apply the correction for each jackknife subsample
+            jk_corrected = []
+            jk_corrected_means = np.zeros(len(us))
+            A_auto = (('counts',galaxy_pop),('counts',galaxy_pop))
+            for i,u in enumerate(us):
+                jk_corrected.append([])
+                jkGalAutoMap = jks[u][A_auto][i][zbin][zbin]
+                for k in range(jkGalAutoMap.npartpix):
+                    correction = 0.
+                    for s1 in range(len(sys_auto_matrix[zbin])):
+                        A_cross1 = (('counts',galaxy_pop),('counts',systematic_pops[zbin][s1]))
+                        A_cross2 = (('counts',systematic_pops[zbin][s1]),('counts',galaxy_pop))
+                        jkval = None
+                        try:
+                            jkCrossMap = jks[u][A_cross1][i][zbin][0]
+                        except KeyError, IndexError:
+                            jkCrossMap = jks[u][A_cross2][i][0][zbin]
+            
+                        if jkGalAutoMap.pixel_mapping_arraytohigh[k] not in jkCrossMap.pixel_mapping_arraytohigh:
+                            continue
+        
+                        for s2 in range(len(sys_auto_matrix[zbin])):
+                            A_auto1 = (('counts',systematic_pops[zbin][s1]),('counts',systematic_pops[zbin][s2]))
+                            A_auto2 = (('counts',systematic_pops[zbin][s2]),('counts',systematic_pops[zbin][s1]))
+                            jkAutoMap = None
+                            try:
+                                jkAutoMap = jks[u][A_auto1][i][0][0]
+                            except KeyError, IndexError:
+                                jkAutoMap = jks[u][A_auto2][i][0][0]
+                
+                            if jkGalAutoMap.pixel_mapping_arraytohigh[k] not in jkAutoMap.pixel_mapping_arraytohigh:
+                                continue
+                
+                            if not ignore_systematic_cross:
+                                correction += alphas_per_angle[i][s1]*alphas_per_angle[i][s2]*jkAutoMap.partmap[k]
+        
+                        correction -= 2.0 * alphas_per_angle[i][s1]*jkCrossMap.partmap[k]
+        
+                    jk_corrected[i].append(jkGalAutoMap.partmap[k] + correction)
+                # print "{0} jackknife values for the corrected galaxy autocorrelation".format(len(jk_corrected[i]))
+                jk_corrected_means[i] = np.mean(jk_corrected[i])
+    
+                # and do the overall value
                 correction = 0.
                 for s1 in range(len(sys_auto_matrix[zbin])):
                     A_cross1 = (('counts',galaxy_pop),('counts',systematic_pops[zbin][s1]))
                     A_cross2 = (('counts',systematic_pops[zbin][s1]),('counts',galaxy_pop))
-                    jkval = None
+                    crosscorrelation = None
                     try:
-                        jkCrossMap = jks[u][A_cross1][i][zbin][0]
+                        crosscorrelation = corr[u][A_cross1][:][zbin][0]
                     except KeyError, IndexError:
-                        jkCrossMap = jks[u][A_cross2][i][0][zbin]
-                    
-                    if jkGalAutoMap.pixel_mapping_arraytohigh[k] not in jkCrossMap.pixel_mapping_arraytohigh:
-                        continue
-                
+                        crosscorrelation = corr[u][A_cross2][:][0][zbin]
+        
                     for s2 in range(len(sys_auto_matrix[zbin])):
                         A_auto1 = (('counts',systematic_pops[zbin][s1]),('counts',systematic_pops[zbin][s2]))
                         A_auto2 = (('counts',systematic_pops[zbin][s2]),('counts',systematic_pops[zbin][s1]))
-                        jkAutoMap = None
+                        autocorrelation = None
                         try:
-                            jkAutoMap = jks[u][A_auto1][i][0][0]
+                            autocorrelation = corr[u][A_auto1][:][0][0]
                         except KeyError, IndexError:
-                            jkAutoMap = jks[u][A_auto2][i][0][0]
-                        
-                        if jkGalAutoMap.pixel_mapping_arraytohigh[k] not in jkAutoMap.pixel_mapping_arraytohigh:
-                            continue
-                        
-                        # correction += alphas[zbin][s1]*alphas[zbin][s2]*jkAutoMap.partmap[k]
-                        correction += alphas_per_angle[i][s1]*alphas_per_angle[i][s2]*jkAutoMap.partmap[k]
+                            autocorrelation = corr[u][A_auto2][:][0][0]
+            
+                        # correction += alphas[zbin][s1]*alphas[zbin][s2]*autocorrelation
+                        correction += alphas_per_angle[i][s1]*alphas_per_angle[i][s2]*autocorrelation
+    
+                    # correction -= 2.0 * alphas[zbin][s1]*crosscorrelation
+                    correction -= 2.0 * alphas_per_angle[i][s1]*crosscorrelation
+                A_gal = (('counts',galaxy_pop),('counts',galaxy_pop))
+                galaxy_corrected[i] = corr[u][A_gal][:][zbin][zbin] + correction
+                # temporary: use mean of jackknifes
+                # galaxy_corrected[i] = np.mean(jk_corrected[i])
+
+            # calculate new covariance matrix (we're not actually saving this for now)
+            for i,u in enumerate(us):
+                imean = np.mean(jk_corrected[i])
+                for j,v in enumerate(us):
+                    jmean = np.mean(jk_corrected[j])
+                    msg = 'jk corrected arrays are different lengths for different angular bins!: {0}:{1}, {2}:{3}'.format(i,len(jk_corrected[i]),j,len(jk_corrected[j]))
+                    assert len(jk_corrected[i]) == len(jk_corrected[j]), msg
+                    for p in range(len(jk_corrected[i])):
+                        corrected_cov[i,j] += (jk_corrected[i][p]-imean)*(jk_corrected[j][p]-jmean)
+                    corrected_cov[i,j] *= (float(len(jk_corrected[i])-1.0))/float(len(jk_corrected[i]))
+                corrected_errs[i] = np.sqrt(corrected_cov[i,i])
+
+            # write out the corrected covariance matrix 
+            outfile = open('cov_z' + str(zbin) + '_sys', 'w')
+            for i1,u1 in enumerate(us):
+                for i2,u2 in enumerate(us):
+                    outfile.write('{0} {1} {2}\n'.format(i1,i2,corrected_cov[i1,i2]))
                 
-                    # correction -= 2.0 * alphas[zbin][s1]*jkCrossMap.partmap[k]
-                    correction -= 2.0 * alphas_per_angle[i][s1]*jkCrossMap.partmap[k]
-                
-                jk_corrected[i].append(jkGalAutoMap.partmap[k] + correction)
-            # print "{0} jackknife values for the corrected galaxy autocorrelation".format(len(jk_corrected[i]))
-            jk_corrected_means[i] = np.mean(jk_corrected[i])
-            
-            # and do the overall value
-            correction = 0.
-            for s1 in range(len(sys_auto_matrix[zbin])):
-                A_cross1 = (('counts',galaxy_pop),('counts',systematic_pops[zbin][s1]))
-                A_cross2 = (('counts',systematic_pops[zbin][s1]),('counts',galaxy_pop))
-                crosscorrelation = None
-                try:
-                    crosscorrelation = corr[u][A_cross1][:][zbin][0]
-                except KeyError, IndexError:
-                    crosscorrelation = corr[u][A_cross2][:][0][zbin]
-                
-                for s2 in range(len(sys_auto_matrix[zbin])):
-                    A_auto1 = (('counts',systematic_pops[zbin][s1]),('counts',systematic_pops[zbin][s2]))
-                    A_auto2 = (('counts',systematic_pops[zbin][s2]),('counts',systematic_pops[zbin][s1]))
-                    autocorrelation = None
-                    try:
-                        autocorrelation = corr[u][A_auto1][:][0][0]
-                    except KeyError, IndexError:
-                        autocorrelation = corr[u][A_auto2][:][0][0]
-                    
-                    # correction += alphas[zbin][s1]*alphas[zbin][s2]*autocorrelation
-                    correction += alphas_per_angle[i][s1]*alphas_per_angle[i][s2]*autocorrelation
-            
-                # correction -= 2.0 * alphas[zbin][s1]*crosscorrelation
-                correction -= 2.0 * alphas_per_angle[i][s1]*crosscorrelation
-            A_gal = (('counts',galaxy_pop),('counts',galaxy_pop))
-            galaxy_corrected[i] = corr[u][A_gal][:][zbin][zbin] + correction
-            
-        
-        # calculate new covariance matrix (we're not actually saving this for now)
-        corrected_errs = np.zeros(len(us))
-        for i,u in enumerate(us):
-            imean = np.mean(jk_corrected[i])
-            for j,v in enumerate(us):
-                jmean = np.mean(jk_corrected[j])
-                msg = 'jk corrected arrays are different lengths for different angular bins!: {0}:{1}, {2}:{3}'.format(i,len(jk_corrected[i]),j,len(jk_corrected[j]))
-                assert len(jk_corrected[i]) == len(jk_corrected[j]), msg
-                for p in range(len(jk_corrected[i])):
-                    corrected_cov[i,j] += (jk_corrected[i][p]-imean)*(jk_corrected[j][p]-jmean)
-                corrected_cov[i,j] *= (float(len(jk_corrected[i])-1.0))/float(len(jk_corrected[i]))
-            corrected_errs[i] = np.sqrt(corrected_cov[i,i])
-            
-        # now, what's the overall corrected value?
-        
+    
+        else:
+            galaxy_corrected = autocorr_vals[zbin,:]
+            corrected_errs = autocorr_errors[zbin,:]
+            for i,u in enumerate(us):
+                for j,v in enumerate(us):
+                    corrected_cov[i,j] = cov[u][AA][j][zbin][zbin][zbin][zbin]
         
         # make some plots!
         fig = plt.figure()
@@ -588,7 +630,7 @@ def main():
                     theory = np.loadtxt(theory_file,unpack=True)
                     # print theory 
                     theory_ws = np.array(np.interp( us, theory[0], theory[2], right=0. ))
-                    valid_indices = np.sum(us<theory[0][-1])
+                    valid_indices = 9 #np.sum(us<theory[0][-1])  TEMPORARY, not including biggest radii with big and weird covariance
                     print "valid indices: {0}".format(valid_indices)
                     # print theory_ws
                     bias, bias_error_low, bias_error_high, chi2, ndf = fit_bias_real( galaxy_corrected[min_index:valid_indices], corrected_cov[min_index:valid_indices,min_index:valid_indices], theory_ws[min_index:valid_indices] )
