@@ -85,12 +85,12 @@ class Partpix_Map:
         partmap1 = []
         partmap2 = []
         pix = []
-        while i<self.npartpix and j<map2.npartpix:
-            while i<self.npartpix and self.pixel_mapping_arraytohigh[i] < map2.pixel_mapping_arraytohigh[j]:
+        while i<self.npartpix-1 and j<map2.npartpix-1:
+            while (i<self.npartpix-1) and (self.pixel_mapping_arraytohigh[i] < map2.pixel_mapping_arraytohigh[j]):
                 i += 1
-            while j<map2.npartpix and self.pixel_mapping_arraytohigh[i] > map2.pixel_mapping_arraytohigh[j]:
+            while (j<map2.npartpix-1) and (self.pixel_mapping_arraytohigh[i] > map2.pixel_mapping_arraytohigh[j]):
                 j += 1
-            while i<self.npartpix and j<map2.npartpix and self.pixel_mapping_arraytohigh[i] == map2.pixel_mapping_arraytohigh[j]:
+            while (i<self.npartpix) and (j<map2.npartpix) and (self.pixel_mapping_arraytohigh[i] == map2.pixel_mapping_arraytohigh[j]):
                 partmap1.append(self.partmap[i])
                 partmap2.append(map2.partmap[j])
                 pix.append(self.pixel_mapping_arraytohigh[i])

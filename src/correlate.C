@@ -66,9 +66,7 @@ void read_hdf5map( string mapname, unsigned long **map_pix, float **map_data, un
 
     (*map_pix) = new unsigned long[ds1size];
 
-    cerr << "reading map_pix... " << endl;
     dataset1.read(*map_pix, PredType::NATIVE_ULONG);
-    cerr << " done!" << endl;
 
     DataSet dataset1a = group.openDataSet("values");
 
@@ -79,16 +77,11 @@ void read_hdf5map( string mapname, unsigned long **map_pix, float **map_data, un
     }
 
     (*map_data) = new float[ds1size];
-    cerr << "reading map_data...";
     dataset1a.read(*map_data, PredType::NATIVE_FLOAT);
-    cerr << " done!" << endl;
-    
-    cerr << "map has order " << (*map_pix)[0] << " and scheme " << (*map_data)[0] << endl;
 
     DataSet dataset2 = group.openDataSet("mask_pixels");
     hsize_t ds2size = dataset2.getStorageSize();
     unsigned long npix2 = ds2size/sizeof(unsigned long);
-    cerr << "mask 1 has " << npix2-1 << " pixels" << endl;
 
     unsigned long *mask_pix = new unsigned long[ds2size];
     dataset2.read(mask_pix, PredType::NATIVE_ULONG);
@@ -108,7 +101,6 @@ void read_hdf5map( string mapname, unsigned long **map_pix, float **map_data, un
         throw exception();
     }
     mask_order = mask_pix[0];
-    cerr << "mask info " << mask_order << " " << mask_data[0] << endl;
     for( unsigned long i=1; i<npix2; ++i ){
         if( mask_data[i] > 0.5 ){
             mask_pixel_list.push_back(mask_pix[i]);
@@ -127,7 +119,6 @@ void read_hdf5map( string mapname, unsigned long **map_pix, float **map_data, un
 
     char *u_mean = (char*) malloc(attrsize);
     attr.read( dataType, u_mean );
-    cerr << "u_mean: " << u_mean << endl;
     string line(u_mean);
     if( line[0] != '[' ){
         cerr << "Problem parsing metadata line for u_mean" << endl << line << endl;
@@ -152,7 +143,6 @@ void read_hdf5map( string mapname, unsigned long **map_pix, float **map_data, un
     dataType = StrType(PredType::C_S1, attrsize);
     char *u_width = (char*) malloc(attrsize);
     attr.read( dataType, u_width );
-    cerr << "u_width: " << u_width << endl;
     line = string(u_width);
     if( line[0] != '[' ){
         cerr << "Problem parsing metadata line for u_width" << endl << line << endl;
@@ -188,13 +178,11 @@ void read_hdf5map( string mapname, unsigned long **map_pix, float **map_data, un
     //zbin = string(zbin_char);
     H5::IntType int_type(H5::PredType::NATIVE_INT);
     attr.read( int_type, &zbin );
-    cerr << "zbin: " << zbin << endl;
     
     attr = dataSet.openAttribute("nobj");
     attrsize = attr.getStorageSize();
     H5::IntType int64_type(H5::PredType::NATIVE_ULONG);
     attr.read( int64_type, &nobj );
-    cerr << "nobj: " << nobj << endl;
     
     attr = dataSet.openAttribute("ftype");
     attrsize = attr.getStorageSize();
@@ -202,7 +190,6 @@ void read_hdf5map( string mapname, unsigned long **map_pix, float **map_data, un
     char *ftype_char = (char*) malloc(attrsize);
     attr.read( dataType, ftype_char );
     ftype = string(ftype_char);
-    cerr << "ftype: " << ftype << endl;
     
     attr = dataSet.openAttribute("pop");
     attrsize = attr.getStorageSize();
@@ -210,9 +197,6 @@ void read_hdf5map( string mapname, unsigned long **map_pix, float **map_data, un
     char *pop_char = (char*) malloc(attrsize);
     attr.read( dataType, pop_char );
     pop = string(pop_char);
-    cerr << "pop: " << pop << endl;
-    
-    cerr << "Finished reading in the map" << endl;
     
     return;
 }
@@ -254,8 +238,6 @@ void correlate( char* mapn1, char* mapn2, int r, int jk_order, bool degrade_maps
     
     // read in hdf5 maps + masks
     
-    cerr << "Reading in file 1" << endl;
-    
     vector<unsigned long> mask1_pixels;
     unsigned long *map1_pix;
     float *map1_data;
@@ -267,20 +249,12 @@ void correlate( char* mapn1, char* mapn2, int r, int jk_order, bool degrade_maps
     int64 nobj1_attr;
     read_hdf5map( mapname1, &map1_pix, &map1_data, npix1, mask1_pixels, mask1_order, r_mids, r_wids, zbin1_attr, ftype1_attr, pop1_attr, nobj1_attr );
     
-    cerr << "returned from reading map 1, zbin1_attr = " << zbin1_attr << endl;
-    
     int map1_order = int(map1_pix[0]);
-
-    cerr << "map1 order = " << map1_pix[0] << endl;
 
     int map1_ordering = int(map1_data[0]);
     
-    cerr << "map 1 info " << map1_order << " " << map1_ordering << " " << npix1-1 << " pixels" << endl;
-
     Healpix_Base2 mask1_base( mask1_order, RING );
 
-    cerr << "Reading in file 2" << endl;
-    
     vector<unsigned long> mask2_pixels;
     unsigned long *map2_pix;
     float *map2_data;
@@ -295,12 +269,8 @@ void correlate( char* mapn1, char* mapn2, int r, int jk_order, bool degrade_maps
     int64 nobj2_attr;
     read_hdf5map( mapname2, &map2_pix, &map2_data, npix2, mask2_pixels, mask2_order, r_mids2, r_wids2, zbin2_attr, ftype2_attr, pop2_attr, nobj2_attr );
 
-    cerr << "returned from reading map 2, zbin2_attr = " << zbin2_attr << endl;
-
     int map2_order = map2_pix[0];
     int map2_ordering = map2_data[0];
-    
-    cerr << "map 2 info " << map2_order << " " << map2_ordering << " " << npix2-1 << " pixels" << endl;
 
     if( r_mids[0] - r_wids[0]/2.0 < 0.0 )
         r_lows.push_back(0.0001*3.1415926/180.);
@@ -311,19 +281,6 @@ void correlate( char* mapn1, char* mapn2, int r, int jk_order, bool degrade_maps
         r_lows.push_back(r_mids[i] - r_wids[i]/2.0);
         r_highs.push_back(r_mids[i] + r_wids[i]/2.0);
     }
-
-    cerr << "r_lows: ";
-    for( unsigned int i=0; i<r_lows.size(); ++i )
-        cerr << r_lows[i] << " ";
-    cerr << endl;
-    cerr << "r_mids: ";
-    for( unsigned int i=0; i<r_mids.size(); ++i )
-        cerr << r_mids[i] << " ";
-    cerr << endl;
-    cerr << "r_highs: ";
-    for( unsigned int i=0; i<r_highs.size(); ++i )
-        cerr << r_highs[i] << " ";
-    cerr << endl;
     
 
     Healpix_Base2 mask2_base( mask2_order, RING );
@@ -550,9 +507,7 @@ void correlate( char* mapn1, char* mapn2, int r, int jk_order, bool degrade_maps
 
     // use the jk_order given by the parent_correlate task
     vector<int> jkpixels;
-    cerr << "Creating jackknife Partpix map, order " << jk_order << "... ";
     Partpix_Map2<int> *jackknifeMap1 = new Partpix_Map2<int>(jk_order, *footprintMap);
-    cerr << "Done!" << endl;
     jackknifeMap1->fill(0);
     
       if( order < jackknifeMap1->Order() ){ // this is unlikely
@@ -629,7 +584,7 @@ void correlate( char* mapn1, char* mapn2, int r, int jk_order, bool degrade_maps
     vector< vector<double> > pss( r_lows.size(), vector<double>() );
     vector< vector<double> > jkcorrs( r_lows.size(), vector<double>() );
 
-    cerr << "starting correlation stuff, with map resolutions " << lowzMap->Order() << " and " << highzMap->Order() << endl;
+    cerr << "Starting correlation stuff, with map resolutions " << lowzMap->Order() << " and " << highzMap->Order() << endl;
 
     vector<double> jk_means( r_lows.size(), 0. );
     vector<double> jk_variance( r_lows.size(), 0. );
@@ -922,7 +877,7 @@ void correlate( char* mapn1, char* mapn2, int r, int jk_order, bool degrade_maps
 
         // calculate the covariance matrix
         vector< vector<double> > c( r_lows.size(), vector<double>(r_lows.size(), 0.) );
-        cerr << "calculating covariance... " << endl;
+        cerr << "Calculating covariance... " << endl;
         for( unsigned int i=0; i<r_lows.size(); ++i ){
           for( unsigned int j=0; j<r_lows.size(); ++j ){
             if( jkcorrs[i].size() != jkcorrs[j].size() ){
@@ -1129,7 +1084,6 @@ void correlate( char* mapn1, char* mapn2, int r, int jk_order, bool degrade_maps
         attr4_dataspace = H5::DataSpace( H5S_SCALAR );
         zbin_attr = metadataset->createAttribute("nobj1", int64_type, attr4_dataspace);
         zbin_attr.write(int64_type, &nobj2_attr);
-        cerr << "done with metadata" << endl;
         
         delete metadataspace;
         delete metadataset;
