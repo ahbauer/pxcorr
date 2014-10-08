@@ -94,8 +94,8 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     vector<int> mask_pixels;
     Healpix_Base2 mask_base;
     Partpix_Map2<int> *dcMask;
-    int64 nobj_c = 0;
-    int64 nobj_m = 0;
+    double nobj_c = 0.;
+    double nobj_m = 0.;
     
     if( catalog_filename.rfind(".fits") != string::npos ){
         
@@ -368,7 +368,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         // and write out the map
         string outfilename = "dc_map" + suffix + ".h5";
         string ftype = "counts";
-        write_map( dcMap, dcMask, outfilename, ftype, ang_means_c, ang_widths_c, n_ang_bins, pop, zbin, nobj_c );
+        write_map( dcMap, dcMask, outfilename, ftype, ang_means_c, ang_widths_c, n_ang_bins, pop, zbin, int64(nobj_c) );
     
         cerr << "Wrote map to file" << endl;
         delete dcMap;
@@ -590,7 +590,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         // and write out the map
         string outfilename = "dc_map" + suffix + ".h5";
         string ftype = "counts";
-        write_map( dcMap, dcMask, outfilename, ftype, ang_means_c, ang_widths_c, n_ang_bins, pop, zbin, nobj_c );
+        write_map( dcMap, dcMask, outfilename, ftype, ang_means_c, ang_widths_c, n_ang_bins, pop, zbin, int64(nobj_c) );
     
         cerr << "Wrote map to file" << endl;
         delete dcMap;
@@ -610,14 +610,16 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
 
     vector<pointing> pointings;
     vector<double> mags;
-    double invals[3];
-    while( fread( invals, sizeof( double ), 3, file ) == 3 ){
+    vector<double> weights;
+    double invals[4];
+    while( fread( invals, sizeof( double ), 4, file ) == 4 ){
         double phi = invals[0]*3.1415926/180.;
         double theta = (90.-invals[1])*3.1415926/180.;
         pointing mypointing(theta, phi);
         pointings.push_back( mypointing );
         if( use_mags )
             mags.push_back( invals[2] );
+        weights.push_back(invals[3]);
     }
     fclose( file );    
     cerr << "Read in " << pointings.size() << " objects" << endl;
@@ -773,14 +775,14 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
         int64 maskpix = dcMask->ang2pix(pointings[p]);
         if( (*dcMask)[maskpix] > 0.5 ){
             int64 pixnum = dcMap->ang2pix( pointings[p] );
-            (*dcMap)[pixnum] += 1.0;
-            ++nobj_c;
+            (*dcMap)[pixnum] += weights[p];
+            nobj_c += weights[p];
             if( use_mags ){
                 maskpix = dmMask->ang2pix(dmMap->pix2ang(pixnum));
                 if( (*dmMask)[maskpix] > 0.5 ){
-                    (*dmMap)[pixnum] += mags[p];
-                    mean_mag += mags[p];
-                    ++nobj_m;
+                    (*dmMap)[pixnum] += weights[p]*mags[p];
+                    mean_mag += mags[p]*weights[p];
+                    nobj_m += weights[p];
                 }
             }
         }
@@ -831,7 +833,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     if( use_counts ){
         string outfilename = "dc_map" + suffix + ".h5";
         string ftype = "counts";
-        write_map( dcMap, dcMask, outfilename, ftype, ang_means_c, ang_widths_c, n_ang_bins, pop, zbin, nobj_c );
+        write_map( dcMap, dcMask, outfilename, ftype, ang_means_c, ang_widths_c, n_ang_bins, pop, zbin, int64(nobj_c) );
         
         cerr << "Wrote delta counts map to file" << endl;
         delete dcMap;
@@ -840,7 +842,7 @@ void make_maps( const char *catalog_filename_c, const char *mask_filename_c, flo
     if( use_mags ){
         string outfilename = "dm_map" + suffix + ".h5";
         string ftype = "mag";
-        write_map( dmMap, dmMask, outfilename, ftype, ang_means_c, ang_widths_c, n_ang_bins, pop, zbin, nobj_m );
+        write_map( dmMap, dmMask, outfilename, ftype, ang_means_c, ang_widths_c, n_ang_bins, pop, zbin, int64(nobj_m) );
         
         cerr << "Wrote delta mag map to file" << endl;
         delete dmMask;

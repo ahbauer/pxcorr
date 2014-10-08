@@ -234,27 +234,68 @@ def parse_data( filename, mag_cut, suffix, z_mean, z_width, add_nofz=True, spars
     catalog = open(filename, "r")
     nsample = 0
     use_mags = True
+    header = catalog.next()
+    splitted_header = header.split()
+    if splitted_header[0][0] == '#':
+        splitted_header.next()
+    for h in range(len(splitted_header)):
+        splitted_header[h] = splitted_header[h].lower()
+    ra_index = splitted_header.index('ra')
+    dec_index = splitted_header.index('dec')
+    
+    photoz_index = -1
+    photoz_strings = ['photo_z', 'photoz', 'photo-z', 'photz', 'pz', 'z']
+    pi = 0
+    while (photoz_index < 0) and (pi<len(photoz_strings)):
+        try:
+            photoz_index = splitted_header.index(photoz_strings[pi])
+        except ValueError:
+            pi += 1
+    if photoz_index < 0:
+        msg = 'parse_data: Error finding photo_z entry in header line {0}'.format(header)
+        raise error(msg)
+    
+    mag_index = -1
+    for h in range(len(splitted_header)):
+        if len(splitted_header[h])>2 and (splitted_header[h][:3] == 'mag'):
+            mag_index = h
+            break
+    
+    specz_index = -1
+    specz_strings = ['spec_z', 'specz', 'spec-z', 'sz']
+    si = 0
+    while (specz_index < 0) and (si<len(specz_strings)):
+        try:
+            specz_index = splitted_header.index(specz_strings[si])
+        except ValueError:
+            si += 1
+    
+    weight_index = -1
+    weight_strings = ['weight', 'weights', 'wght', 'w']
+    wi = 0
+    while (weight_index < 0) and (wi<len(weight_strings)):
+        try:
+            weight_index = splitted_header.index(weight_strings[wi])
+        except ValueError:
+            wi += 1
+    
     for line in catalog:
         splitted_line = line.split()
-
-        # for the N(z) hdf5 file to be given to the modelling code
-        if( len(splitted_line) > 4 ):
-            photz = float(splitted_line[2])
-            specz = float(splitted_line[3])
-            mag = float(splitted_line[4])
         
-        elif( len(splitted_line) == 4 ):
-            photz = float(splitted_line[2])
-            specz = float(splitted_line[3])
-            mag = 0.
-            use_mags = False
-            
-        elif( len(splitted_line) == 3 ):
-            photz = float(splitted_line[2])
-            specz = photz
-            mag = 0.
-            use_mags = False
-        
+        ra = float(splitted_line[ra_index])
+        dec = float(splitted_line[dec_index])
+        photz = float(splitted_line[photoz_index])
+        mag = 0.
+        use_mags = False
+        if mag_index >= 0:
+            mag = float(splitted_line[mag_index])
+            use_mags = True
+        specz = photz
+        if specz_index >= 0:
+            specz = float(splitted_line[specz_index])
+        weight = 1.
+        if weight_index >= 0:
+            weight = float(splitted_line[weight_index])
         
         # are we in the correlation z bin?
         # include the lower bin limit, and not the upper.
@@ -278,7 +319,7 @@ def parse_data( filename, mag_cut, suffix, z_mean, z_width, add_nofz=True, spars
                 z_spec.append(specz)
                 z_phot.append(photz)
             
-            outarray = array('d', [float(splitted_line[0]), float(splitted_line[1]), mag]) # not numpy.array
+            outarray = array('d', [ra, dec, mag, weight]) # not numpy.array
             outarray.tofile(f1)
             nsample += 1
     

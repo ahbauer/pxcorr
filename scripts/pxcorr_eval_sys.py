@@ -20,24 +20,23 @@ from lib_mbe import h5getattr, h5setattr
 import partpix_map
 
 test_plots = False
-galaxy_string = 'gold'
 fit_theory = True
-ignore_systematic_cross = False
+
 
 def fit_bias_real(corr, cov, theory_bias1):
     
     # lu_results = linalg.lu_factor(cov)
     # result = optimize.fmin( fit_bias_real_guts, x0=1.0, args=(corr,lu_results,theory_bias1) )
     cov_inv = linalg.inv(cov)
-    for i in range(len(corr)):
-        for j in range(len(corr)):
-            print '{0} {1} {2}'.format(i,j,cov_inv[i,j])
+    # for i in range(len(corr)):
+    #     for j in range(len(corr)):
+    #         print '{0} {1} {2}'.format(i,j,cov_inv[i,j])
     result = optimize.fmin( fit_bias_real_guts, x0=1.0, args=(corr,cov_inv,theory_bias1) )
     b = result[0]
     # chi2 = fit_bias_real_guts( b, corr, lu_results, theory_bias1 )
     chi2 = fit_bias_real_guts( b, corr, cov_inv, theory_bias1 )
     ndf =  len(corr)-1
-    print "%f %f %d" %(b, chi2, ndf)
+    # print "%f %f %d" %(b, chi2, ndf)
     
     # the error is when the chi2 goes up by 1
     eb_high = 0.
@@ -71,7 +70,10 @@ def main():
     print "Reading filename %s" %filename
     h5file = tables.openFile(filename)
     
-    do_sys = False
+    galaxy_string = 'bench'
+    do_sys = True
+    do_all_sys = False
+    ignore_systematic_cross = False
     
     # read in the metadata
     meta = {}
@@ -120,8 +122,12 @@ def main():
     
     if do_sys:
         jks = dict((u, {}) for u in meta['u_mean'])
-        jk_group = h5file.getNode('/', 'jk')
-        
+        try:
+            jk_group = h5file.getNode('/', 'jk')
+        except tables.exceptions.NoSuchNodeError:
+            print 'WARNING: No jk node in the hdf5 file, so not dealing with any systematics.'
+            do_sys = False
+            
     for corr_name, corrObj in corr_grp._v_children.iteritems():
 
         y = lambda x: h5getattr(corrObj, x)
@@ -240,9 +246,16 @@ def main():
     if n_galpops != 1:
         raise AssertionError, "%d populations found with the galaxy string %s" %(n_galpops, galaxy_string)
     
+    if len(systematics_pops) == 0:
+        do_sys = False
+    
     if do_sys:
         print "Systematics populations found:"
         print systematics_pops
+    else:
+        print "Found these systematics but am not using them:"
+        print systematics_pops
+        systematics_pops = []
     
     # now, find the galaxy counts autocorrelation errors
     A = (('counts',galaxy_pop),('counts',galaxy_pop))
@@ -367,6 +380,9 @@ def main():
                 # if systematic == 'fwhm_i' or systematic == 'desdmpz_error' or systematic == 'depth_mask_delta':
                     significant = True
             ##########################
+            
+            if do_all_sys:
+                significant = True
         
             # if it's significant, add its contribution to the galaxy correction calculation
             if significant:
@@ -463,6 +479,8 @@ def main():
                             sys_cross_vector2[s2] = corr[u][A_cross1][:][0][zbin]
                         except KeyError, IndexError:
                             sys_cross_vector2[s2] = corr[u][A_cross2][:][zbin][0]
+                if ignore_systematic_cross:
+                    sys_auto_matrix2 = np.identity(len(sys_auto_matrix[zbin]))*sys_auto_matrix2
                 result = np.linalg.solve(sys_auto_matrix2, sys_cross_vector2)
                 # print "sys_auto: {0}".format(sys_auto_matrix2)
                 # print "sys_cross: {0}".format(sys_cross_vector2)
@@ -505,7 +523,7 @@ def main():
                             if jkGalAutoMap.pixel_mapping_arraytohigh[k] not in jkAutoMap.pixel_mapping_arraytohigh:
                                 continue
                 
-                            if not ignore_systematic_cross:
+                            if (not ignore_systematic_cross) or (s1 == s2):
                                 correction += alphas_per_angle[i][s1]*alphas_per_angle[i][s2]*jkAutoMap.partmap[k]
         
                         correction -= 2.0 * alphas_per_angle[i][s1]*jkCrossMap.partmap[k]
@@ -534,9 +552,10 @@ def main():
                         except KeyError, IndexError:
                             autocorrelation = corr[u][A_auto2][:][0][0]
             
-                        # correction += alphas[zbin][s1]*alphas[zbin][s2]*autocorrelation
-                        correction += alphas_per_angle[i][s1]*alphas_per_angle[i][s2]*autocorrelation
-    
+                        if (not ignore_systematic_cross) or (s1 == s2):
+                            # correction += alphas[zbin][s1]*alphas[zbin][s2]*autocorrelation
+                            correction += alphas_per_angle[i][s1]*alphas_per_angle[i][s2]*autocorrelation
+                    
                     # correction -= 2.0 * alphas[zbin][s1]*crosscorrelation
                     correction -= 2.0 * alphas_per_angle[i][s1]*crosscorrelation
                 A_gal = (('counts',galaxy_pop),('counts',galaxy_pop))
@@ -620,7 +639,7 @@ def main():
         if fit_theory:
             zstrings = {0.3:'0p3', 0.5:'0p5', 0.7:'0p7', 0.9:'0p9', 1.1:'1p1'}
             zindices = {0.3: '0', 0.5:'1', 0.7:'2', 0.9:'3', 1.1:'4'}
-            min_index = 1
+            min_index = 0
             if z not in zstrings.keys():
                 print "Warning, no theory for redshift {0}".format(z)
             else:
@@ -630,9 +649,13 @@ def main():
                     theory = np.loadtxt(theory_file,unpack=True)
                     # print theory 
                     theory_ws = np.array(np.interp( us, theory[0], theory[2], right=0. ))
-                    valid_indices = 9 #np.sum(us<theory[0][-1])  TEMPORARY, not including biggest radii with big and weird covariance
+                    valid_indices = np.sum(us<theory[0][-1])  
                     print "valid indices: {0}".format(valid_indices)
                     # print theory_ws
+                    
+                    # TEMPORARY, only diagonal covariance!
+                    # corrected_cov *= np.identity(len(corrected_cov[0]))
+                    
                     bias, bias_error_low, bias_error_high, chi2, ndf = fit_bias_real( galaxy_corrected[min_index:valid_indices], corrected_cov[min_index:valid_indices,min_index:valid_indices], theory_ws[min_index:valid_indices] )
                     print "bias = {0:3.2f} + {1:3.2f} - {2:3.2f}, {3}/{4} chi2/ndf".format(bias, bias_error_high, bias_error_low, chi2, ndf)
                     # plot it on the plot
@@ -644,8 +667,10 @@ def main():
                     theory_ws_low = low_bias2*theory_ws
                     theory_ws_high = high_bias2*theory_ws
                     print us
-                    print theory_ws_low
-                    print theory_ws_high
+                    print galaxy_corrected
+                    print corrected_errs
+                    # print theory_ws_low
+                    # print theory_ws_high
                     ax0.fill_between( us[min_index:valid_indices], theory_ws_low[min_index:valid_indices], theory_ws_high[min_index:valid_indices], alpha=0.2 )
                     ax0.legend()
                 else:
