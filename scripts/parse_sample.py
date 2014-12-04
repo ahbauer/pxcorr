@@ -4,12 +4,12 @@
 import sys
 import os
 import math
-import numpy
+import numpy as np
 import tables
 import json
 from array import array
 from scipy.stats import gaussian_kde
-sys.path.append("/Users/bauer/software/pxcorr/src/")
+#sys.path.append("/Users/bauer/software/pxcorr/src/")
 import make_maps
 
 class photoz_entry(tables.IsDescription):
@@ -60,7 +60,7 @@ def parse_data3pt( filename, mag_cuts, f, sparse=True ):
     nbins_z = len(z_means)
     min_z = 0.0
     max_z = z_means[nbins_z-1] + z_widths[nbins_z-1]/2.0
-    data = numpy.zeros(nbins_z)
+    data = np.zeros(nbins_z)
 
     # open the output files
     # these at some point will turn into FIFOs...?
@@ -89,7 +89,7 @@ def parse_data3pt( filename, mag_cuts, f, sparse=True ):
     # this SHOULD be an sql query to the DB...
     # but, for now it is just an input file.    catalog = open(filename, "r")
     catalog = open(filename, "r")
-    nsample = numpy.zeros(nbins_z)
+    nsample = np.zeros(nbins_z)
     use_mags = True
     for line in catalog:
         splitted_line = line.split()
@@ -115,7 +115,7 @@ def parse_data3pt( filename, mag_cuts, f, sparse=True ):
         # what correlation redshift bin are we in?
         if( photz <= z_edges[0] or photz >= z_edges[-1] ):
             continue
-        inds = numpy.digitize([photz], z_edges)
+        inds = np.digitize([photz], z_edges)
         bin_z = inds[0]-1
 
         # keep the info for the slopes even if outside the bin ranges
@@ -124,7 +124,7 @@ def parse_data3pt( filename, mag_cuts, f, sparse=True ):
         zbin_for_mag = int(math.floor(photz/(mag_maxz/mag_nzs)))
         if( zbin_for_mag > mag_nzs-1 ):
             continue
-        interp_mag_cut = numpy.interp(photz, z_means, mag_cuts)
+        interp_mag_cut = np.interp(photz, z_means, mag_cuts)
         if mag < interp_mag_cut+1:
             mags[zbin_for_mag].append(mag)
 
@@ -163,11 +163,11 @@ def parse_data3pt( filename, mag_cuts, f, sparse=True ):
     # save N(z) info
     n_sparse = 20000
     if sparse and len(z_phot)>n_sparse:
-        inds = numpy.random.randint(0, len(z_phot), n_sparse)
-        z_phot2 = numpy.array(z_phot)
+        inds = np.random.randint(0, len(z_phot), n_sparse)
+        z_phot2 = np.array(z_phot)
         z_phot2 = z_phot2[inds]
         z_phot = z_phot2
-        z_spec2 = numpy.array(z_spec)
+        z_spec2 = np.array(z_spec)
         z_spec2 = z_spec2[inds]
         z_spec = z_spec2
 
@@ -187,12 +187,12 @@ def parse_data3pt( filename, mag_cuts, f, sparse=True ):
 
     # save noise info: an array of one value per redshift bin.
     f.createGroup('/', 'noise')
-    noise_array = numpy.zeros(nbins_z)
+    noise_array = np.zeros(nbins_z)
     for z in range(nbins_z):
         if data[z] > 0:
             noise_array[z] = 1.0/data[z]
 
-    noise = f.createArray('/noise', 'noise1', numpy.diag(noise_array))
+    noise = f.createArray('/noise', 'noise1', np.diag(noise_array))
     noise.setAttr('ftype0', json.dumps('counts'))
     noise.setAttr('pop0', json.dumps(pop))
     noise.setAttr('ftype1', json.dumps('counts'))
@@ -253,7 +253,7 @@ def parse_data( filename, mag_cut, suffix, z_mean, z_width, add_nofz=True, spars
             pi += 1
     if photoz_index < 0:
         msg = 'parse_data: Error finding photo_z entry in header line {0}'.format(header)
-        raise error(msg)
+        raise Exception(msg)
     
     mag_index = -1
     for h in range(len(splitted_header)):
@@ -319,11 +319,11 @@ def parse_data( filename, mag_cut, suffix, z_mean, z_width, add_nofz=True, spars
                 z_spec.append(specz)
                 z_phot.append(photz)
             
-            outarray = array('d', [ra, dec, mag, weight]) # not numpy.array
+            outarray = array('d', [ra, dec, mag, weight]) # not np.array
             outarray.tofile(f1)
             nsample += 1
     
-    print >> sys.stderr, "read in catalog."
+    print >> sys.stderr, "parse_data: read in catalog."
     if add_nofz:
         print >> sys.stderr, "%d spectroscopic zs." %(len(z_spec))
 
@@ -335,11 +335,11 @@ def parse_data( filename, mag_cut, suffix, z_mean, z_width, add_nofz=True, spars
     if add_nofz:
         n_sparse = 10000
         if sparse and len(z_phot)>n_sparse:
-            inds = numpy.random.randint(0, len(z_phot), n_sparse)
-            z_phot2 = numpy.array(z_phot)
+            inds = np.random.randint(0, len(z_phot), n_sparse)
+            z_phot2 = np.array(z_phot)
             z_phot2 = z_phot2[inds]
             z_phot = z_phot2
-            z_spec2 = numpy.array(z_spec)
+            z_spec2 = np.array(z_spec)
             z_spec2 = z_spec2[inds]
             z_spec = z_spec2
         
@@ -362,8 +362,8 @@ def measure_slopes( mags, mag_maxz, mag_nzs, mag_cut, suffix, use_mags ):
     delta_mag = 0.05
 
     # loop over z bins to calculate one slope per each
-    slope_array = numpy.zeros(mag_nzs)
-    slope_m_array = numpy.zeros(mag_nzs)
+    slope_array = np.zeros(mag_nzs)
+    slope_m_array = np.zeros(mag_nzs)
     if not use_mags:
         print >> sys.stderr, "setting all alphas to zero!"
 
@@ -374,8 +374,8 @@ def measure_slopes( mags, mag_maxz, mag_nzs, mag_cut, suffix, use_mags ):
             nm = len(mags[zbin_fine])
             if( nm < 100 ):
                 continue
-            mag_array = numpy.array(mags[zbin_fine])
-            minmag = numpy.min(mag_array)
+            mag_array = np.array(mags[zbin_fine])
+            minmag = np.min(mag_array)
             # print magarray
             # magz = (zbin_fine+0.5)*mag_maxz/mag_nzs
 
@@ -387,21 +387,21 @@ def measure_slopes( mags, mag_maxz, mag_nzs, mag_cut, suffix, use_mags ):
             # if( y_kde1 == 0 or y_kde2 == 0 ):
             #     slope_kde = 0.4
             # else:
-            #     slope_kde = (numpy.log10(y_kde2)-numpy.log10(y_kde1))/delta_mag
+            #     slope_kde = (np.log10(y_kde2)-np.log10(y_kde1))/delta_mag
             # slope_array[zbin_fine] = 2.5*slope_kde - 1
             
             
             # mags!
             mags1 = mag_array[(mag_array < mag_cut)]
             mags2 = mag_array[(mag_array < mag_cut+delta_mag)]
-            slope_m_array[zbin_fine] = -1.0857*(1.0-(numpy.mean(mags2)-numpy.mean(mags1))/delta_mag)
+            slope_m_array[zbin_fine] = -1.0857*(1.0-(np.mean(mags2)-np.mean(mags1))/delta_mag)
             
             # no kde?
             n1 = len(mags1)
             n2 = len(mags2)
             slope_counts = 0.4
             if n1> 0 and n2 > 0:
-                slope_counts = (numpy.log10(n2)-numpy.log10(n1))/delta_mag
+                slope_counts = (np.log10(n2)-np.log10(n1))/delta_mag
             slope_array[zbin_fine] = 2.5*slope_counts - 1
 
             # print >> sys.stderr, "z bin %d at %f s = %f alpha_c = %f alpha_m = %f" %(zbin_fine, (zbin_fine+0.5)*mag_maxz/mag_nzs, slope_kde, slope_array[zbin_fine], slope_m_array[zbin_fine])
@@ -413,7 +413,7 @@ def measure_slopes( mags, mag_maxz, mag_nzs, mag_cut, suffix, use_mags ):
     outfilename = "slopes_" + suffix + ".ssv"
     outfile = open( outfilename, 'w' )
     for s in range(len(slope_array)):
-        outfile.write( "{0:.4f} {0:.4f} {0:.4f}\n".format((s+0.5)*mag_maxz/mag_nzs, slope_array[s], slope_m_array[s]) )
+        outfile.write( "{0:.4f} {1:.4f} {2:.4f}\n".format((s+0.5)*mag_maxz/mag_nzs, slope_array[s], slope_m_array[s]) )
     outfile.close()
     return outfilename
 
@@ -521,15 +521,13 @@ def construct_inputs( suffix, catalog_filename, ftypes, ang_means, ang_widths, n
             # write to output file, so the epilogue can read it in and save it to the hdf5 file.
             outfile = open( nofz_filename, 'w' )
             outfile.write( "0.0 0.0 1.0\n" )
+            outfile.write( "0.1 1.0 1.0\n" )
+            outfile.write( "0.2 0.0 1.0\n" )
             outfile.close()
             nofz_filename = [nofz_filename]
-            
-        # make sure there exists a (dummy) slopes file to read in later
-        slopes_filename = "slopes_" + suffix + ".ssv"
-        # write to output file, so the epilogue can read it in and save it to the hdf5 file.
-        outfile = open( slopes_filename, 'w' )
-        outfile.write( "0.0 0.0 0.0\n" )
-        outfile.close()
+        
+        # write a slopes file with all zeros (use_mags = false)
+        measure_slopes( [], 2.0, 100, mag_cut, suffix, False )
                 
     else:
         # parse the catalog: construct N(z) data, calculate slope, etc.
@@ -544,7 +542,7 @@ def construct_inputs( suffix, catalog_filename, ftypes, ang_means, ang_widths, n
     use_mags = False
     if 'mags' in ftypes:
         use_mags = True
-    make_maps.make_maps( subcat_filename, mask_filename, ang_means, ang_widths, use_counts, use_mags, suffix, pop, zbin );
+    make_maps.make_maps_2pt( subcat_filename, mask_filename, ang_means, ang_widths, use_counts, use_mags, suffix, pop, zbin );
     print "Finished making map from %s" %subcat_filename
 
     return slopes_filename, nofz_filename
@@ -552,18 +550,25 @@ def construct_inputs( suffix, catalog_filename, ftypes, ang_means, ang_widths, n
 
 def main():
 
-    if len(sys.argv) != 4:
-        print "Usage: parse_sample.py catalog_filename mag_cut metadata_filename"
-        print "       where the galaxy catalog is like: ra dec z_phot z_spec magnitude"
-        print "       z_spec<0 or z_spec>10 will be treated as a null value"
-        print "       metadata file is hdf5"
-
-    filename = sys.argv[1]
-    mag_cut = float(sys.argv[2])
-    metadata_filename = sys.argv[3]
-
-    parse_data( filename, mag_cut, metadata_filename )
-
+    if len(sys.argv) != 1:
+        print "Usage: parse_sample.py"
+        print "       Just a test, no main function for real use."
+    
+    # make a fake input file
+    nobjs = 100000
+    ras = 5.0*np.random.rand(nobjs)
+    decs = 5.0*np.random.rand(nobjs)
+    zs = 0.2*np.random.rand(nobjs)
+    mags = 18.0 + 5.0*np.random.rand(nobjs)
+    weights = np.ones(nobjs)
+    outfile = open('parse_tempfile.txt', 'w')
+    outfile.write('ra dec photo-z mag weight\n')
+    for ra,dec,z,mag,weight in zip(ras,decs,zs,mags,weights):
+        outfile.write('{0} {1} {2} {3} {4}\n'.format(ra,dec,z,mag,weight))
+    outfile.close()
+    
+    outfilename, slopes_filename, nofz_filename = parse_data( 'parse_tempfile.txt', 22.8, '', 0.1, 0.2, add_nofz=False, sparse=True )
+    make_maps.make_maps_2pt( outfilename, 'None', [0.5,1.0], [0.5,0.5], True, True, '', 'benchmark', 0 );
 
 if __name__ == '__main__':
     main()

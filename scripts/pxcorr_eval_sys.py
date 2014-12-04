@@ -25,43 +25,44 @@ fit_theory = True
 
 def fit_bias_real(corr, cov, theory_bias1):
     
-    # lu_results = linalg.lu_factor(cov)
-    # result = optimize.fmin( fit_bias_real_guts, x0=1.0, args=(corr,lu_results,theory_bias1) )
-    cov_inv = linalg.inv(cov)
+    lu_results = linalg.lu_factor(cov)
+    result = optimize.fmin( fit_bias_real_guts, x0=1.0, args=(corr,lu_results,theory_bias1) )
+    # cov_inv = linalg.inv(cov)
     # for i in range(len(corr)):
     #     for j in range(len(corr)):
     #         print '{0} {1} {2}'.format(i,j,cov_inv[i,j])
-    result = optimize.fmin( fit_bias_real_guts, x0=1.0, args=(corr,cov_inv,theory_bias1) )
+    # result = optimize.fmin( fit_bias_real_guts, x0=1.0, args=(corr,cov_inv,theory_bias1) )
     b = result[0]
-    # chi2 = fit_bias_real_guts( b, corr, lu_results, theory_bias1 )
-    chi2 = fit_bias_real_guts( b, corr, cov_inv, theory_bias1 )
+    chi2 = fit_bias_real_guts( b, corr, lu_results, theory_bias1 )
+    # chi2 = fit_bias_real_guts( b, corr, cov_inv, theory_bias1 )
     ndf =  len(corr)-1
     # print "%f %f %d" %(b, chi2, ndf)
     
     # the error is when the chi2 goes up by 1
     eb_high = 0.
     for eb_high in np.arange(0.01,10.0,0.01):
-        # chi2_high = fit_bias_real_guts( b+eb_high, corr, lu_results, theory_bias1 )
-        chi2_high = fit_bias_real_guts( b+eb_high, corr, cov_inv, theory_bias1 )
+        chi2_high = fit_bias_real_guts( b+eb_high, corr, lu_results, theory_bias1 )
+        # chi2_high = fit_bias_real_guts( b+eb_high, corr, cov_inv, theory_bias1 )
         if chi2_high > chi2+1:
             break
     eb_low = 0.
     for eb_low in np.arange(0.01,10.0,0.01):
-        # chi2_low = fit_bias_real_guts( b-eb_low, corr, lu_results, theory_bias1 )
-        chi2_low = fit_bias_real_guts( b-eb_low, corr, cov_inv, theory_bias1 )
+        chi2_low = fit_bias_real_guts( b-eb_low, corr, lu_results, theory_bias1 )
+        # chi2_low = fit_bias_real_guts( b-eb_low, corr, cov_inv, theory_bias1 )
         if chi2_low > chi2+1:
             break
     
     return b, eb_low, eb_high, chi2, ndf
 
 
-# def fit_bias_real_guts(bias, corr, lu_results, theory_bias1):
-def fit_bias_real_guts(bias, corr, cov_inv, theory_bias1):
+def fit_bias_real_guts(bias, corr, lu_results, theory_bias1):
+# def fit_bias_real_guts(bias, corr, cov_inv, theory_bias1):
     corr_minus_theory = corr - theory_bias1*bias*bias
-    # x = linalg.lu_solve(lu_results, corr_minus_theory)
-    # chi2 = np.sum(corr_minus_theory*x)
+    x = linalg.lu_solve(lu_results, corr_minus_theory)
+    chi2 = np.sum(corr_minus_theory*x)
+    # print '{0} {1} {2} {3}'.format(bias, chi2, np.sum(corr_minus_theory), corr_minus_theory)
     
-    chi2 = np.dot(corr_minus_theory,np.dot(cov_inv,corr_minus_theory))
+    #chi2 = np.dot(corr_minus_theory.T,np.dot(cov_inv,corr_minus_theory))
     
     return chi2
 
@@ -75,6 +76,12 @@ def main():
     do_all_sys = False
     ignore_systematic_cross = False
     
+    if len(sys.argv) > 2 and sys.argv[2] == 'nosys':
+        do_sys = False
+    
+    if len(sys.argv) > 2 and sys.argv[2] == 'allsys':
+        do_all_sys = True
+        
     # read in the metadata
     meta = {}
     mObject = h5file.getNode('/meta', 'meta')
@@ -297,7 +304,10 @@ def main():
     for systematic in systematics_pops:
     
         print "Starting systematic {0}".format(systematic)
-    
+        if systematic.find('magerr') >= 0:
+            print 'Skipping!'
+            continue
+        
         # print systematic
         A_cross1 = (('counts',systematic),('counts',galaxy_pop))
         A_cross2 = (('counts',galaxy_pop),('counts',systematic))
@@ -360,7 +370,8 @@ def main():
                     for p in range(len(jk_array[i])):
                         correction_cov[i,j] += (jk_array[i][p]-imean)*(jk_array[j][p]-jmean)
                     correction_cov[i,j] *= (float(len(jk_array[i])-1.0))/float(len(jk_array[i]))
-        
+            correction_error = np.sqrt(np.diagonal(correction_cov))
+            
             # calculate chi2 difference from zero
             cov_inv = np.linalg.inv(correction_cov)
             chi2 = 0.
@@ -376,7 +387,7 @@ def main():
             significant = False
             for i,u in enumerate(us):
                 if chi2 > 1.0:
-                # if abs(correction[i]) > 2.*np.sqrt(correction_cov[i,i]): # and abs(requirement[i])>0.33:
+                # if abs(correction[i]) > 1.*np.sqrt(correction_cov[i,i]): # and abs(requirement[i])>0.33:
                 # if systematic == 'fwhm_i' or systematic == 'desdmpz_error' or systematic == 'depth_mask_delta':
                     significant = True
             ##########################
@@ -432,16 +443,28 @@ def main():
             ax0.errorbar(us,crosscorr_sys[zbin,:],yerr=crosscorr_err[zbin,:],fmt='.-')
             ax0.set_xscale('log')
         
+            # ttl = '{0} req., gal z {1}, chi2 {2:.2f}'.format(systematic, z, chi2)
+            # ylab= "correction/error"
+            # wmin = min(requirement)
+            # if wmin < 0:
+            #     wmin *= 1.2
+            # else:
+            #     wmin *= 0.8
+            # wmax = 1.2*max(requirement)
+            # ax0 = fig.add_subplot(2,2,4, xlim=[umin,umax], ylim=[wmin,wmax], xlabel=xlab, ylabel=ylab, title=ttl)
+            # ax0.errorbar(us,requirement,yerr=requirement_error,fmt='.-')
+            # ax0.set_xscale('log')
+            
             ttl = '{0} req., gal z {1}, chi2 {2:.2f}'.format(systematic, z, chi2)
-            ylab= "correction/error"
-            wmin = min(requirement)
+            ylab= "alpha"
+            wmin = min(correction)
             if wmin < 0:
                 wmin *= 1.2
             else:
                 wmin *= 0.8
-            wmax = 1.2*max(requirement)
+            wmax = 1.2*max(correction)
             ax0 = fig.add_subplot(2,2,4, xlim=[umin,umax], ylim=[wmin,wmax], xlabel=xlab, ylabel=ylab, title=ttl)
-            ax0.errorbar(us,requirement,yerr=requirement_error,fmt='.-')
+            ax0.errorbar(us,correction,yerr=correction_error,fmt='.-')
             ax0.set_xscale('log')
         
             fig.tight_layout()
@@ -643,7 +666,7 @@ def main():
             if z not in zstrings.keys():
                 print "Warning, no theory for redshift {0}".format(z)
             else:
-                theory_filename = '/Users/bauer/surveys/DES/sva1/lss_cats/gold/theory/wtheta_N' + zindices[z] + '-DESiauto22.5_z' + zstrings[z] + '.dat'
+                theory_filename = '/Users/bauer/surveys/DES/sva1/lss_cats/gold/theory/wtheta_Planck_N' + zindices[z] + '-DESiauto22.5_z' + zstrings[z] + '.dat'
                 theory_file = open(theory_filename)
                 if os.path.isfile(theory_filename):
                     theory = np.loadtxt(theory_file,unpack=True)
@@ -654,6 +677,7 @@ def main():
                     # print theory_ws
                     
                     # TEMPORARY, only diagonal covariance!
+                    # print 'USING DIAGONAL COVARIANCE ONLY'
                     # corrected_cov *= np.identity(len(corrected_cov[0]))
                     
                     bias, bias_error_low, bias_error_high, chi2, ndf = fit_bias_real( galaxy_corrected[min_index:valid_indices], corrected_cov[min_index:valid_indices,min_index:valid_indices], theory_ws[min_index:valid_indices] )

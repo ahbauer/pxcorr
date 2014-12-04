@@ -8,10 +8,25 @@ import healpy
 
 def main():
     
-    if len(sys.argv) < 3:
+    input_files = []
+    
+    if len(sys.argv) < 2:
         print "Usage: svd_maps.py map1 map2 ..."
+        print "       or"
+        print "       svd_maps.py map_list_file"
         exit(1)
-    input_files = sys.argv[1:]
+    if len(sys.argv) == 2:
+        listfile = open(sys.argv[1])
+        for line in listfile:
+            entries = line.split()
+            input_files.append(entries[0])
+    else:
+        input_files = sys.argv[1:]
+    
+    if len(input_files) < 2:
+        print 'Error, not enough input files to decompose: {0}'.format(input_files)
+        exit(1)
+    
     print "Orthogonalizing maps {0}".format(input_files)
     
     maps = []
@@ -23,7 +38,7 @@ def main():
             # hmap = pmap.to_healpix()
             # maps.append(hmap)
             print "Read in {0}".format(infile)
-        elif infile[-4:] == 'fits':
+        elif (infile[-4:] == 'fits') or (infile[-7:] == 'fits.gz'):
             hmap = healpy.fitsfunc.read_map(infile)
             pmap = partpix_map.Partpix_Map()
             pmap.from_healpix(hmap)

@@ -146,7 +146,8 @@ class pkg_read(object):
         """    
 
         cov = dict((u, {}) for u in meta['u_mean'])
-        for cov_name, covObj in self.h5file.getNode('/', 'cov')._v_children.items():
+        cov_grp = self.h5file.getNode('/', 'cov')
+        for cov_name, covObj in cov_grp._v_children.iteritems():
             
             y = lambda x: h5getattr(covObj, x)
             A = ((y('ftype0'), y('pop0')), (y('ftype1'), y('pop1')), \
@@ -393,7 +394,13 @@ class pkg_read(object):
             nzbins1 = self.corr[us[0]][A].shape[1]
             for zbin1 in range(nzbins0):
                 for zbin2 in range(nzbins1):
-                    f = open("pxcorr_simple_{0}_z{1}z{2}".format(A,zbin1,zbin2), 'w')
+                    
+                    # if zbin1 != zbin2: 
+                    #     continue
+                    # if (not A[0][1].find('gold') >= 0) or (not A[1][1].find('gold') >= 0) :
+                    #     continue
+                    # f = open("pxcorr_simple_{0}_z{1}z{2}".format(A,zbin1,zbin2), 'w')
+                    f = open("pxcorr_simple_z{0}z{1}".format(zbin1,zbin2), 'w')
                     # only print the diagonal part of the covariance
                     for iu1, u1 in enumerate(us):
                         correlation = self.corr[u1][A][:][zbin1][zbin2]
@@ -432,7 +439,7 @@ def main():
     print "reading filename %s" %filename
     pkg = pkg_read(filename)
     pkg.plot()
-    # pkg.print_simple()
+    pkg.print_simple()
 
 
 if __name__ == '__main__':

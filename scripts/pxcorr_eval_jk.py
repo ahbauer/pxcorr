@@ -57,10 +57,10 @@ def main():
         meta[pop_name] = metapop
     
     u_index = 0
-    if len(meta['u_mean']) > 1:
-        print "There's more than one angular bin, but we'll just look at the first one."
-        print " JUST KIDDING, the 9th one!"
-        u_index = 8
+    # if len(meta['u_mean']) > 1:
+    #     print "There's more than one angular bin, but we'll just look at the first one."
+    #     print " JUST KIDDING, the 7th one!"
+    #     u_index = 6
     
     # read in the covariance matrices
     # # print h5file.getNode('/', 'cov')._v_children.keys()

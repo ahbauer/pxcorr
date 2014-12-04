@@ -22,8 +22,12 @@ from scipy import weave
 from scipy.weave import converters
 
 class partpix_entry(tables.IsDescription):
-    pixel = tables.Int32Col(dflt=0, pos=0)
+    pixel = tables.Int64Col(dflt=0, pos=0)
     value = tables.Float32Col(dflt=0.0, pos=1)
+
+class partpix_byte_entry(tables.IsDescription):
+    pixel = tables.Int64Col(dflt=0, pos=0)
+    value = tables.Int8Col(dflt=0, pos=1)
 
 
 class Partpix_Map:
@@ -54,9 +58,14 @@ class Partpix_Map:
     
     def __getitem__(self, i):
         indices = np.searchsorted(self.pixel_mapping_arraytohigh,i)
-        assert self.pixel_mapping_arraytohigh[indices] == i, "partpix_map:__getitem__: all indices not found in the map"
+        assert (self.pixel_mapping_arraytohigh[indices] == i).all(), "partpix_map:__getitem__: all indices not found in the map"
         return self.partmap[indices]
-        
+    
+    def __setitem__(self, i, j):
+        indices = np.searchsorted(self.pixel_mapping_arraytohigh,i)
+        assert (self.pixel_mapping_arraytohigh[indices] == i).all(), "partpix_map:__getitem__: all indices not found in the map"
+        self.partmap[indices] = j
+    
     def mean(self):
         if self.partmap is None:
             err_msg = "Trying to take the mean of an undefined Partpix_Map"
@@ -68,7 +77,13 @@ class Partpix_Map:
             err_msg = "Trying to take the sum of an undefined Partpix_Map"
             raise Exception, err_msg
         return np.sum(self.partmap)
-        
+    
+    def copy(self, input_map):
+        self.order = input_map.order
+        self.partmap = input_map.partmap
+        self.pixel_mapping_arraytohigh = input_map.pixel_mapping_arraytohigh
+        self.update()
+    
     def intersection( self, map2 ):
         
         if self.order != map2.order:
@@ -107,7 +122,12 @@ class Partpix_Map:
         outmap2.update()
         
         return outmap1, outmap2
-        
+    
+    def pixel_intersection(self, pixels):
+        indices = np.searchsorted(self.pixel_mapping_arraytohigh,pixels)
+        indices = indices[self.pixel_mapping_arraytohigh[indices] == pixels]
+        return indices
+    
     def bool( self, cutoff=0.5 ):
         if self.npartpix == 0:
             return
@@ -116,6 +136,7 @@ class Partpix_Map:
                 self.partmap[i] = 1.0
             else:
                 self.partmap[i] = 0.0
+    
     
     def read_from_ascii( self, filename ):
         file = open(filename, 'r')
@@ -141,7 +162,7 @@ class Partpix_Map:
             self.partmap[c] = float(v)
             c += 1
         self.update()
-        
+    
     def read_from_hdf5table( self, table ):
         
         assert isinstance(table, tables.table.Table), "This is not an hdf5 table!"
@@ -155,8 +176,8 @@ class Partpix_Map:
             print "Error, hdf5 partpix map table has a different number of pixels from values (%d vs. %d)" %(len(ps), len(vs))
             
         obj_attrs = getattr(table, 'attrs')
-        self.order = getattr(obj_attrs, 'order')
-        self.scheme = getattr(obj_attrs, 'scheme')
+        self.order = int(getattr(obj_attrs, 'order'))
+        self.scheme = int(getattr(obj_attrs, 'scheme'))
         self.npartpix = len(ps)
         
         self.pixel_mapping_arraytohigh = np.zeros(self.npartpix, dtype='int64')
@@ -196,32 +217,65 @@ def read_from_hdf5file( map_filename, read_map=True, read_mask=True ):
     mapfile = tables.openFile(map_filename)
     map1 = None
     mask1 = None
+    meta_array = mapfile.getNode('/meta/','meta')
+    order = int(meta_array.attrs.order)
+    scheme = int(meta_array.attrs.scheme)
     if read_mask:
         mask1 = Partpix_Map()
         mask_pixels = mapfile.getNode('/data/', 'mask_pixels')
         mask1.pixel_mapping_arraytohigh = mask_pixels.read() # a numpy array
         # this is sloppy;  the order & scheme should be metadata, not the first values in the array.
-        mask1.order = mask1.pixel_mapping_arraytohigh[0]
-        mask1.pixel_mapping_arraytohigh = np.delete(mask1.pixel_mapping_arraytohigh, 0) 
+        # mask1.order = mask1.pixel_mapping_arraytohigh[0]
+        # mask1.pixel_mapping_arraytohigh = np.delete(mask1.pixel_mapping_arraytohigh, 0) 
+        mask1.order = order
         mask_data = mapfile.getNode('/data/', 'mask_values')
         mask1.partmap = mask_data.read()
-        mask1.scheme = mask1.partmap[0]
-        mask1.partmap = np.delete(mask1.partmap, 0)
+        # mask1.scheme = mask1.partmap[0]
+        # mask1.partmap = np.delete(mask1.partmap, 0)
+        mask1.scheme = scheme
         mask1.update()
     if read_map:
         map1 = Partpix_Map()
         map_pixels = mapfile.getNode('/data/', 'pixels')
         map1.pixel_mapping_arraytohigh = map_pixels.read() # a numpy array
-        map1.order = map1.pixel_mapping_arraytohigh[0]
-        map1.pixel_mapping_arraytohigh = np.delete(map1.pixel_mapping_arraytohigh, 0)
+        # map1.order = map1.pixel_mapping_arraytohigh[0]
+        # map1.pixel_mapping_arraytohigh = np.delete(map1.pixel_mapping_arraytohigh, 0)
+        map1.order = order
         map_data = mapfile.getNode('/data/', 'values')
         map1.partmap = map_data.read()
-        map1.scheme = map1.partmap[0]
-        map1.partmap = np.delete(map1.partmap, 0)
+        # map1.scheme = map1.partmap[0]
+        # map1.partmap = np.delete(map1.partmap, 0)
+        map1.scheme = scheme
         map1.update()
     mapfile.close()
     return map1, mask1
 
+def write_to_hdf5file( outfilename, dmap, mask, ang_means=[1.0], ang_widths=[0.1], ftype='counts', pop='faint', zbin=0, nobjs=0):
+    outfile = tables.openFile(outfilename, 'w')
+    outfile.createGroup('/', 'data', 'Data')
+    pixels = outfile.createArray('/data', 'pixels', dmap.pixel_mapping_arraytohigh, 'Map pixels')
+    values = outfile.createArray('/data', 'values', dmap.partmap, 'Map values')
+    mask_pixels = outfile.createArray('/data', 'mask_pixels', mask.pixel_mapping_arraytohigh, 'Mask pixels')
+    mask_values = outfile.createArray('/data', 'mask_values', mask.partmap, 'Mask values')
+    
+    ang_means_string = str(ang_means)
+    ang_widths_string = str(ang_widths)
+    
+    assert dmap.order == mask.order, 'make_maps:write_map: The mask and map have different orders ({0} and {1})'.format(dmask.order,dmap.order)
+    
+    outfile.createGroup('/', 'meta', 'Metadata')
+    meta_array = outfile.createArray('/meta', 'meta', 'Dummy')
+    meta_array.setAttr('order', str(dmap.order))
+    meta_array.setAttr('scheme', str(dmap.scheme))
+    meta_array.setAttr('u_mean', ang_means_string)
+    meta_array.setAttr('u_width', ang_widths_string)
+    meta_array.setAttr('fourier', 'false')
+    meta_array.setAttr('ftype', ftype)
+    meta_array.setAttr('pop', pop)
+    meta_array.setAttr('zbin', str(zbin))
+    meta_array.setAttr('nobj', str(nobjs))
+    outfile.close()
+    return
 
 code_degrade_nests="""
 using namespace std;
