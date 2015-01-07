@@ -19,63 +19,124 @@ import sys
 from lib_mbe import h5getattr, h5setattr
 import partpix_map
 
-test_plots = False
-fit_theory = True
 
-
-def fit_bias_real(corr, cov, theory_bias1):
+def is_significant(correction, correction_cov, chi2):
+    significant = False
     
-    # lu_results = linalg.lu_factor(cov)
-    # result = optimize.fmin( fit_bias_real_guts, x0=1.0, args=(corr,lu_results,theory_bias1) )
-    cov_inv = linalg.inv(cov)
-    # for i in range(len(corr)):
-    #     for j in range(len(corr)):
-    #         print '{0} {1} {2}'.format(i,j,cov_inv[i,j])
-    result = optimize.fmin( fit_bias_real_guts, x0=1.0, args=(corr,cov_inv,theory_bias1) )
+    if chi2 > 1.0:
+        significant = True
+    
+    # for i in range(len(correction)):
+        # if abs(correction[i]) > 1.*np.sqrt(correction_cov[i,i]):
+            # significant = True
+    
+    return significant
+
+def load_theory(theory_choice, z):
+    if theory_choice == 'desdm':
+        zstrings = {0.3:'0p3', 0.5:'0p5', 0.7:'0p7', 0.9:'0p9', 1.1:'1p1'}
+        zindices = {0.3: '0', 0.5:'1', 0.7:'2', 0.9:'3', 1.1:'4'}
+        if z not in zstrings.keys():
+            print "Warning, no theory for redshift {0}".format(z)
+        theory_filename = '/Users/bauer/surveys/DES/sva1/lss_cats/gold/theory/wtheta_Planck_N' + zindices[z] + '-DESiauto22.5_z' + zstrings[z] + '.dat'
+        theory_index = 2
+    elif theory_choice == 'tpz1':
+        theory_filename = '/Users/bauer/surveys/DES/sva1/lss_cats/gold/theory/tpz/N_z_' + str(z-0.1) + '_' + str(z+0.1) + '_tpz.dat'
+        theory_index = 1
+    elif theory_choice == 'tpz2':
+        theory_filename = '/Users/bauer/surveys/DES/sva1/lss_cats/gold/theory/tpz2/wtheta_Planck_zbin_' + str(z-0.1) + '-' + str(z+0.1) + '_bench_iauto.lt.22p5_tpz2_SG.lt.0p001.dat'
+        theory_index = 2
+    else:
+        msg = 'Error: theory choice not understood: {0}'.format(theory_choice)
+        raise Exception(msg)
+    return theory_filename, theory_index
+    
+    
+def fit_bias_real(corr, cov, theory_bias1, invert_cov=False):
+    
+    ndf = len(corr)-1
+    
+    cov_results = None
+    if invert_cov:
+        cov_results = linalg.inv(cov)
+    else:
+        cov_results = linalg.lu_factor(cov)
+    
+    result = optimize.fmin( fit_bias_real_guts, x0=1.0, args=(corr,cov_results,theory_bias1,invert_cov), disp=False )
     b = result[0]
-    # chi2 = fit_bias_real_guts( b, corr, lu_results, theory_bias1 )
-    chi2 = fit_bias_real_guts( b, corr, cov_inv, theory_bias1 )
-    ndf =  len(corr)-1
-    # print "%f %f %d" %(b, chi2, ndf)
+    chi2 = fit_bias_real_guts( b, corr, cov_results, theory_bias1, invert_cov )
     
     # the error is when the chi2 goes up by 1
     eb_high = 0.
     for eb_high in np.arange(0.01,10.0,0.01):
-        # chi2_high = fit_bias_real_guts( b+eb_high, corr, lu_results, theory_bias1 )
-        chi2_high = fit_bias_real_guts( b+eb_high, corr, cov_inv, theory_bias1 )
+        chi2_high = fit_bias_real_guts( b+eb_high, corr, cov_results, theory_bias1, invert_cov )
         if chi2_high > chi2+1:
             break
     eb_low = 0.
     for eb_low in np.arange(0.01,10.0,0.01):
-        # chi2_low = fit_bias_real_guts( b-eb_low, corr, lu_results, theory_bias1 )
-        chi2_low = fit_bias_real_guts( b-eb_low, corr, cov_inv, theory_bias1 )
+        chi2_low = fit_bias_real_guts( b-eb_low, corr, cov_results, theory_bias1, invert_cov )
         if chi2_low > chi2+1:
             break
     
     return b, eb_low, eb_high, chi2, ndf
 
 
-# def fit_bias_real_guts(bias, corr, lu_results, theory_bias1):
-def fit_bias_real_guts(bias, corr, cov_inv, theory_bias1):
-    corr_minus_theory = corr - theory_bias1*bias*bias
-    # x = linalg.lu_solve(lu_results, corr_minus_theory)
-    # chi2 = np.sum(corr_minus_theory*x)
+def fit_bias_real_guts(bias, corr, cov_results, theory_bias1, invert_cov=False):
     
-    chi2 = np.dot(corr_minus_theory,np.dot(cov_inv,corr_minus_theory))
+    corr_minus_theory = corr - theory_bias1*bias*bias
+    
+    chi2=-1.0
+    if invert_cov:
+        chi2 = np.dot(corr_minus_theory.T,np.dot(cov_results,corr_minus_theory))
+    else:
+        x = linalg.lu_solve(cov_results, corr_minus_theory)
+        chi2 = np.sum(corr_minus_theory*x)
     
     return chi2
 
+
 def main():
+    if len(sys.argv) < 2:
+        print 'Usage: pxcorr_eval_sys.py hdf5_filename (nosys,allsys)'
+        print '       nosys means ignore any systematics and just plot the galaxy autocorr and theory'
+        print '       allsys means correct for all systematics, not just the significant ones'
+        exit(1)
+    
+    
+    galaxy_strings = ['bench', 'gold']
+    do_sys = True
+    do_all_sys = False
+    ignore_systematic_cross = False
+    diagonal_covariance = False
+    
+    fit_theory = True
+    theory_choice = 'tpz2' # 'desdm' 'tpz1' 'tpz2'
+    
+    print 'Looking for galaxy samples with the strings: {0}'.format(galaxy_strings)
+    if ignore_systematic_cross:
+        print 'WARNING: Ignoring the cross-correlation between systematics!!'
+    if diagonal_covariance:
+        print 'WARNING: Only using the diagonal covariance!!'
+    
+    if fit_theory:
+        print 'Using theory predictions for photo-z: {0}'.format(theory_choice)
+    
     filename = sys.argv[1]
     print "Reading filename %s" %filename
     h5file = tables.openFile(filename)
     
-    galaxy_string = 'bench'
-    do_sys = True
-    do_all_sys = False
-    ignore_systematic_cross = False
+    if len(sys.argv) > 2 and sys.argv[2] == 'nosys':
+        print 'nosys: Ignoring systematics measurements'
+        do_sys = False
+    
+    if len(sys.argv) > 2 and sys.argv[2] == 'allsys':
+        print 'allsys: Correcting for all systematics'
+        do_all_sys = True
+        
     
     # read in the metadata
+    # this code originally copied from martin eriksen
+    # this block tells us what populations are in the file, and also the angular binning
     meta = {}
     mObject = h5file.getNode('/meta', 'meta')
     attr_list = mObject.attrs._f_list('user')
@@ -193,58 +254,23 @@ def main():
         for i,u in enumerate(meta['u_mean']):
             cov[u][A] = covArray[i]
     
-    # test: make some plots
-    if test_plots:
-        filename = "pxcorr_out.pdf"
-        pp = PdfPages(filename)
-        xlab = "theta (degrees)"
-        ylab= "w(theta)"
     
-        us = meta['u_mean']
-        As = corr[corr.keys()[0]].keys()
-        umin = 0.9*us[0] # - (us[1]-us[0])
-        if umin <= 0.:
-            umin = 0.003
-        umax = us[-1] + (us[-1]-us[-2])
-        for A in As:
-            AA = A + A
-            nzbins0 = corr[us[0]][A].shape[0]
-            nzbins1 = corr[us[0]][A].shape[1]
-            for zbin1 in range(nzbins0):
-                for zbin2 in range(nzbins1):
-                    ttl = str(A) + ", z bins " + str(zbin1) + "x" + str(zbin2)
-                    fig = plt.figure()
-                    ws = []
-                    for u in us:
-                        ws.append(corr[u][A][:][zbin1][zbin2])
-                    wmin = min(ws)
-                    if wmin < 0:
-                        wmin *= 1.5
-                    else:
-                        wmin *= 0.5
-                    wmax = 1.5*max(ws)
-                    ews = []
-                    for i,u in enumerate(us):
-                        ews.append(np.sqrt(cov[u][AA][i][zbin1][zbin2][zbin1][zbin2]))
-                    ax0 = fig.add_subplot(1,1,1, xlim=[umin,umax], ylim=[wmin,wmax], xlabel=xlab, ylabel=ylab, title=ttl)
-                    ax0.errorbar(us,ws,yerr=ews,fmt='.')
-                    ax0.set_xscale('log')
-                    pp.savefig()
-        pp.close()
-    
-    # ok, find the galaxy correlations in this big file.
+    # ok, find the galaxy correlations in this big dataset.
     galaxy_pop = 0
     n_galpops=0
     systematics_pops = []
     for pop in meta['pop']:
-        if pop.find(galaxy_string) >= 0:
-            print "Found the galaxy population %s" %pop
-            galaxy_pop = pop
-            n_galpops += 1
-        else:
+        are_gals = False
+        for galaxy_string in galaxy_strings:
+            if pop.find(galaxy_string) >= 0:
+                print "Found the galaxy population %s" %pop
+                galaxy_pop = pop
+                n_galpops += 1
+                are_gals = True
+        if not are_gals:
             systematics_pops.append(pop)
     if n_galpops != 1:
-        raise AssertionError, "%d populations found with the galaxy string %s" %(n_galpops, galaxy_string)
+        raise AssertionError, "{0} galaxy populations found with possibilities {1}" %(n_galpops, galaxy_strings)
     
     if len(systematics_pops) == 0:
         do_sys = False
@@ -268,6 +294,7 @@ def main():
         for i,u in enumerate(us):
             autocorr_errors[zbin,i] = np.sqrt(cov[u][AA][i][zbin][zbin][zbin][zbin])
             autocorr_vals[zbin,i] = corr[u][A][:][zbin][zbin]
+    
     # open plot file
     filename = "pxcorr_eval_sys.pdf"
     pp = PdfPages(filename)
@@ -296,8 +323,11 @@ def main():
         systematic_pops.append([])
     for systematic in systematics_pops:
     
-        print "Starting systematic {0}".format(systematic)
-    
+        sys.stderr.write( ' Starting systematic {0}                              \r'.format(systematic))
+        if systematic.find('magerr') >= 0:
+            print 'Skipping!'
+            continue
+        
         # print systematic
         A_cross1 = (('counts',systematic),('counts',galaxy_pop))
         A_cross2 = (('counts',galaxy_pop),('counts',systematic))
@@ -317,7 +347,6 @@ def main():
                     crosscorr_sys[zbin,i] = corr[u][A_cross2][:][zbin][0]
                     crosscorr_err[zbin,i] = np.sqrt(cov[u][A_cross2+A_cross2][i][zbin][0][zbin][0])
     
-        fig = plt.figure()
         for zbin in range(nzbins):
             z = meta[galaxy_pop]['z_mean'][zbin]
         
@@ -360,7 +389,8 @@ def main():
                     for p in range(len(jk_array[i])):
                         correction_cov[i,j] += (jk_array[i][p]-imean)*(jk_array[j][p]-jmean)
                     correction_cov[i,j] *= (float(len(jk_array[i])-1.0))/float(len(jk_array[i]))
-        
+            correction_error = np.sqrt(np.diagonal(correction_cov))
+            
             # calculate chi2 difference from zero
             cov_inv = np.linalg.inv(correction_cov)
             chi2 = 0.
@@ -368,89 +398,84 @@ def main():
                 for j,v in enumerate(us):
                     chi2 += correction[i]*cov_inv[i,j]*correction[j]
             chi2 /= len(us)
-        
-            # another metric that doesn't depend on a well-conditioned covariance:
-            # is any point 2sigma away from zero?
-        
-            ###### SIGNIFICANT? ######
-            significant = False
-            for i,u in enumerate(us):
-                if chi2 > 1.0:
-                # if abs(correction[i]) > 2.*np.sqrt(correction_cov[i,i]): # and abs(requirement[i])>0.33:
-                # if systematic == 'fwhm_i' or systematic == 'desdmpz_error' or systematic == 'depth_mask_delta':
-                    significant = True
-            ##########################
+            
+            # is the systematic significant?
+            significant = is_significant(correction, correction_cov, chi2)
             
             if do_all_sys:
                 significant = True
         
             # if it's significant, add its contribution to the galaxy correction calculation
+            # also, make some plots about this systematic's contribution.
             if significant:
                 sys_auto_matrix[zbin].append(autocorr_sys)
                 sys_cross_matrix[zbin].append(crosscorr_sys[zbin,:])
                 significant_jkmaps[zbin].append((jk_autosys_intersection, jk_cross_intersection))
                 systematic_pops[zbin].append(systematic)
                 
-            ttl = 'galaxy autocorr z {0}: {1}'.format(z, significant)
-            ylab = 'w(theta)'
-            wmin = min(autocorr_vals[zbin,:]-autocorr_errors[zbin,:]-correction)
-            if wmin < 0:
-                wmin *= 1.3
-            else:
-                wmin *= 0.7
-            if wmin<0:
-                wmin=0
-            wmax = 1.2*(max(autocorr_vals[zbin,:]+autocorr_errors[zbin,:]+correction))
-            # ax0 = fig.add_subplot(2,2,1, xlim=[umin,umax], ylim=[wmin,wmax], xlabel=xlab, ylabel=ylab, title=ttl)
-            ax0 = fig.add_subplot(2,2,1, xlim=[umin,umax], xlabel=xlab, ylabel=ylab, title=ttl)
-            ax0.errorbar(us,autocorr_vals[zbin,:],yerr=autocorr_errors[zbin,:],fmt='.-')
-            ax0.plot(us,autocorr_vals[zbin,:]-correction,'--',color='green')
-            ax0.set_xscale('log')
-            ax0.set_yscale('log', nonposy='clip')
+                fig = plt.figure()
+                ttl = 'galaxy autocorr z {0}: {1}'.format(z, significant)
+                ylab = 'w(theta)'
+                wmin = min(autocorr_vals[zbin,:]-autocorr_errors[zbin,:]-correction)
+                if wmin < 0:
+                    wmin *= 1.3
+                else:
+                    wmin *= 0.7
+                if wmin<0:
+                    wmin=0
+                wmax = 1.2*(max(autocorr_vals[zbin,:]+autocorr_errors[zbin,:]+correction))
+                # ax0 = fig.add_subplot(2,2,1, xlim=[umin,umax], ylim=[wmin,wmax], xlabel=xlab, ylabel=ylab, title=ttl)
+                ax0 = fig.add_subplot(2,2,1, xlim=[umin,umax], xlabel=xlab, ylabel=ylab, title=ttl)
+                ax0.errorbar(us,autocorr_vals[zbin,:],yerr=autocorr_errors[zbin,:],fmt='.-')
+                ax0.plot(us,autocorr_vals[zbin,:]-correction,'--',color='green')
+                ax0.set_xscale('log')
+                ax0.set_yscale('log', nonposy='clip')
         
-            ttl = '{0} autocorr'.format(systematic)
-            ylab = 'w(theta)'
-            wmin = min(autocorr_sys[:]) - max(autocorr_sys_err[:])
-            if wmin < 0:
-                wmin *= 1.2
-            else:
-                wmin *= 0.8
-            wmax = 1.2*(max(autocorr_sys)+max(autocorr_sys_err))
-            ax0 = fig.add_subplot(2,2,2, xlim=[umin,umax], ylim=[wmin,wmax], xlabel=xlab, ylabel=ylab, title=ttl)
-            ax0.errorbar(us,autocorr_sys,yerr=autocorr_sys_err,fmt='.-')
-            ax0.set_xscale('log')
+                ttl = '{0} autocorr'.format(systematic)
+                ylab = 'w(theta)'
+                wmin = min(autocorr_sys[:]) - max(autocorr_sys_err[:])
+                if wmin < 0:
+                    wmin *= 1.2
+                else:
+                    wmin *= 0.8
+                wmax = 1.2*(max(autocorr_sys)+max(autocorr_sys_err))
+                ax0 = fig.add_subplot(2,2,2, xlim=[umin,umax], ylim=[wmin,wmax], xlabel=xlab, ylabel=ylab, title=ttl)
+                ax0.errorbar(us,autocorr_sys,yerr=autocorr_sys_err,fmt='.-')
+                ax0.set_xscale('log')
         
-            ttl = 'gal-{0} crosscorr z {1}'.format(systematic, z)
-            ylab = 'w(theta)'
-            wmin = min(crosscorr_sys[zbin,:])-max(crosscorr_err[zbin,:])
-            if wmin < 0:
-                wmin *= 1.2
-            else:
-                wmin *= 0.8
-            wmax = 1.2*(max(crosscorr_sys[zbin,:])+max(crosscorr_err[zbin,:]))
-            ax0 = fig.add_subplot(2,2,3, xlim=[umin,umax], ylim=[wmin,wmax], xlabel=xlab, ylabel=ylab, title=ttl)
-            ax0.errorbar(us,crosscorr_sys[zbin,:],yerr=crosscorr_err[zbin,:],fmt='.-')
-            ax0.set_xscale('log')
+                ttl = 'gal-{0} crosscorr z {1}'.format(systematic, z)
+                ylab = 'w(theta)'
+                wmin = min(crosscorr_sys[zbin,:])-max(crosscorr_err[zbin,:])
+                if wmin < 0:
+                    wmin *= 1.2
+                else:
+                    wmin *= 0.8
+                wmax = 1.2*(max(crosscorr_sys[zbin,:])+max(crosscorr_err[zbin,:]))
+                ax0 = fig.add_subplot(2,2,3, xlim=[umin,umax], ylim=[wmin,wmax], xlabel=xlab, ylabel=ylab, title=ttl)
+                ax0.errorbar(us,crosscorr_sys[zbin,:],yerr=crosscorr_err[zbin,:],fmt='.-')
+                ax0.set_xscale('log')
+            
+                ttl = '{0} req., gal z {1}, chi2 {2:.2f}'.format(systematic, z, chi2)
+                ylab= "alpha"
+                wmin = min(correction)
+                if wmin < 0:
+                    wmin *= 1.2
+                else:
+                    wmin *= 0.8
+                wmax = 1.2*max(correction)
+                ax0 = fig.add_subplot(2,2,4, xlim=[umin,umax], ylim=[wmin,wmax], xlabel=xlab, ylabel=ylab, title=ttl)
+                ax0.errorbar(us,correction,yerr=correction_error,fmt='.-')
+                ax0.set_xscale('log')
         
-            ttl = '{0} req., gal z {1}, chi2 {2:.2f}'.format(systematic, z, chi2)
-            ylab= "correction/error"
-            wmin = min(requirement)
-            if wmin < 0:
-                wmin *= 1.2
-            else:
-                wmin *= 0.8
-            wmax = 1.2*max(requirement)
-            ax0 = fig.add_subplot(2,2,4, xlim=[umin,umax], ylim=[wmin,wmax], xlabel=xlab, ylabel=ylab, title=ttl)
-            ax0.errorbar(us,requirement,yerr=requirement_error,fmt='.-')
-            ax0.set_xscale('log')
-        
-            fig.tight_layout()
-            pp.savefig()
-            plt.clf()
-        
-        # for i,u in enumerate(us):
-        #     print "%f %f %f %f %f" %(correction[i], autocorr_errors[zbin,i], autocorr_vals[zbin,i], crosscorr_sys[zbin,i], autocorr_sys[i])
-
+                fig.tight_layout()
+                pp.savefig()
+                plt.close(fig)
+                
+                # write out info for future plots (paper)
+                out_array = np.array([us, autocorr_vals[zbin,:],autocorr_errors[zbin,:],autocorr_sys,autocorr_sys_err,crosscorr_sys[zbin,:],crosscorr_err[zbin,:],correction,correction_error])
+                np.savetxt('z{0}_{1}.txt'.format(zbin,systematic),out_array)
+                
+    
     # ok, now calculate the total correction to the galaxy autocorrelation
     alphas = []
     for zbin in range(nzbins):
@@ -482,14 +507,10 @@ def main():
                 if ignore_systematic_cross:
                     sys_auto_matrix2 = np.identity(len(sys_auto_matrix[zbin]))*sys_auto_matrix2
                 result = np.linalg.solve(sys_auto_matrix2, sys_cross_vector2)
-                # print "sys_auto: {0}".format(sys_auto_matrix2)
-                # print "sys_cross: {0}".format(sys_cross_vector2)
                 alphas_per_angle.append(result)
             alphas_per_angle = np.vstack(alphas_per_angle)
-            # print "alphas_per_angle: {0}".format(alphas_per_angle)
             alphas.append(np.median(alphas_per_angle,axis=1))
-            # print "total alphas for zbin {0}: {1}".format(zbin,alphas[zbin])
-
+            
             # now apply the correction for each jackknife subsample
             jk_corrected = []
             jk_corrected_means = np.zeros(len(us))
@@ -529,7 +550,6 @@ def main():
                         correction -= 2.0 * alphas_per_angle[i][s1]*jkCrossMap.partmap[k]
         
                     jk_corrected[i].append(jkGalAutoMap.partmap[k] + correction)
-                # print "{0} jackknife values for the corrected galaxy autocorrelation".format(len(jk_corrected[i]))
                 jk_corrected_means[i] = np.mean(jk_corrected[i])
     
                 # and do the overall value
@@ -553,15 +573,11 @@ def main():
                             autocorrelation = corr[u][A_auto2][:][0][0]
             
                         if (not ignore_systematic_cross) or (s1 == s2):
-                            # correction += alphas[zbin][s1]*alphas[zbin][s2]*autocorrelation
                             correction += alphas_per_angle[i][s1]*alphas_per_angle[i][s2]*autocorrelation
                     
-                    # correction -= 2.0 * alphas[zbin][s1]*crosscorrelation
                     correction -= 2.0 * alphas_per_angle[i][s1]*crosscorrelation
                 A_gal = (('counts',galaxy_pop),('counts',galaxy_pop))
                 galaxy_corrected[i] = corr[u][A_gal][:][zbin][zbin] + correction
-                # temporary: use mean of jackknifes
-                # galaxy_corrected[i] = np.mean(jk_corrected[i])
 
             # calculate new covariance matrix (we're not actually saving this for now)
             for i,u in enumerate(us):
@@ -595,90 +611,59 @@ def main():
         ylab = 'w(theta)'
         ax0 = fig.add_subplot(1,1,1, xlim=[umin,umax], ylim=[1.e-5,0.1],xlabel=xlab, ylabel=ylab, title=ttl)
         vals = autocorr_vals[zbin,:]
-        # print "z results:".format(z)
-        # print us
         pos_indices = vals>=0.
         neg_indices = np.logical_not(pos_indices)
-        us_pos = us[pos_indices]
-        us_neg = us[neg_indices]
-        # print "uncorrected:"
-        # print autocorr_vals[zbin,:]
-        # print autocorr_errors[zbin,:]
-        vals_pos = autocorr_vals[zbin,:][pos_indices]
-        vals_neg = autocorr_vals[zbin,:][neg_indices]
-        errs_pos = autocorr_errors[zbin,:][pos_indices]
-        errs_neg = autocorr_errors[zbin,:][neg_indices]
-        ax0.errorbar(us_pos,vals_pos,yerr=errs_pos,fmt='.',color='blue')
+        ax0.errorbar(us[pos_indices],autocorr_vals[zbin,:][pos_indices],yerr=autocorr_errors[zbin,:][pos_indices],fmt='.',color='blue')
         if not pos_indices.all():
-            ax0.errorbar(us_neg,-1.*vals_neg,yerr=errs_neg,fmt='.',color='cyan')
+            ax0.errorbar(us[neg_indices],-1.*autocorr_vals[zbin,:][neg_indices],yerr=autocorr_errors[zbin,:][neg_indices],fmt='.',color='cyan')
         pos_indices = galaxy_corrected>=0.
         neg_indices = np.logical_not(pos_indices)
-        us_pos = us[pos_indices]
-        us_neg = us[neg_indices]
-        vals_pos = galaxy_corrected[pos_indices]
-        vals_neg = galaxy_corrected[neg_indices]
-        errs_pos = corrected_errs[pos_indices]
-        errs_neg = corrected_errs[neg_indices]
-        ax0.errorbar(us_pos,vals_pos,yerr=errs_pos,fmt='.',color='red')
+        ax0.errorbar(us[pos_indices],galaxy_corrected[pos_indices],yerr=corrected_errs[pos_indices],fmt='.',color='red')
         if not pos_indices.all():
-            ax0.errorbar(us_neg,-1.*vals_neg,yerr=errs_neg,fmt='.',color='magenta')
-        # print "corrected:"
-        # print np.transpose([us, galaxy_corrected, corrected_errs])
-        
-        # fig = plt.figure()
-        # ttl = 'galaxy autocorr z {0} with real correction, jk mean'.format(z)
-        # ylab = 'w(theta)'
-        # ax0 = fig.add_subplot(1,1,1, xlim=[umin,umax], ylim=[1.e-5,0.1],xlabel=xlab, ylabel=ylab, title=ttl)
-        # ax0.errorbar(us,autocorr_vals[zbin,:],yerr=autocorr_errors[zbin,:],fmt='.-',color='blue')
-        # ax0.errorbar(us,jk_corrected_means,yerr=corrected_errs,fmt='.-',color='green')
-        # ax0.errorbar(us,-1.*jk_corrected_means,yerr=corrected_errs,fmt='.-',color='red')
-        # ax0.set_xscale('log')
-        # ax0.set_yscale('log', nonposy='clip')
-        # pp.savefig()
+            ax0.errorbar(us[neg_indices],-1.*galaxy_corrected[neg_indices],yerr=corrected_errs[neg_indices],fmt='.',color='magenta')
     
         if fit_theory:
-            zstrings = {0.3:'0p3', 0.5:'0p5', 0.7:'0p7', 0.9:'0p9', 1.1:'1p1'}
-            zindices = {0.3: '0', 0.5:'1', 0.7:'2', 0.9:'3', 1.1:'4'}
             min_index = 0
-            if z not in zstrings.keys():
-                print "Warning, no theory for redshift {0}".format(z)
+            theory_filename = None
+            theory_index = None
+            theory_filename, theory_index = load_theory(theory_choice, z)
+            
+            theory_file = open(theory_filename)
+            if os.path.isfile(theory_filename):
+                theory = np.loadtxt(theory_file,unpack=True)
+                theory_ws = np.array(np.interp( us, theory[0], theory[theory_index], right=0. ))
+                valid_indices = np.sum(us<theory[0][-1])
+                
+                if diagonal_covariance:
+                    print 'USING DIAGONAL COVARIANCE ONLY'
+                    corrected_cov *= np.identity(len(corrected_cov[0]))
+                
+                bias, bias_error_low, bias_error_high, chi2, ndf = fit_bias_real( galaxy_corrected[min_index:valid_indices], corrected_cov[min_index:valid_indices,min_index:valid_indices], theory_ws[min_index:valid_indices] )
+                print "bias = {0:3.2f} + {1:3.2f} - {2:3.2f}, {3}/{4} chi2/ndf".format(bias, bias_error_high, bias_error_low, chi2, ndf)
+                # plot it on the plot
+                ax0.plot(us[min_index:valid_indices],theory_ws[min_index:valid_indices]*bias*bias, label='bias={0:3.2f}+/-{1:3.2f}, chi2/ndf={2:4.1f}/{3}'.format(bias,0.5*(bias_error_low+bias_error_high),chi2,ndf))
+                low_bias2 = bias - bias_error_low
+                low_bias2 *= low_bias2
+                high_bias2 = bias + bias_error_high
+                high_bias2 *= high_bias2
+                theory_ws_low = low_bias2*theory_ws
+                theory_ws_high = high_bias2*theory_ws
+                # print us
+                # print galaxy_corrected
+                # print corrected_errs
+                ax0.fill_between( us[min_index:valid_indices], theory_ws_low[min_index:valid_indices], theory_ws_high[min_index:valid_indices], alpha=0.2 )
+                ax0.legend()
             else:
-                theory_filename = '/Users/bauer/surveys/DES/sva1/lss_cats/gold/theory/wtheta_N' + zindices[z] + '-DESiauto22.5_z' + zstrings[z] + '.dat'
-                theory_file = open(theory_filename)
-                if os.path.isfile(theory_filename):
-                    theory = np.loadtxt(theory_file,unpack=True)
-                    # print theory 
-                    theory_ws = np.array(np.interp( us, theory[0], theory[2], right=0. ))
-                    valid_indices = np.sum(us<theory[0][-1])  
-                    print "valid indices: {0}".format(valid_indices)
-                    # print theory_ws
-                    
-                    # TEMPORARY, only diagonal covariance!
-                    # corrected_cov *= np.identity(len(corrected_cov[0]))
-                    
-                    bias, bias_error_low, bias_error_high, chi2, ndf = fit_bias_real( galaxy_corrected[min_index:valid_indices], corrected_cov[min_index:valid_indices,min_index:valid_indices], theory_ws[min_index:valid_indices] )
-                    print "bias = {0:3.2f} + {1:3.2f} - {2:3.2f}, {3}/{4} chi2/ndf".format(bias, bias_error_high, bias_error_low, chi2, ndf)
-                    # plot it on the plot
-                    ax0.plot(us[min_index:valid_indices],theory_ws[min_index:valid_indices]*bias*bias, label='bias={0:3.2f}+/-{1:3.2f}, chi2/ndf={2:4.1f}/{3}'.format(bias,0.5*(bias_error_low+bias_error_high),chi2,ndf))
-                    low_bias2 = bias - bias_error_low
-                    low_bias2 *= low_bias2
-                    high_bias2 = bias + bias_error_high
-                    high_bias2 *= high_bias2
-                    theory_ws_low = low_bias2*theory_ws
-                    theory_ws_high = high_bias2*theory_ws
-                    print us
-                    print galaxy_corrected
-                    print corrected_errs
-                    # print theory_ws_low
-                    # print theory_ws_high
-                    ax0.fill_between( us[min_index:valid_indices], theory_ws_low[min_index:valid_indices], theory_ws_high[min_index:valid_indices], alpha=0.2 )
-                    ax0.legend()
-                else:
-                    print "Warning, file expected but not found for redshift {0}".format(z)
+                print "Warning, file expected but not found for redshift {0}".format(z)
                 
         ax0.set_xscale('log')
         ax0.set_yscale('log', nonposy='clip')
         pp.savefig()
+        plt.close(fig)
+        
+        # write some info out to make pretty paper plots
+        out_array = np.array([us, autocorr_vals[zbin,:],autocorr_errors[zbin,:],galaxy_corrected,corrected_errs])
+        np.savetxt('z{0}_total.txt'.format(zbin,systematic),out_array)
     
     pp.close()
     h5file.close()
