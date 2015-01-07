@@ -22,8 +22,12 @@ from scipy import weave
 from scipy.weave import converters
 
 class partpix_entry(tables.IsDescription):
-    pixel = tables.Int32Col(dflt=0, pos=0)
+    pixel = tables.Int64Col(dflt=0, pos=0)
     value = tables.Float32Col(dflt=0.0, pos=1)
+
+class partpix_byte_entry(tables.IsDescription):
+    pixel = tables.Int64Col(dflt=0, pos=0)
+    value = tables.Int8Col(dflt=0, pos=1)
 
 
 class Partpix_Map:
@@ -56,7 +60,12 @@ class Partpix_Map:
         indices = np.searchsorted(self.pixel_mapping_arraytohigh,i)
         assert self.pixel_mapping_arraytohigh[indices] == i, "partpix_map:__getitem__: all indices not found in the map"
         return self.partmap[indices]
-        
+    
+    def __setitem__(self, i, j):
+        indices = np.searchsorted(self.pixel_mapping_arraytohigh,i)
+        assert self.pixel_mapping_arraytohigh[indices] == i, "partpix_map:__getitem__: all indices not found in the map"
+        self.partmap[indices] = j
+    
     def mean(self):
         if self.partmap is None:
             err_msg = "Trying to take the mean of an undefined Partpix_Map"
@@ -68,7 +77,13 @@ class Partpix_Map:
             err_msg = "Trying to take the sum of an undefined Partpix_Map"
             raise Exception, err_msg
         return np.sum(self.partmap)
-        
+    
+    def copy(self, input_map):
+        self.order = input_map.order
+        self.partmap = input_map.partmap
+        self.pixel_mapping_arraytohigh = input_map.pixel_mapping_arraytohigh
+        self.update()
+    
     def intersection( self, map2 ):
         
         if self.order != map2.order:
@@ -107,7 +122,8 @@ class Partpix_Map:
         outmap2.update()
         
         return outmap1, outmap2
-        
+    
+    
     def bool( self, cutoff=0.5 ):
         if self.npartpix == 0:
             return
@@ -116,6 +132,7 @@ class Partpix_Map:
                 self.partmap[i] = 1.0
             else:
                 self.partmap[i] = 0.0
+    
     
     def read_from_ascii( self, filename ):
         file = open(filename, 'r')
@@ -141,7 +158,7 @@ class Partpix_Map:
             self.partmap[c] = float(v)
             c += 1
         self.update()
-        
+    
     def read_from_hdf5table( self, table ):
         
         assert isinstance(table, tables.table.Table), "This is not an hdf5 table!"
